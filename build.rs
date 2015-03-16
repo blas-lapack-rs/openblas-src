@@ -34,6 +34,7 @@ fn main() {
     }
 
     println!("cargo:rustc-flags=-l {}=openblas", kind);
+    println!("cargo:rustc-flags=-l gfortran");
 }
 
 fn run(cmd: &mut Command, program: &str) {
