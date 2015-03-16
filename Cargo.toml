@@ -1,0 +1,17 @@
+[package]
+
+name = "openblas-blas-provider"
+version = "0.0.1"
+authors = ["Corey Richardson <corey@octayn.net>"]
+links = "openblas"
+build = "build.rs"
+repository = "https://github.com/cmr/openblas-blas-provider"
+license = "BSL-1.0"
+description = "BLAS provider using the excellent OpenBLAS implementation"
+
+[lib]
+name = "openblas-blas-provider"
+path = "lib.rs"
+
+[dependencies]
+libc = "*"
