@@ -13,5 +13,9 @@ description = "BLAS provider using the excellent OpenBLAS implementation"
 name = "openblas-blas-provider"
 path = "lib.rs"
 
+[features]
+static-openblas = []
+system-openblas = []
+
 [dependencies]
 libc = "*"
