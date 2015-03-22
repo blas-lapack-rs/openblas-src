@@ -1,7 +1,7 @@
-use std::path::*;
-use std::process::*;
 use std::env;
 use std::io::*;
+use std::path::*;
+use std::process::*;
 
 fn main() {
     let kind = if env::var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() {
@@ -28,7 +28,10 @@ fn main() {
         let dst = PathBuf::new(&env::var("OUT_DIR").unwrap());
 
         run(Command::new("make").current_dir(&src), "make");
-        run(Command::new("make").current_dir(&src).arg("install").arg(&format!("DESTDIR={}", dst.display())), "make install");
+        run(Command::new("make")
+                    .arg("install")
+                    .arg(&format!("DESTDIR={}", dst.display()))
+                    .current_dir(&src), "make install");
 
         println!("cargo:rustc-flags=-L {}", dst.join("opt/OpenBLAS/lib").display());
     }
