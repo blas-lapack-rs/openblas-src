@@ -6,7 +6,7 @@ links = "openblas"
 build = "build.rs"
 repository = "https://github.com/cmr/openblas-blas-provider"
 license = "BSL-1.0"
-description = "BLAS provider using the excellent OpenBLAS implementation"
+description = "BLAS/LAPACK provider using the OpenBLAS implementation"
 
 [lib]
 name = "openblas-blas-provider"
