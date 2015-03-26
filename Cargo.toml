@@ -9,7 +9,7 @@ license = "BSL-1.0"
 description = "BLAS/LAPACK provider using the OpenBLAS implementation"
 
 [lib]
-name = "openblas-blas-provider"
+name = "openblas_blas_provider"
 path = "lib.rs"
 
 [features]

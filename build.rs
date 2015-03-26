@@ -1,3 +1,5 @@
+#![feature(convert)]
+
 use std::env;
 use std::io::*;
 use std::path::*;
@@ -24,8 +26,8 @@ fn main() {
             cflags.push_str(" -fPIC");
         }
 
-        let src = PathBuf::new(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
-        let dst = PathBuf::new(&env::var("OUT_DIR").unwrap());
+        let src = PathBuf::from(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
+        let dst = PathBuf::from(&env::var("OUT_DIR").unwrap());
 
         run(Command::new("make").current_dir(&src), "make");
         run(Command::new("make")
