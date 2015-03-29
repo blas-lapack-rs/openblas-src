@@ -1,6 +1,6 @@
 [package]
 name = "openblas-blas-provider"
-version = "0.0.3"
+version = "0.0.4"
 authors = ["Corey Richardson <corey@octayn.net>"]
 links = "openblas"
 build = "build.rs"

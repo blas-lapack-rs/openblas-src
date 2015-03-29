@@ -35,11 +35,11 @@ fn main() {
                     .arg(&format!("DESTDIR={}", dst.display()))
                     .current_dir(&src), "make install");
 
-        println!("cargo:rustc-flags=-L {}", dst.join("opt/OpenBLAS/lib").display());
+        println!("cargo:rustc-link-search=native={}", dst.join("opt/OpenBLAS/lib").display());
     }
 
-    println!("cargo:rustc-flags=-l {}=openblas", kind);
-    println!("cargo:rustc-flags=-l gfortran");
+    println!("cargo:rustc-link-lib={}=openblas", kind);
+    println!("cargo:rustc-link-lib=dylib=gfortran");
 }
 
 fn run(cmd: &mut Command, program: &str) {
