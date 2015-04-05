@@ -1,5 +1,3 @@
-#![feature(convert)]
-
 use std::env;
 use std::io::*;
 use std::path::*;
@@ -35,7 +33,7 @@ fn main() {
                     .arg(&format!("DESTDIR={}", dst.display()))
                     .current_dir(&src), "make install");
 
-        println!("cargo:rustc-link-search=native={}", dst.join("opt/OpenBLAS/lib").display());
+        println!("cargo:rustc-link-search={}", dst.join("opt/OpenBLAS/lib").display());
     }
 
     println!("cargo:rustc-link-lib={}=openblas", kind);
