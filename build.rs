@@ -16,6 +16,7 @@ fn main() {
         let dst = PathBuf::from(&env::var("OUT_DIR").unwrap());
 
         run(Command::new("make")
+                    .args(&["libs", "netlib", "shared"])
                     .arg(&format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
                     .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
                     .current_dir(&src), "make");
