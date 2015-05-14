@@ -16,6 +16,3 @@ path = "lib.rs"
 static-openblas = []
 system-openblas = []
 exclude-cblas = []
-
-[dependencies]
-libc = "*"
