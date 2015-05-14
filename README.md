@@ -2,12 +2,13 @@
 
 The package provides [BLAS][1] and [LAPACK][2] using the [OpenBLAS][3]
 implementation. By default, the package will build and use a bundled OpenBLAS,
-which requires a Fortran compiler.
+which requires a Fortran and C compiler.
 
-The following two Cargo features are supported:
+The following Cargo features are supported:
 
-- `static-openblas` to link to OpenBLAS statically and
-- `system-openblas` to skip building the bundled OpenBLAS.
+* `static-openblas` to link to OpenBLAS statically,
+* `system-openblas` to skip building the bundled OpenBLAS, and
+* `exclude-cblas` to skip building CBLAS.
 
 ## Where are all the FFI definitions?
 

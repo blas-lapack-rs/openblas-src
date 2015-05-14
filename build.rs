@@ -10,11 +10,13 @@ fn main() {
     };
 
     if !env::var("CARGO_FEATURE_SYSTEM_OPENBLAS").is_ok() {
+        let cblas = !env::var("CARGO_FEATURE_EXCLUDE_CBLAS").is_ok();
+
         let src = PathBuf::from(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
         let dst = PathBuf::from(&env::var("OUT_DIR").unwrap());
 
         run(Command::new("make")
-                    .arg("NO_CBLAS=1")
+                    .arg(&format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
                     .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
                     .current_dir(&src), "make");
 
