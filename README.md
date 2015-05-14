@@ -16,6 +16,12 @@ This package provides only an implementation of BLAS and LAPACK. Bindings are
 available in [libblas-sys][4] and [liblapack-sys][5], and wrappers are available
 in [blas][6] and [lapack][7].
 
+## Contributing
+
+1. Fork the project.
+2. Implement your idea.
+3. Open a pull request.
+
 [1]: https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms
 [2]: https://en.wikipedia.org/wiki/LAPACK
 [3]: http://www.openblas.net
