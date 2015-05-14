@@ -1,5 +1,4 @@
 use std::env;
-use std::io::*;
 use std::path::*;
 use std::process::*;
 
@@ -11,23 +10,14 @@ fn main() {
     };
 
     if !env::var("CARGO_FEATURE_SYSTEM_OPENBLAS").is_ok() {
-        let mut cflags = env::var("CFLAGS").unwrap_or(String::new());
-        let target = env::var("TARGET").unwrap();
-
-        if target.contains("i686") {
-            cflags.push_str(" -m32");
-        } else if target.contains("x86_64") {
-            cflags.push_str(" -m64");
-        }
-
-        if !target.contains("i686") {
-            cflags.push_str(" -fPIC");
-        }
-
         let src = PathBuf::from(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
         let dst = PathBuf::from(&env::var("OUT_DIR").unwrap());
 
-        run(Command::new("make").current_dir(&src), "make");
+        run(Command::new("make")
+                    .arg("NO_CBLAS=1")
+                    .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
+                    .current_dir(&src), "make");
+
         run(Command::new("make")
                     .arg("install")
                     .arg(&format!("DESTDIR={}", dst.display()))
@@ -44,17 +34,13 @@ fn run(cmd: &mut Command, program: &str) {
     println!("running: {:?}", cmd);
     let status = match cmd.status() {
         Ok(status) => status,
-        Err(ref e) if e.kind() == ErrorKind::NotFound => {
-            fail(&format!("failed to execute command: {}\nis `{}` not installed?",
-                          e, program));
-        }
-        Err(e) => fail(&format!("failed to execute command: {}", e)),
+        Err(error) => fail(&format!("failed to execute `{}`: {}", program, error)),
     };
     if !status.success() {
-        fail(&format!("command did not execute successfully, got: {}", status));
+        fail(&format!("`{}` failed: {}", program, status));
     }
 }
 
-fn fail(s: &str) -> ! {
-    panic!("\n{}\n\nbuild script failed, must exit now", s)
+fn fail(message: &str) -> ! {
+    panic!("\n{}\n\nbuild script failed", message)
 }
