@@ -15,6 +15,8 @@ fn main() {
         let src = PathBuf::from(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
         let dst = PathBuf::from(&env::var("OUT_DIR").unwrap());
 
+        env::remove_var("TARGET");
+
         run(Command::new("make")
                     .args(&["libs", "netlib", "shared"])
                     .arg(&format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
