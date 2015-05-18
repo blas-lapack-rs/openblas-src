@@ -9,17 +9,44 @@ fn main() {
         "dylib"
     };
 
+    let fortran = match find_fortran() {
+        Some(name) => name,
+        None => fail("cannot find a Fortran compiler"),
+    };
+
     if !env::var("CARGO_FEATURE_SYSTEM_OPENBLAS").is_ok() {
-        let build = PathBuf::from(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("build");
-        let output = PathBuf::from(&env::var("OUT_DIR").unwrap());
+        let cblas = !env::var("CARGO_FEATURE_EXCLUDE_CBLAS").is_ok();
 
-        run(Command::new("make").current_dir(&build), "make");
+        let src = PathBuf::from(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
+        let dst = PathBuf::from(&env::var("OUT_DIR").unwrap());
 
-        println!("cargo:rustc-link-search={}", output.join("opt/OpenBLAS/lib").display());
+        env::remove_var("TARGET");
+
+        run(Command::new("make")
+                    .args(&["libs", "netlib", "shared"])
+                    .arg(&format!("FC={}", fortran))
+                    .arg(&format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
+                    .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
+                    .current_dir(&src), "make");
+
+        run(Command::new("make")
+                    .arg("install")
+                    .arg(&format!("DESTDIR={}", dst.display()))
+                    .current_dir(&src), "make install");
+
+        println!("cargo:rustc-link-search={}", dst.join("opt/OpenBLAS/lib").display());
+    }
+
+    match &fortran[..] {
+        "gfortran" => println!("cargo:rustc-link-lib=dylib=gfortran"),
+        _ => {},
     }
 
     println!("cargo:rustc-link-lib={}=openblas", kind);
-    println!("cargo:rustc-link-lib=dylib=gfortran");
+}
+
+fn find_fortran() -> Option<String> {
+    Some(String::from("gfortran"))
 }
 
 fn run(cmd: &mut Command, program: &str) {
