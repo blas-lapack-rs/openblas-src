@@ -1,0 +1,13 @@
+diff --git a/f_check b/f_check
+index 5719faf..badb4d7 100644
+--- a/f_check
++++ b/f_check
+@@ -25,7 +25,7 @@ $compiler = "" if $compiler eq "f77";
+ 
+ if ($compiler eq "") {
+ 
+-    @lists = ("g77", "g95", "gfortran", "frt", "fort", "openf90", "openf95",
++    @lists = ("gfortran", "g77", "g95", "frt", "fort", "openf90", "openf95",
+ 	      "sunf77", "sunf90", "sunf95",
+               "xlf95", "xlf90", "xlf",
+               "ppuf77", "ppuf95", "ppuf90", "ppuxlf",
