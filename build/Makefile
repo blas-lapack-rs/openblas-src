@@ -14,6 +14,6 @@ all: $(source)/libopenblas.a
 	$(MAKE) -C $(source) install DESTDIR=$(OUT_DIR)
 
 $(source)/libopenblas.a:
-	(cd $(source) && git apply $(patches)/*.patch)
+	(cd $(source) && (cat $(patches)/*.patch | patch -p1))
 	$(MAKE) -C $(source) libs netlib shared -j$(NUM_JOBS:=1) $(cblas)_CBLAS=1
-	(cd $(source) && git checkout .)
+	(cd $(source) && (cat $(patches)/*.patch | patch -p1 -R))
