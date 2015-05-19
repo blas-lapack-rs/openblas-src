@@ -5,54 +5,59 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn main() {
-    let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() {
-        "static"
+    if var("CARGO_FEATURE_SYSTEM_OPENBLAS").is_ok() {
+        use_system();
     } else {
-        "dylib"
-    };
-
-    if var("CARGO_FEATURE_SYSTEM_OPENBLAS").is_err() {
-        let cblas = var("CARGO_FEATURE_EXCLUDE_CBLAS").is_err();
-
-        let src = PathBuf::from(&var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
-        let dst = PathBuf::from(&var("OUT_DIR").unwrap());
-
-        remove_var("TARGET");
-
-        run(Command::new("make")
-                    .args(&["libs", "netlib", "shared"])
-                    .arg(&format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
-                    .arg(&format!("-j{}", var("NUM_JOBS").unwrap()))
-                    .current_dir(&src), "make libs netlib shared");
-
-        run(Command::new("make")
-                    .arg("install")
-                    .arg(&format!("DESTDIR={}", dst.display()))
-                    .current_dir(&src), "make install");
-
-        println!("cargo:rustc-link-search={}", dst.join("opt/OpenBLAS/lib").display());
-
-        match read("FC", &src.join("Makefile.conf")) {
-            Ok(ref name) => {
-                if name.contains("gfortran") {
-                    println!("cargo:rustc-link-lib=dylib=gfortran");
-                }
-            },
-            Err(error) => panic!("failed to detect Fortran: {}", error),
-        }
+        use_bundled();
     }
+}
 
+fn use_system() {
+    let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() { "static" } else { "dylib" };
     println!("cargo:rustc-link-lib={}=openblas", kind);
 }
 
-fn run(command: &mut Command, program: &str) {
-    println!("running: {:?}", command);
+fn use_bundled() {
+    let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() { "static" } else { "dylib" };
+    let cblas = var("CARGO_FEATURE_EXCLUDE_CBLAS").is_err();
+
+    let source = PathBuf::from(&var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
+    let output = PathBuf::from(&var("OUT_DIR").unwrap());
+
+    remove_var("TARGET");
+
+    run(Command::new("make")
+                .args(&["libs", "netlib", "shared"])
+                .arg(&format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
+                .arg(&format!("-j{}", var("NUM_JOBS").unwrap()))
+                .current_dir(&source));
+
+    run(Command::new("make")
+                .arg("install")
+                .arg(&format!("DESTDIR={}", output.display()))
+                .current_dir(&source));
+
+    match read("FC", &source.join("Makefile.conf")) {
+        Ok(ref name) => {
+            if name.contains("gfortran") {
+                println!("cargo:rustc-link-lib=dylib=gfortran");
+            }
+        },
+        Err(error) => panic!("failed to detect Fortran: {}", error),
+    }
+
+    println!("cargo:rustc-link-search={}", output.join("opt/OpenBLAS/lib").display());
+    println!("cargo:rustc-link-lib={}=openblas", kind);
+}
+
+fn run(command: &mut Command) {
+    println!("Running: {:?}", command);
     match command.status() {
         Ok(status) => if !status.success() {
-            panic!("`{}` failed: {}", program, status);
+            panic!("`{:?}` failed: {}", command, status);
         },
         Err(error) => {
-            panic!("failed to execute `{}`: {}", program, error);
+            panic!("failed to execute `{:?}`: {}", command, error);
         },
     }
 }
