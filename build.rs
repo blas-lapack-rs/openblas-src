@@ -21,7 +21,7 @@ fn use_bundled() {
     let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() { "static" } else { "dylib" };
     let cblas = var("CARGO_FEATURE_EXCLUDE_CBLAS").is_err();
 
-    let source = PathBuf::from(&var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
+    let source = PathBuf::from(&var("CARGO_MANIFEST_DIR").unwrap()).join("source");
     let output = PathBuf::from(&var("OUT_DIR").unwrap());
 
     remove_var("TARGET");
