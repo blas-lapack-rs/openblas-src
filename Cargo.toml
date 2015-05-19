@@ -2,11 +2,12 @@
 name = "openblas-provider"
 version = "0.1.5"
 authors = ["Corey Richardson <corey@octayn.net>", "Ivan Ukhov <ivan.ukhov@gmail.com>"]
+license = "BSL-1.0"
+repository = "https://github.com/cmr/openblas-provider"
+homepage = "https://github.com/cmr/openblas-provider"
+description = "BLAS/LAPACK provider using the OpenBLAS implementation"
 links = "openblas"
 build = "build.rs"
-repository = "https://github.com/cmr/openblas-provider"
-license = "BSL-1.0"
-description = "BLAS/LAPACK provider using the OpenBLAS implementation"
 
 [lib]
 name = "openblas_provider"
