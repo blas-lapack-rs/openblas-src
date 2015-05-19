@@ -1,33 +1,29 @@
-use std::env;
-use std::path::*;
-use std::process::*;
+use std::env::{var, remove_var};
+use std::fs::File;
+use std::io::{BufRead, BufReader, Error, ErrorKind, Result};
+use std::path::{Path, PathBuf};
+use std::process::Command;
 
 fn main() {
-    let kind = if env::var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() {
+    let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() {
         "static"
     } else {
         "dylib"
     };
 
-    let fortran = match find_fortran() {
-        Some(name) => name,
-        None => fail("cannot find a Fortran compiler"),
-    };
+    if var("CARGO_FEATURE_SYSTEM_OPENBLAS").is_err() {
+        let cblas = var("CARGO_FEATURE_EXCLUDE_CBLAS").is_err();
 
-    if !env::var("CARGO_FEATURE_SYSTEM_OPENBLAS").is_ok() {
-        let cblas = !env::var("CARGO_FEATURE_EXCLUDE_CBLAS").is_ok();
+        let src = PathBuf::from(&var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
+        let dst = PathBuf::from(&var("OUT_DIR").unwrap());
 
-        let src = PathBuf::from(&env::var("CARGO_MANIFEST_DIR").unwrap()).join("OpenBLAS");
-        let dst = PathBuf::from(&env::var("OUT_DIR").unwrap());
-
-        env::remove_var("TARGET");
+        remove_var("TARGET");
 
         run(Command::new("make")
                     .args(&["libs", "netlib", "shared"])
-                    .arg(&format!("FC={}", fortran))
                     .arg(&format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
-                    .arg(&format!("-j{}", env::var("NUM_JOBS").unwrap()))
-                    .current_dir(&src), "make");
+                    .arg(&format!("-j{}", var("NUM_JOBS").unwrap()))
+                    .current_dir(&src), "make libs netlib shared");
 
         run(Command::new("make")
                     .arg("install")
@@ -35,29 +31,42 @@ fn main() {
                     .current_dir(&src), "make install");
 
         println!("cargo:rustc-link-search={}", dst.join("opt/OpenBLAS/lib").display());
-    }
 
-    match &fortran[..] {
-        "gfortran" => println!("cargo:rustc-link-lib=dylib=gfortran"),
-        _ => {},
+        match read("FC", &src.join("Makefile.conf")) {
+            Ok(ref name) => match &name[..] {
+                "gfortran" => println!("cargo:rustc-link-lib=dylib=gfortran"),
+                _ => {},
+            },
+            Err(error) => fail(&format!("failed to detect Fortran: {}", error)),
+        }
     }
 
     println!("cargo:rustc-link-lib={}=openblas", kind);
 }
 
-fn find_fortran() -> Option<String> {
-    Some(String::from("gfortran"))
+fn run(command: &mut Command, program: &str) {
+    println!("running: {:?}", command);
+    match command.status() {
+        Ok(status) => if !status.success() {
+            fail(&format!("`{}` failed: {}", program, status));
+        },
+        Err(error) => {
+            fail(&format!("failed to execute `{}`: {}", program, error));
+        },
+    }
 }
 
-fn run(cmd: &mut Command, program: &str) {
-    println!("running: {:?}", cmd);
-    let status = match cmd.status() {
-        Ok(status) => status,
-        Err(error) => fail(&format!("failed to execute `{}`: {}", program, error)),
-    };
-    if !status.success() {
-        fail(&format!("`{}` failed: {}", program, status));
+fn read(name: &str, path: &Path) -> Result<String> {
+    let mut file = try!(File::open(path));
+    let reader = BufReader::new(&mut file);
+    let prefix = format!("{}=", name);
+    for line in reader.lines() {
+        let line = try!(line);
+        if line.starts_with(&prefix) {
+            return Ok(String::from(&line[prefix.len()..]))
+        }
     }
+    Err(Error::new(ErrorKind::Other, format!("failed to find `{}` in {}", name, path.display())))
 }
 
 fn fail(message: &str) -> ! {
