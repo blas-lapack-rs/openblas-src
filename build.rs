@@ -33,9 +33,10 @@ fn main() {
         println!("cargo:rustc-link-search={}", dst.join("opt/OpenBLAS/lib").display());
 
         match read("FC", &src.join("Makefile.conf")) {
-            Ok(ref name) => match &name[..] {
-                "gfortran" => println!("cargo:rustc-link-lib=dylib=gfortran"),
-                _ => {},
+            Ok(ref name) => {
+                if name.contains("gfortran") {
+                    println!("cargo:rustc-link-lib=dylib=gfortran");
+                }
             },
             Err(error) => panic!("failed to detect Fortran: {}", error),
         }
