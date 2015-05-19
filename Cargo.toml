@@ -1,6 +1,6 @@
 [package]
 name = "openblas-provider"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["Corey Richardson <corey@octayn.net>", "Ivan Ukhov <ivan.ukhov@gmail.com>"]
 license = "BSL-1.0"
 repository = "https://github.com/cmr/openblas-provider"
