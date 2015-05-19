@@ -37,7 +37,7 @@ fn main() {
                 "gfortran" => println!("cargo:rustc-link-lib=dylib=gfortran"),
                 _ => {},
             },
-            Err(error) => fail(&format!("failed to detect Fortran: {}", error)),
+            Err(error) => panic!("failed to detect Fortran: {}", error),
         }
     }
 
@@ -48,10 +48,10 @@ fn run(command: &mut Command, program: &str) {
     println!("running: {:?}", command);
     match command.status() {
         Ok(status) => if !status.success() {
-            fail(&format!("`{}` failed: {}", program, status));
+            panic!("`{}` failed: {}", program, status);
         },
         Err(error) => {
-            fail(&format!("failed to execute `{}`: {}", program, error));
+            panic!("failed to execute `{}`: {}", program, error);
         },
     }
 }
@@ -67,8 +67,4 @@ fn read(name: &str, path: &Path) -> Result<String> {
         }
     }
     Err(Error::new(ErrorKind::Other, format!("failed to find `{}` in {}", name, path.display())))
-}
-
-fn fail(message: &str) -> ! {
-    panic!("\n{}\n\nbuild script failed", message)
 }
