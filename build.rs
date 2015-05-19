@@ -62,15 +62,14 @@ fn run(command: &mut Command) {
     }
 }
 
-fn read(name: &str, path: &Path) -> Result<String> {
+fn read(prefix: &str, path: &Path) -> Result<String> {
     let mut file = try!(File::open(path));
     let reader = BufReader::new(&mut file);
-    let prefix = format!("{}=", name);
     for line in reader.lines() {
         let line = try!(line);
         if line.starts_with(&prefix) {
-            return Ok(String::from(&line[prefix.len()..]))
+            return Ok(line)
         }
     }
-    Err(Error::new(ErrorKind::Other, format!("failed to find `{}` in {}", name, path.display())))
+    Err(Error::new(ErrorKind::Other, format!("failed to find `{}` in {}", prefix, path.display())))
 }
