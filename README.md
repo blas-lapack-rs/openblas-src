@@ -13,8 +13,8 @@ The following Cargo features are supported:
 ## Where are all the FFI definitions?
 
 This package provides only an implementation of BLAS and LAPACK. Bindings are
-available in [libblas-sys][4] and [liblapack-sys][5], and wrappers are available
-in [blas][6] and [lapack][7].
+available in [blas-sys][4] and [lapack-sys][5], and wrappers are available in
+[blas][6] and [lapack][7].
 
 ## Contributing
 
@@ -26,7 +26,7 @@ in [blas][6] and [lapack][7].
 [2]: https://en.wikipedia.org/wiki/LAPACK
 [3]: http://www.openblas.net
 
-[4]: https://github.com/stainless-steel/libblas-sys
-[5]: https://github.com/stainless-steel/liblapack-sys
+[4]: https://github.com/stainless-steel/blas-sys
+[5]: https://github.com/stainless-steel/lapack-sys
 [6]: https://github.com/stainless-steel/blas
 [7]: https://github.com/stainless-steel/lapack
