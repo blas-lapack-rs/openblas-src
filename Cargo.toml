@@ -1,11 +1,15 @@
 [package]
 name = "openblas-provider"
-version = "0.1.6"
-authors = ["Corey Richardson <corey@octayn.net>", "Ivan Ukhov <ivan.ukhov@gmail.com>"]
+version = "0.1.7"
+authors = [
+  "Corey Richardson <corey@octayn.net>",
+  "Ivan Ukhov <ivan.ukhov@gmail.com>",
+]
 license = "BSL-1.0"
 repository = "https://github.com/cmr/openblas-provider"
 homepage = "https://github.com/cmr/openblas-provider"
-description = "BLAS/LAPACK provider using the OpenBLAS implementation"
+description = """
+The package provides BLAS and LAPACK using the OpenBLAS implementation."""
 links = "openblas"
 build = "build.rs"
 
