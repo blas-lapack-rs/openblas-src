@@ -5,7 +5,7 @@ authors = [
   "Corey Richardson <corey@octayn.net>",
   "Ivan Ukhov <ivan.ukhov@gmail.com>",
 ]
-license = "BSL-1.0"
+license = "Apache-2.0/MIT"
 repository = "https://github.com/cmr/openblas-provider"
 homepage = "https://github.com/cmr/openblas-provider"
 description = """
