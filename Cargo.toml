@@ -12,10 +12,6 @@ repository = "https://github.com/cmr/openblas-provider"
 links = "openblas"
 build = "build.rs"
 
-[lib]
-name = "openblas_provider"
-path = "lib.rs"
-
 [features]
 static-openblas = []
 system-openblas = []
