@@ -1,4 +1,4 @@
-# OpenBLAS Provider
+# OpenBLAS Provider [![Version][version-img]][version-url]
 
 The package provides [BLAS][1] and [LAPACK][2] using the [OpenBLAS][3]
 implementation. By default, the package will build and use a bundled OpenBLAS,
@@ -30,3 +30,6 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 [5]: https://github.com/stainless-steel/lapack-sys
 [6]: https://github.com/stainless-steel/blas
 [7]: https://github.com/stainless-steel/lapack
+
+[version-img]: https://img.shields.io/crates/v/openblas-provider.svg
+[version-url]: https://crates.io/crates/openblas-provider
