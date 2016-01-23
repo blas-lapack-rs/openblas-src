@@ -18,9 +18,9 @@ available in [blas-sys][4] and [lapack-sys][5], and wrappers are available in
 
 ## Contribution
 
-Contribution is very much appreciated. Fork the project, commit your changes,
-and open a pull request! Note that any contribution will be licensed according
-to the terms given in [LICENSE.md](LICENSE.md).
+Your contribution is highly appreciated. Do not hesitate to open an issue or a
+pull request. Note that any contribution submitted for inclusion in the project
+will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
 [1]: https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms
 [2]: https://en.wikipedia.org/wiki/LAPACK
