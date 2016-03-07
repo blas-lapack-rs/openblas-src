@@ -6,9 +6,9 @@ which requires a Fortran and C compiler.
 
 The following Cargo features are supported:
 
-* `static-openblas` to link to OpenBLAS statically,
-* `system-openblas` to skip building the bundled OpenBLAS, and
-* `exclude-cblas` to skip building CBLAS.
+* `include-cblas` to build CBLAS (enabled by default),
+* `static-openblas` to link to OpenBLAS statically, and
+* `system-openblas` to skip building the bundled OpenBLAS.
 
 ## Where are all the FFI definitions?
 

@@ -19,7 +19,7 @@ fn use_system() {
 
 fn use_bundled() {
     let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() { "static" } else { "dylib" };
-    let cblas = var("CARGO_FEATURE_EXCLUDE_CBLAS").is_err();
+    let cblas = var("CARGO_FEATURE_INCLUDE_CBLAS").is_ok();
 
     let source = PathBuf::from(&var("CARGO_MANIFEST_DIR").unwrap()).join("source");
     let output = PathBuf::from(&var("OUT_DIR").unwrap());
