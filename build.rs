@@ -5,20 +5,13 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn main() {
+    let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() { "static" } else { "dylib" };
+
     if var("CARGO_FEATURE_SYSTEM_OPENBLAS").is_ok() {
-        use_system();
-    } else {
-        use_bundled();
+        println!("cargo:rustc-link-lib={}=openblas", kind);
+        return;
     }
-}
 
-fn use_system() {
-    let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() { "static" } else { "dylib" };
-    println!("cargo:rustc-link-lib={}=openblas", kind);
-}
-
-fn use_bundled() {
-    let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() { "static" } else { "dylib" };
     let cblas = var("CARGO_FEATURE_INCLUDE_CBLAS").is_ok();
 
     let source = PathBuf::from(&var("CARGO_MANIFEST_DIR").unwrap()).join("source");
