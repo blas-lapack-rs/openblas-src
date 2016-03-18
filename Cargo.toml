@@ -16,5 +16,5 @@ build = "build.rs"
 default = ["cblas"]
 
 cblas = []
-static-openblas = []
-system-openblas = []
+static = []
+system = []

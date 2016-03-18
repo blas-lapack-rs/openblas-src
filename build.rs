@@ -5,9 +5,9 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn main() {
-    let kind = if var("CARGO_FEATURE_STATIC_OPENBLAS").is_ok() { "static" } else { "dylib" };
+    let kind = if var("CARGO_FEATURE_STATIC").is_ok() { "static" } else { "dylib" };
 
-    if var("CARGO_FEATURE_SYSTEM_OPENBLAS").is_ok() {
+    if var("CARGO_FEATURE_SYSTEM").is_ok() {
         println!("cargo:rustc-link-lib={}=openblas", kind);
         return;
     }
