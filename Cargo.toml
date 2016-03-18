@@ -13,8 +13,8 @@ links = "openblas"
 build = "build.rs"
 
 [features]
-default = ["include-cblas"]
+default = ["cblas"]
 
-include-cblas = []
+cblas = []
 static-openblas = []
 system-openblas = []

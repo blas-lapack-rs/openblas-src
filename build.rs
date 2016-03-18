@@ -12,7 +12,7 @@ fn main() {
         return;
     }
 
-    let cblas = var("CARGO_FEATURE_INCLUDE_CBLAS").is_ok();
+    let cblas = var("CARGO_FEATURE_CBLAS").is_ok();
 
     let source = PathBuf::from(&var("CARGO_MANIFEST_DIR").unwrap()).join("source");
     let output = PathBuf::from(&var("OUT_DIR").unwrap());
