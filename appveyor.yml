@@ -19,5 +19,6 @@ install:
 build: false
 
 test_script:
+  - git submodule update --init --recursive
   - cargo build --verbose
   - cargo test --verbose
