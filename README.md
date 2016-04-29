@@ -1,4 +1,4 @@
-# OpenBLAS Provider [![Version][version-img]][version-url]
+# OpenBLAS Provider [![Version][version-img]][version-url] [![Status][status-img]][status-url]
 
 The package provides [BLAS][1] and [LAPACK][2] using the [OpenBLAS][3]
 implementation. By default, the package will build and use a bundled OpenBLAS,
@@ -33,3 +33,5 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
 [version-img]: https://img.shields.io/crates/v/openblas-provider.svg
 [version-url]: https://crates.io/crates/openblas-provider
+[status-img]: https://travis-ci.org/cmr/openblas-provider.svg?branch=master
+[status-url]: https://travis-ci.org/cmr/openblas-provider
