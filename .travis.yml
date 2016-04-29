@@ -1,10 +1,15 @@
 language: rust
 sudo: false
 
+os:
+  - linux
+  - osx
+
 rust:
   - stable
-  - beta
-  - nightly
+
+before_install:
+  - curl https://stainless-steel.github.io/travis/install_gfortran.sh | bash
 
 addons:
   apt:
