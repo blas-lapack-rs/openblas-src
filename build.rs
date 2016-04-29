@@ -1,44 +1,41 @@
-use std::env::{var, remove_var};
-use std::fs::File;
-use std::io::{BufRead, BufReader, Error, ErrorKind, Result};
-use std::path::{Path, PathBuf};
+use std::env::{remove_var, var};
+use std::path::PathBuf;
 use std::process::Command;
 
-fn main() {
-    let kind = if var("CARGO_FEATURE_STATIC").is_ok() { "static" } else { "dylib" };
+macro_rules! feature(
+    ($name:expr) => (var(concat!("CARGO_FEATURE_", $name)).is_ok());
+);
 
-    if var("CARGO_FEATURE_SYSTEM").is_ok() {
+macro_rules! variable(
+    ($name:expr) => (var($name).unwrap());
+);
+
+fn main() {
+    let kind = if feature!("STATIC") { "static" } else { "dylib" };
+
+    if feature!("SYSTEM") {
         println!("cargo:rustc-link-lib={}=openblas", kind);
         return;
     }
 
-    let cblas = var("CARGO_FEATURE_CBLAS").is_ok();
-
-    let source = PathBuf::from(&var("CARGO_MANIFEST_DIR").unwrap()).join("source");
-    let output = PathBuf::from(&var("OUT_DIR").unwrap());
+    let cblas = feature!("CBLAS");
+    let source = PathBuf::from("source");
+    let output = PathBuf::from(variable!("OUT_DIR"));
 
     remove_var("TARGET");
 
     run(Command::new("make")
                 .args(&["libs", "netlib", "shared"])
-                .arg(&format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
-                .arg(&format!("-j{}", var("NUM_JOBS").unwrap()))
+                .arg(format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
+                .arg(format!("-j{}", variable!("NUM_JOBS")))
                 .current_dir(&source));
 
     run(Command::new("make")
                 .arg("install")
-                .arg(&format!("DESTDIR={}", output.display()))
+                .arg(format!("DESTDIR={}", output.display()))
                 .current_dir(&source));
 
-    match read("FC", &source.join("Makefile.conf")) {
-        Ok(ref name) => {
-            if name.contains("gfortran") {
-                println!("cargo:rustc-link-lib=dylib=gfortran");
-            }
-        },
-        Err(error) => panic!("failed to detect Fortran: {}", error),
-    }
-
+    println!("cargo:rustc-link-lib=dylib=gfortran");
     println!("cargo:rustc-link-search={}", output.join("opt/OpenBLAS/lib").display());
     println!("cargo:rustc-link-lib={}=openblas", kind);
 }
@@ -53,16 +50,4 @@ fn run(command: &mut Command) {
             panic!("failed to execute `{:?}`: {}", command, error);
         },
     }
-}
-
-fn read(prefix: &str, path: &Path) -> Result<String> {
-    let mut file = try!(File::open(path));
-    let reader = BufReader::new(&mut file);
-    for line in reader.lines() {
-        let line = try!(line);
-        if line.starts_with(&prefix) {
-            return Ok(line)
-        }
-    }
-    Err(Error::new(ErrorKind::Other, format!("failed to find `{}` in {}", prefix, path.display())))
 }
