@@ -20,7 +20,7 @@ fn main() {
 
     let cblas = feature!("CBLAS");
     let source = PathBuf::from("source");
-    let output = PathBuf::from(variable!("OUT_DIR").replace(r"\", "/")); // (avoid Win 10 / Msys2 build issue re paths with backslashes)
+    let output = PathBuf::from(variable!("OUT_DIR").replace(r"\", "/"));
 
     remove_var("TARGET");
 
@@ -32,12 +32,12 @@ fn main() {
 
     run(Command::new("make")
                 .arg("install")
-                .arg(format!("DESTDIR='{}'", output.display()))
+                .arg(format!("DESTDIR={}", output.display()))
                 .current_dir(&source));
 
-    println!("cargo:rustc-link-lib=dylib=gfortran");
-    println!("cargo:rustc-link-search='{}'", output.join("opt/OpenBLAS/lib").display());
+    println!("cargo:rustc-link-search={}", output.join("opt/OpenBLAS/lib").display());
     println!("cargo:rustc-link-lib={}=openblas", kind);
+    println!("cargo:rustc-link-lib=dylib=gfortran");
 }
 
 fn run(command: &mut Command) {
