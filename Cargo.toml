@@ -5,6 +5,7 @@ license = "Apache-2.0/MIT"
 authors = [
   "Corey Richardson <corey@octayn.net>",
   "Ivan Ukhov <ivan.ukhov@gmail.com>",
+  "Steve Harris <steveOfAR@gmail.com>",
 ]
 description = "The package provides BLAS and LAPACK using the OpenBLAS implementation."
 homepage = "https://github.com/cmr/openblas-provider"
