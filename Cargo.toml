@@ -1,5 +1,5 @@
 [package]
-name = "openblas-provider"
+name = "openblas-src"
 version = "0.4.2"
 license = "Apache-2.0/MIT"
 authors = [
@@ -8,10 +8,10 @@ authors = [
   "Steve Harris <steveOfAR@gmail.com>",
 ]
 description = "The package provides BLAS and LAPACK using the OpenBLAS implementation."
-homepage = "https://github.com/cmr/openblas-provider"
-repository = "https://github.com/cmr/openblas-provider"
-links = "openblas"
+homepage = "https://github.com/cmr/openblas-src"
+repository = "https://github.com/cmr/openblas-src"
 build = "build.rs"
+links = "openblas"
 
 [features]
 default = ["cblas"]
