@@ -13,11 +13,16 @@ repository = "https://github.com/cmr/openblas-src"
 build = "build.rs"
 links = "openblas"
 exclude = [
-  "source/benchmark",
-  "source/ctest",
-  "source/reference",
-  "source/test",
-  "source/utest",
+  "source/benchmark/*",
+  "source/ctest/*",
+  "source/lapack-netlib/BLAS/TESTING/*",
+  "source/lapack-netlib/CBLAS/testing/*",
+  "source/lapack-netlib/TESTING/*.in",
+  "source/lapack-netlib/TESTING/EIG/*",
+  "source/lapack-netlib/TESTING/LIN/*",
+  "source/reference/*",
+  "source/test/*",
+  "source/utest/*",
 ]
 
 [features]
