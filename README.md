@@ -7,6 +7,7 @@ which requires a Fortran and C compiler.
 The following Cargo features are supported:
 
 * `cblas` to build CBLAS (enabled by default),
+* `lapacke` to build LAPACKE (enabled by default),
 * `static` to link to OpenBLAS statically, and
 * `system` to skip building the bundled OpenBLAS.
 

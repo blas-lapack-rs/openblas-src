@@ -21,8 +21,9 @@ exclude = [
 ]
 
 [features]
-default = ["cblas"]
+default = ["cblas", "lapacke"]
 
 cblas = []
+lapacke = []
 static = []
 system = []

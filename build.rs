@@ -6,6 +6,10 @@ macro_rules! feature(
     ($name:expr) => (var(concat!("CARGO_FEATURE_", $name)).is_ok());
 );
 
+macro_rules! switch(
+    ($condition:expr) => (if $condition { "YES" } else { "NO" });
+);
+
 macro_rules! variable(
     ($name:expr) => (var($name).unwrap());
 );
@@ -19,6 +23,7 @@ fn main() {
     }
 
     let cblas = feature!("CBLAS");
+    let lapacke = feature!("LAPACKE");
     let source = PathBuf::from("source");
     let output = PathBuf::from(variable!("OUT_DIR").replace(r"\", "/"));
 
@@ -26,7 +31,8 @@ fn main() {
 
     run(Command::new("make")
                 .args(&["libs", "netlib", "shared"])
-                .arg(format!("{}_CBLAS=1", if cblas { "YES" } else { "NO" }))
+                .arg(format!("{}_CBLAS=1", switch!(cblas)))
+                .arg(format!("{}_LAPACKE=1", switch!(lapacke)))
                 .arg(format!("-j{}", variable!("NUM_JOBS")))
                 .current_dir(&source));
 
