@@ -12,6 +12,13 @@ homepage = "https://github.com/cmr/openblas-src"
 repository = "https://github.com/cmr/openblas-src"
 build = "build.rs"
 links = "openblas"
+exclude = [
+  "source/benchmark",
+  "source/ctest",
+  "source/reference",
+  "source/test",
+  "source/utest",
+]
 
 [features]
 default = ["cblas"]
