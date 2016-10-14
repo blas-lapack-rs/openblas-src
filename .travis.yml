@@ -9,7 +9,7 @@ rust:
   - stable
 
 before_install:
-  - curl https://stainless-steel.github.io/travis/gfortran.sh | bash
+  - curl https://stainless-steel.github.io/travis/fortran.sh | bash
 
 addons:
   apt:
