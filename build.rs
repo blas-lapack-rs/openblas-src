@@ -2,6 +2,10 @@ use std::env::{remove_var, var};
 use std::path::PathBuf;
 use std::process::Command;
 
+macro_rules! binary(
+    () => (if cfg!(target_pointer_width = "32") { "32" } else { "64" });
+);
+
 macro_rules! feature(
     ($name:expr) => (var(concat!("CARGO_FEATURE_", $name)).is_ok());
 );
@@ -31,6 +35,7 @@ fn main() {
 
     run(Command::new("make")
                 .args(&["libs", "netlib", "shared"])
+                .arg(format!("BINARY={}", binary!()))
                 .arg(format!("{}_CBLAS=1", switch!(cblas)))
                 .arg(format!("{}_LAPACKE=1", switch!(lapacke)))
                 .arg(format!("-j{}", variable!("NUM_JOBS")))
