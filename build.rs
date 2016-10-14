@@ -2,21 +2,10 @@ use std::env::{remove_var, var};
 use std::path::PathBuf;
 use std::process::Command;
 
-macro_rules! binary(
-    () => (if cfg!(target_pointer_width = "32") { "32" } else { "64" });
-);
-
-macro_rules! feature(
-    ($name:expr) => (var(concat!("CARGO_FEATURE_", $name)).is_ok());
-);
-
-macro_rules! switch(
-    ($condition:expr) => (if $condition { "YES" } else { "NO" });
-);
-
-macro_rules! variable(
-    ($name:expr) => (var($name).unwrap());
-);
+macro_rules! binary(() => (if cfg!(target_pointer_width = "32") { "32" } else { "64" }));
+macro_rules! feature(($name:expr) => (var(concat!("CARGO_FEATURE_", $name)).is_ok()));
+macro_rules! switch(($condition:expr) => (if $condition { "YES" } else { "NO" }));
+macro_rules! variable(($name:expr) => (var($name).unwrap()));
 
 fn main() {
     let kind = if feature!("STATIC") { "static" } else { "dylib" };
