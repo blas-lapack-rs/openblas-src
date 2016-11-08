@@ -3,9 +3,9 @@ name = "openblas-src"
 version = "0.5.2"
 license = "Apache-2.0/MIT"
 authors = [
-  "Corey Richardson <corey@octayn.net>",
-  "Ivan Ukhov <ivan.ukhov@gmail.com>",
-  "Steve Harris <steveOfAR@gmail.com>",
+    "Corey Richardson <corey@octayn.net>",
+    "Ivan Ukhov <ivan.ukhov@gmail.com>",
+    "Steve Harris <steveOfAR@gmail.com>",
 ]
 description = "The package provides BLAS and LAPACK using the OpenBLAS implementation."
 homepage = "https://github.com/cmr/openblas-src"
@@ -13,16 +13,16 @@ repository = "https://github.com/cmr/openblas-src"
 build = "build.rs"
 links = "openblas"
 exclude = [
-  "source/benchmark/*",
-  "source/ctest/*",
-  "source/lapack-netlib/BLAS/TESTING/*",
-  "source/lapack-netlib/CBLAS/testing/*",
-  "source/lapack-netlib/TESTING/*.in",
-  "source/lapack-netlib/TESTING/EIG/*",
-  "source/lapack-netlib/TESTING/LIN/*",
-  "source/reference/*",
-  "source/test/*",
-  "source/utest/*",
+    "source/benchmark/*",
+    "source/ctest/*",
+    "source/lapack-netlib/BLAS/TESTING/*",
+    "source/lapack-netlib/CBLAS/testing/*",
+    "source/lapack-netlib/TESTING/*.in",
+    "source/lapack-netlib/TESTING/EIG/*",
+    "source/lapack-netlib/TESTING/LIN/*",
+    "source/reference/*",
+    "source/test/*",
+    "source/utest/*",
 ]
 
 [features]
