@@ -10,6 +10,7 @@ authors = [
 description = "The package provides BLAS and LAPACK using the OpenBLAS implementation."
 homepage = "https://github.com/cmr/openblas-src"
 repository = "https://github.com/cmr/openblas-src"
+readme = "README.md"
 categories = ["science"]
 keywords = ["linear-algebra"]
 build = "build.rs"
