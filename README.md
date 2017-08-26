@@ -1,4 +1,4 @@
-# openblas-src [![Version][version-img]][version-url] [![Status][status-img]][status-url]
+# openblas-src [![Package][package-img]][package-url] [![Build][build-img]][build-url]
 
 The package provides [BLAS][1] and [LAPACK][2] using the [OpenBLAS][3]
 implementation. By default, the package will build and use a bundled OpenBLAS,
@@ -32,7 +32,7 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 [6]: https://github.com/stainless-steel/blas
 [7]: https://github.com/stainless-steel/lapack
 
-[status-img]: https://travis-ci.org/cmr/openblas-src.svg?branch=master
-[status-url]: https://travis-ci.org/cmr/openblas-src
-[version-img]: https://img.shields.io/crates/v/openblas-src.svg
-[version-url]: https://crates.io/crates/openblas-src
+[build-img]: https://travis-ci.org/cmr/openblas-src.svg?branch=master
+[build-url]: https://travis-ci.org/cmr/openblas-src
+[package-img]: https://img.shields.io/crates/v/openblas-src.svg
+[package-url]: https://crates.io/crates/openblas-src
