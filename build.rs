@@ -46,11 +46,9 @@ fn main() {
 fn run(command: &mut Command) {
     println!("Running: `{:?}`", command);
     match command.status() {
-        Ok(status) => {
-            if !status.success() {
-                panic!("Failed: `{:?}` ({})", command, status);
-            }
-        }
+        Ok(status) => if !status.success() {
+            panic!("Failed: `{:?}` ({})", command, status);
+        },
         Err(error) => {
             panic!("Failed: `{:?}` ({})", command, error);
         }
