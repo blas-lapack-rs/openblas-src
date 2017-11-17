@@ -1,5 +1,4 @@
 language: rust
-sudo: false
 
 os:
   - linux
@@ -9,10 +8,9 @@ rust:
   - stable
 
 before_install:
-  - curl https://stainless-steel.github.io/travis/fortran.sh | bash
+  - curl https://blas-lapack-rs.github.io/travis/fortran.sh | bash
 
 script:
-  - cargo build -vv
   - cargo test -vv
 
 addons:
