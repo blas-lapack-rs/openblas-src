@@ -36,3 +36,6 @@ cblas = []
 lapacke = []
 static = []
 system = []
+
+[dev-dependencies]
+libc = "0.2"
