@@ -1,4 +1,4 @@
-//! Implementation of [BLAS] and [LAPACK] via [OpenBLAS]
+//! Implementation of [BLAS] and [LAPACK] via [OpenBLAS].
 //!
 //! The usage of the package is explained [here][usage].
 //!
