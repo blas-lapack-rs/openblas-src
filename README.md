@@ -1,8 +1,7 @@
-# openblas-src [![Package][package-img]][package-url] [![Build][build-img]][build-url]
+# openblas-src [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] [![Build][build-img]][build-url]
 
-The package provides [BLAS][1] and [LAPACK][2] using the [OpenBLAS][3]
-implementation. By default, the package will build and use a bundled OpenBLAS,
-which requires a Fortran and C compiler.
+The package provides an implementation of [BLAS] and [LAPACK] via [OpenBLAS].
+The usage of the package is explained [here][usage].
 
 The following Cargo features are supported:
 
@@ -11,28 +10,20 @@ The following Cargo features are supported:
 * `static` to link to OpenBLAS statically, and
 * `system` to skip building the bundled OpenBLAS.
 
-## Where are all the FFI definitions?
-
-This package provides only an implementation of BLAS and LAPACK. Bindings are
-available in [blas-sys][4] and [lapack-sys][5], and wrappers are available in
-[blas][6] and [lapack][7].
-
 ## Contribution
 
 Your contribution is highly appreciated. Do not hesitate to open an issue or a
 pull request. Note that any contribution submitted for inclusion in the project
 will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
-[1]: https://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms
-[2]: https://en.wikipedia.org/wiki/LAPACK
-[3]: http://www.openblas.net
-
-[4]: https://github.com/stainless-steel/blas-sys
-[5]: https://github.com/stainless-steel/lapack-sys
-[6]: https://github.com/stainless-steel/blas
-[7]: https://github.com/stainless-steel/lapack
+[blas]: https://en.wikipedia.org/wiki/BLAS
+[lapack]: https://en.wikipedia.org/wiki/LAPACK
+[openblas]: http://www.openblas.net/
+[usage]: https://blas-lapack-rs.github.io/usage
 
 [build-img]: https://travis-ci.org/cmr/openblas-src.svg?branch=master
 [build-url]: https://travis-ci.org/cmr/openblas-src
+[documentation-img]: https://docs.rs/openblas-src/badge.svg
+[documentation-url]: https://docs.rs/openblas-src
 [package-img]: https://img.shields.io/crates/v/openblas-src.svg
 [package-url]: https://crates.io/crates/openblas-src

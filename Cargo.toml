@@ -1,13 +1,14 @@
 [package]
 name = "openblas-src"
-version = "0.5.4"
+version = "0.5.5"
 license = "Apache-2.0/MIT"
 authors = [
     "Corey Richardson <corey@octayn.net>",
     "Ivan Ukhov <ivan.ukhov@gmail.com>",
     "Steve Harris <steveOfAR@gmail.com>",
 ]
-description = "The package provides BLAS and LAPACK using the OpenBLAS implementation."
+description = "The package provides an implementation of BLAS and LAPACK via OpenBLAS."
+documentation = "https://docs.rs/openblas-src"
 homepage = "https://github.com/cmr/openblas-src"
 repository = "https://github.com/cmr/openblas-src"
 readme = "README.md"
