@@ -9,8 +9,8 @@ authors = [
 ]
 description = "The package provides a source of BLAS and LAPACK via OpenBLAS."
 documentation = "https://docs.rs/openblas-src"
-homepage = "https://github.com/cmr/openblas-src"
-repository = "https://github.com/cmr/openblas-src"
+homepage = "https://github.com/blas-lapack-rs/openblas-src"
+repository = "https://github.com/blas-lapack-rs/openblas-src"
 readme = "README.md"
 categories = ["science"]
 keywords = ["linear-algebra"]
