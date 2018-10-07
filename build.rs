@@ -38,10 +38,7 @@ fn main() {
             if source_tmp.exists() {
                 fs::remove_dir_all(&source_tmp).unwrap();
             }
-            run(Command::new("cp")
-                .arg("-R")
-                .arg("source")
-                .arg(&source_tmp));
+            run(Command::new("cp").arg("-R").arg("source").arg(&source_tmp));
             fs::rename(&source_tmp, &source).unwrap();
         }
         for name in &vec!["CC", "FC", "HOSTCC"] {
@@ -66,9 +63,11 @@ fn main() {
 fn run(command: &mut Command) {
     println!("Running: `{:?}`", command);
     match command.status() {
-        Ok(status) => if !status.success() {
-            panic!("Failed: `{:?}` ({})", command, status);
-        },
+        Ok(status) => {
+            if !status.success() {
+                panic!("Failed: `{:?}` ({})", command, status);
+            }
+        }
         Err(error) => {
             panic!("Failed: `{:?}` ({})", command, error);
         }
