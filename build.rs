@@ -44,11 +44,8 @@ fn main() {
             fs::rename(&source_tmp, &source).unwrap();
         }
         for name in &vec!["CC", "FC", "HOSTCC"] {
-            match env::var(format!("OPENBLAS_{}", name)) {
-                Ok(value) => {
-                    make.arg(format!("{}={}", name, value));
-                }
-                _ => {}
+            if let Ok(value) = env::var(format!("OPENBLAS_{}", name)) {
+                make.arg(format!("{}={}", name, value));
             }
         }
         run(&mut make.current_dir(&source));
