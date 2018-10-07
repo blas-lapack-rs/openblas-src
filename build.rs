@@ -1,4 +1,5 @@
 use std::env;
+use std::fs;
 use std::path::PathBuf;
 use std::process::Command;
 
@@ -16,24 +17,47 @@ fn main() {
     if !feature!("SYSTEM") {
         let cblas = feature!("CBLAS");
         let lapacke = feature!("LAPACKE");
-        let source = PathBuf::from("source");
         let output = PathBuf::from(variable!("OUT_DIR").replace(r"\", "/"));
+        let mut make = Command::new("make");
+        make.args(&["libs", "netlib", "shared"])
+            .arg(format!("BINARY={}", binary!()))
+            .arg(format!("{}_CBLAS=1", switch!(cblas)))
+            .arg(format!("{}_LAPACKE=1", switch!(lapacke)))
+            .arg(format!("-j{}", variable!("NUM_JOBS")));
+        let target = match env::var("OPENBLAS_TARGET") {
+            Ok(openblas_target) => {
+                make.arg(format!("TARGET={}", openblas_target));
+                openblas_target
+            }
+            _ => variable!("TARGET"),
+        }.to_lowercase();
         env::remove_var("TARGET");
-        run(
-            Command::new("make")
-                .args(&["libs", "netlib", "shared"])
-                .arg(format!("BINARY={}", binary!()))
-                .arg(format!("{}_CBLAS=1", switch!(cblas)))
-                .arg(format!("{}_LAPACKE=1", switch!(lapacke)))
-                .arg(format!("-j{}", variable!("NUM_JOBS")))
-                .current_dir(&source),
-        );
-        run(
-            Command::new("make")
-                .arg("install")
-                .arg(format!("DESTDIR={}", output.display()))
-                .current_dir(&source),
-        );
+        let make_working_dir = PathBuf::from(&target.to_lowercase());
+        if !make_working_dir.exists() {
+            let make_working_dir_tmp =
+                PathBuf::from(format!("{}_TMP", make_working_dir.to_str().unwrap()));
+            if make_working_dir_tmp.exists() {
+                fs::remove_dir_all(&make_working_dir_tmp).unwrap();
+            }
+            run(Command::new("cp")
+                .arg("-R")
+                .arg("source")
+                .arg(&make_working_dir_tmp));
+            fs::rename(&make_working_dir_tmp, &make_working_dir).unwrap();
+        }
+        for make_env_key in &vec!["CC", "FC", "HOSTCC"] {
+            match env::var(format!("OPENBLAS_{}", make_env_key)) {
+                Ok(value) => {
+                    make.arg(format!("{}={}", make_env_key, value));
+                }
+                _ => {}
+            }
+        }
+        run(&mut make.current_dir(&make_working_dir));
+        run(Command::new("make")
+            .arg("install")
+            .arg(format!("DESTDIR={}", output.display()))
+            .current_dir(&make_working_dir));
         println!(
             "cargo:rustc-link-search={}",
             output.join("opt/OpenBLAS/lib").display(),
