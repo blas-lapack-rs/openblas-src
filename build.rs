@@ -32,7 +32,7 @@ fn main() {
             _ => variable!("TARGET"),
         };
         env::remove_var("TARGET");
-        let source: PathBuf = format!("source_{}", target.to_lowercase()).into();
+        let source = PathBuf::from(format!("source_{}", target.to_lowercase()));
         if !source.exists() {
             let source_tmp = PathBuf::from(format!("{}_tmp", source.display()));
             if source_tmp.exists() {
