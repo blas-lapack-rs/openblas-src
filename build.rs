@@ -24,7 +24,7 @@ fn main() {
             .arg(format!("{}_CBLAS=1", switch!(cblas)))
             .arg(format!("{}_LAPACKE=1", switch!(lapacke)))
             .arg(format!("-j{}", variable!("NUM_JOBS")));
-        let target: PathBuf = match env::var("OPENBLAS_TARGET") {
+        let source: PathBuf = match env::var("OPENBLAS_TARGET") {
             Ok(target) => {
                 make.arg(format!("TARGET={}", target));
                 target
@@ -32,31 +32,30 @@ fn main() {
             _ => variable!("TARGET"),
         }.to_lowercase().into();
         env::remove_var("TARGET");
-        if !target.exists() {
-            let make_working_dir_tmp =
-                PathBuf::from(format!("{}_TMP", target.to_str().unwrap()));
-            if make_working_dir_tmp.exists() {
-                fs::remove_dir_all(&make_working_dir_tmp).unwrap();
+        if !source.exists() {
+            let source_tmp = PathBuf::from(format!("{}_tmp", source.display()));
+            if source_tmp.exists() {
+                fs::remove_dir_all(&source_tmp).unwrap();
             }
             run(Command::new("cp")
                 .arg("-R")
                 .arg("source")
-                .arg(&make_working_dir_tmp));
-            fs::rename(&make_working_dir_tmp, &target).unwrap();
+                .arg(&source_tmp));
+            fs::rename(&source_tmp, &source).unwrap();
         }
-        for make_env_key in &vec!["CC", "FC", "HOSTCC"] {
-            match env::var(format!("OPENBLAS_{}", make_env_key)) {
+        for name in &vec!["CC", "FC", "HOSTCC"] {
+            match env::var(format!("OPENBLAS_{}", name)) {
                 Ok(value) => {
-                    make.arg(format!("{}={}", make_env_key, value));
+                    make.arg(format!("{}={}", name, value));
                 }
                 _ => {}
             }
         }
-        run(&mut make.current_dir(&target));
+        run(&mut make.current_dir(&source));
         run(Command::new("make")
             .arg("install")
             .arg(format!("DESTDIR={}", output.display()))
-            .current_dir(&target));
+            .current_dir(&source));
         println!(
             "cargo:rustc-link-search={}",
             output.join("opt/OpenBLAS/lib").display(),
