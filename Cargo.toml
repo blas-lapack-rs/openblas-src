@@ -5,6 +5,7 @@ license = "Apache-2.0/MIT"
 authors = [
     "Corey Richardson <corey@octayn.net>",
     "Ivan Ukhov <ivan.ukhov@gmail.com>",
+    "Ken Elkabany <ken@elkabany.com>",
     "Steve Harris <steveOfAR@gmail.com>",
 ]
 description = "The package provides a source of BLAS and LAPACK via OpenBLAS."
