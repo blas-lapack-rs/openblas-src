@@ -24,18 +24,17 @@ fn main() {
             .arg(format!("{}_CBLAS=1", switch!(cblas)))
             .arg(format!("{}_LAPACKE=1", switch!(lapacke)))
             .arg(format!("-j{}", variable!("NUM_JOBS")));
-        let target = match env::var("OPENBLAS_TARGET") {
-            Ok(openblas_target) => {
-                make.arg(format!("TARGET={}", openblas_target));
-                openblas_target
+        let target: PathBuf = match env::var("OPENBLAS_TARGET") {
+            Ok(target) => {
+                make.arg(format!("TARGET={}", target));
+                target
             }
             _ => variable!("TARGET"),
-        }.to_lowercase();
+        }.to_lowercase().into();
         env::remove_var("TARGET");
-        let make_working_dir = PathBuf::from(&target.to_lowercase());
-        if !make_working_dir.exists() {
+        if !target.exists() {
             let make_working_dir_tmp =
-                PathBuf::from(format!("{}_TMP", make_working_dir.to_str().unwrap()));
+                PathBuf::from(format!("{}_TMP", target.to_str().unwrap()));
             if make_working_dir_tmp.exists() {
                 fs::remove_dir_all(&make_working_dir_tmp).unwrap();
             }
@@ -43,7 +42,7 @@ fn main() {
                 .arg("-R")
                 .arg("source")
                 .arg(&make_working_dir_tmp));
-            fs::rename(&make_working_dir_tmp, &make_working_dir).unwrap();
+            fs::rename(&make_working_dir_tmp, &target).unwrap();
         }
         for make_env_key in &vec!["CC", "FC", "HOSTCC"] {
             match env::var(format!("OPENBLAS_{}", make_env_key)) {
@@ -53,11 +52,11 @@ fn main() {
                 _ => {}
             }
         }
-        run(&mut make.current_dir(&make_working_dir));
+        run(&mut make.current_dir(&target));
         run(Command::new("make")
             .arg("install")
             .arg(format!("DESTDIR={}", output.display()))
-            .current_dir(&make_working_dir));
+            .current_dir(&target));
         println!(
             "cargo:rustc-link-search={}",
             output.join("opt/OpenBLAS/lib").display(),
