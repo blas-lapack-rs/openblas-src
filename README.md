@@ -13,10 +13,11 @@ The following Cargo features are supported:
 
 ## Cross Compilation
 
-To this end, one has to specify the [cross-compilation variables for OpenBLAS](
-https://github.com/xianyi/OpenBLAS#cross-compile) but with the `OPENBLAS_`
-prefix: `OPENBLAS_CC`, `OPENBLAS_FC`, `OPENBLAS_HOSTCC`, and `OPENBLAS_TARGET`.
-These can be set as environment variables for `cargo build`.
+Apart from providing the `--target` option to `cargo build`, one also has to
+specify the [cross-compilation variables of OpenBLAS][openblas-cross-compile].
+They can be set as environment variables for `cargo build` using the `OPENBLAS_`
+prefix as follows: `OPENBLAS_CC`, `OPENBLAS_FC`, `OPENBLAS_HOSTCC`, and
+`OPENBLAS_TARGET`.
 
 ## Contribution
 
@@ -27,6 +28,7 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 [blas]: https://en.wikipedia.org/wiki/BLAS
 [lapack]: https://en.wikipedia.org/wiki/LAPACK
 [openblas]: http://www.openblas.net/
+[openblas-cross-compile]: https://github.com/xianyi/OpenBLAS#cross-compile
 [usage]: https://blas-lapack-rs.github.io/usage
 
 [build-img]: https://travis-ci.org/blas-lapack-rs/openblas-src.svg?branch=master
