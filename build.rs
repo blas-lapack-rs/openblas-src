@@ -24,14 +24,15 @@ fn main() {
             .arg(format!("{}_CBLAS=1", switch!(cblas)))
             .arg(format!("{}_LAPACKE=1", switch!(lapacke)))
             .arg(format!("-j{}", variable!("NUM_JOBS")));
-        let source: PathBuf = match env::var("OPENBLAS_TARGET") {
+        let target = match env::var("OPENBLAS_TARGET") {
             Ok(target) => {
                 make.arg(format!("TARGET={}", target));
                 target
             }
             _ => variable!("TARGET"),
-        }.to_lowercase().into();
+        };
         env::remove_var("TARGET");
+        let source: PathBuf = format!("source_{}", target.to_lowercase()).into();
         if !source.exists() {
             let source_tmp = PathBuf::from(format!("{}_tmp", source.display()));
             if source_tmp.exists() {
