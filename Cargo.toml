@@ -1,6 +1,6 @@
 [package]
 name = "openblas-src"
-version = "0.6.1"
+version = "0.7.0"
 license = "Apache-2.0/MIT"
 authors = [
     "Corey Richardson <corey@octayn.net>",
