@@ -1,4 +1,4 @@
-# openblas-src [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] [![Build][build-img]][build-url]
+# openblas-src [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] [![Build][build1-img]][build1-url] [![Build][build2-img]][build2-url]
 
 The package provides a source of [BLAS] and [LAPACK] via [OpenBLAS].
 
@@ -31,8 +31,10 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 [openblas-cross-compile]: https://github.com/xianyi/OpenBLAS#cross-compile
 [usage]: https://blas-lapack-rs.github.io/usage
 
-[build-img]: https://travis-ci.org/blas-lapack-rs/openblas-src.svg?branch=master
-[build-url]: https://travis-ci.org/blas-lapack-rs/openblas-src
+[build1-img]: https://travis-ci.org/blas-lapack-rs/openblas-src.svg?branch=master
+[build1-url]: https://travis-ci.org/blas-lapack-rs/openblas-src
+[build2-img]: https://ci.appveyor.com/api/projects/status/l438i5ov5wsw4qw0?svg=true
+[build2-url]: https://ci.appveyor.com/project/IvanUkhov/openblas-src
 [documentation-img]: https://docs.rs/openblas-src/badge.svg
 [documentation-url]: https://docs.rs/openblas-src
 [package-img]: https://img.shields.io/crates/v/openblas-src.svg
