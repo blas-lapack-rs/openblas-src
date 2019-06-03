@@ -20,5 +20,5 @@ install:
 build: false
 
 test_script:
-  - cargo build --verbose
-  - cargo test --verbose
+  - bash -c 'cargo build --verbose'
+  - bash -c 'cargo test --verbose'
