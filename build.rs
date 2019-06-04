@@ -56,7 +56,6 @@ fn main() {
             output.join("opt/OpenBLAS/lib").display(),
         );
     }
-    println!("cargo:rustc-link-lib=dylib=gfortran");
     println!("cargo:rustc-link-lib={}=openblas", kind);
 }
 
