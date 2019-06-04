@@ -20,5 +20,5 @@ install:
 build: false
 
 test_script:
-  - bash -c 'cargo build -vv'
-  - bash -c 'cargo test -vv'
+  - sh -c 'cargo build -vv'
+  - sh -c 'cargo test -vv'
