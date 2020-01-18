@@ -7,9 +7,6 @@ os:
 rust:
   - stable
 
-before_install:
-  - curl https://blas-lapack-rs.github.io/travis/fortran.sh | bash
-
 script:
   - cargo test -vv
 
@@ -17,6 +14,9 @@ addons:
   apt:
     packages:
       - gfortran
+  homebrew:
+    packages:
+      - gcc@9
 
 notifications:
   email: false
