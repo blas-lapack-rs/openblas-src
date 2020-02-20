@@ -1,7 +1,9 @@
 use std::env;
 use std::fs;
+use std::hash::Hasher;
+use std::io::Write;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 macro_rules! binary(() => (if cfg!(target_pointer_width = "32") { "32" } else { "64" }));
 macro_rules! feature(($name:expr) => (env::var(concat!("CARGO_FEATURE_", $name)).is_ok()));
@@ -18,21 +20,48 @@ fn main() {
         let cblas = feature!("CBLAS");
         let lapacke = feature!("LAPACKE");
         let output = PathBuf::from(variable!("OUT_DIR").replace(r"\", "/"));
-        let mut make = Command::new("make");
-        make.args(&["libs", "netlib", "shared"])
-            .arg(format!("BINARY={}", binary!()))
-            .arg(format!("{}_CBLAS=1", switch!(cblas)))
-            .arg(format!("{}_LAPACKE=1", switch!(lapacke)))
-            .arg(format!("-j{}", variable!("NUM_JOBS")));
+
+        // Determine build arguments.
+        let mut build_args = vec![
+            format!("BINARY={}", binary!()),
+            format!("{}_CBLAS=1", switch!(cblas)),
+            format!("{}_LAPACKE=1", switch!(lapacke)),
+            format!("-j{}", variable!("NUM_JOBS")),
+        ];
         let target = match env::var("OPENBLAS_TARGET") {
             Ok(target) => {
-                make.arg(format!("TARGET={}", target));
+                build_args.push(format!("TARGET={}", target));
                 target
             }
             _ => variable!("TARGET"),
         };
         env::remove_var("TARGET");
-        let source = PathBuf::from(format!("source_{}", target.to_lowercase()));
+        for name in &vec!["CC", "FC", "HOSTCC"] {
+            if let Ok(value) = env::var(format!("OPENBLAS_{}", name)) {
+                build_args.push(format!("{}={}", name, value));
+            }
+        }
+
+        // Get information about the build options and compiler versions.
+        let build_info = run_with_stdout(
+            Command::new("make")
+                .args(&["-f", "make_build_info", "echo-build-info", "TOPDIR=source"])
+                .args(&build_args),
+            Stdio::piped(),
+        );
+        run(Command::new("make").arg("clean").current_dir("source"));
+        let build_info_hash: u64 = {
+            let mut hasher = std::collections::hash_map::DefaultHasher::new();
+            hasher.write(&build_info);
+            hasher.finish()
+        };
+
+        // Copy the source files and build info into the build directory.
+        let source = PathBuf::from(format!(
+            "source_{}_{:016x}",
+            target.to_lowercase(),
+            build_info_hash
+        ));
         if !source.exists() {
             let source_tmp = PathBuf::from(format!("{}_tmp", source.display()));
             if source_tmp.exists() {
@@ -40,13 +69,20 @@ fn main() {
             }
             run(Command::new("cp").arg("-R").arg("source").arg(&source_tmp));
             fs::rename(&source_tmp, &source).unwrap();
+            fs::File::create(source.join(".openblas-src_build_info"))
+                .unwrap()
+                .write_all(&build_info)
+                .unwrap();
         }
-        for name in &vec!["CC", "FC", "HOSTCC"] {
-            if let Ok(value) = env::var(format!("OPENBLAS_{}", name)) {
-                make.arg(format!("{}={}", name, value));
-            }
-        }
-        run(&mut make.current_dir(&source));
+
+        // Run the build.
+        run(Command::new("make")
+            .args(&["libs", "netlib", "shared"])
+            .args(&build_args)
+            .current_dir(&source));
+
+        // Copy the binaries into the destination directory and tell Cargo
+        // where they are.
         run(Command::new("make")
             .arg("install")
             .arg(format!("DESTDIR={}", output.display()))
@@ -60,12 +96,32 @@ fn main() {
     println!("cargo:rustc-link-lib={}=openblas", kind);
 }
 
+/// Runs the command, inheriting stdin/stdout/stderr.
+///
+/// **Panics** if the command fails.
 fn run(command: &mut Command) {
+    run_with_stdout(command, Stdio::inherit());
+}
+
+/// Runs the command, using the specified stdout.
+///
+/// If `stdout` is `Stdio::piped()`, then the standard output will be captured
+/// and returned.
+///
+/// **Panics** if the command fails.
+fn run_with_stdout(command: &mut Command, stdout: Stdio) -> Vec<u8> {
     println!("Running: `{:?}`", command);
-    match command.status() {
-        Ok(status) => {
-            if !status.success() {
-                panic!("Failed: `{:?}` ({})", command, status);
+    let output = command
+        .stdin(Stdio::inherit())
+        .stdout(stdout)
+        .stderr(Stdio::inherit())
+        .output();
+    match output {
+        Ok(out) => {
+            if out.status.success() {
+                out.stdout
+            } else {
+                panic!("Failed: `{:?}` ({})", command, out.status);
             }
         }
         Err(error) => {

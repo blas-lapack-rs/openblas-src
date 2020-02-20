@@ -1,0 +1,56 @@
+ifndef TOPDIR
+TOPDIR = source
+endif
+
+include $(TOPDIR)/Makefile.system
+
+.PHONY: echo-build-info
+
+# Print build options and compiler versions to stdout. The compilers are
+# selected by the `include $(TOPDIR)/Makefile.system` above and written to
+# variables. Unfortunately, including `Makefile.system` has the side effect of
+# creating `$(TOPDIR)/Makefile.conf` and `$(TOPDIR)/config.h`, which should be
+# cleaned up afterward.
+echo-build-info :
+	@echo "OS: $(OSNAME)             "
+	@echo "Architecture: $(ARCH)               "
+ifndef BINARY64
+	@echo "Binary: 32bit                 "
+else
+	@echo "Binary: 64bit                 "
+endif
+
+ifdef INTERFACE64
+ifneq ($(INTERFACE64), 0)
+	@echo "Use 64 bits int    (equivalent to \"-i8\" in Fortran)      "
+endif
+endif
+
+ifndef SMP
+	@echo "Threading: Single threaded  "
+else
+	@echo "Threading: Multi threaded; Max num-threads is $(NUM_THREADS)"
+endif
+
+ifeq ($(USE_OPENMP), 1)
+	@echo "Use OpenMP: yes"
+else
+	@echo "Use OpenMP: no"
+endif
+
+	@echo
+	@echo "CC compiler: $(C_COMPILER)"
+	@echo "CC command line: $(CC)"
+	@echo
+	$(CC) --version
+	@echo
+ifeq ($(NOFORTRAN), $(filter 0,$(NOFORTRAN)))
+	@echo "FC compiler: $(F_COMPILER)"
+	@echo "FC command line: $(FC)"
+	@echo
+	$(FC) --version
+	@echo
+endif
+	@echo "HOSTCC command line: $(HOSTCC)"
+	@echo
+	$(HOSTCC) --version
