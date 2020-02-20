@@ -57,19 +57,19 @@ fn main() {
         };
 
         // Copy the source files and build info into the build directory.
-        let source = PathBuf::from(format!(
+        let build_dir = PathBuf::from(format!(
             "source_{}_{:016x}",
             target.to_lowercase(),
             build_info_hash
         ));
-        if !source.exists() {
-            let source_tmp = PathBuf::from(format!("{}_tmp", source.display()));
-            if source_tmp.exists() {
-                fs::remove_dir_all(&source_tmp).unwrap();
+        if !build_dir.exists() {
+            let tmp = PathBuf::from(format!("{}_tmp", build_dir.display()));
+            if tmp.exists() {
+                fs::remove_dir_all(&tmp).unwrap();
             }
-            run(Command::new("cp").arg("-R").arg("source").arg(&source_tmp));
-            fs::rename(&source_tmp, &source).unwrap();
-            fs::File::create(source.join(".openblas-src_build_info"))
+            run(Command::new("cp").arg("-R").arg("source").arg(&tmp));
+            fs::rename(&tmp, &build_dir).unwrap();
+            fs::File::create(build_dir.join(".openblas-src_build_info"))
                 .unwrap()
                 .write_all(&build_info)
                 .unwrap();
@@ -79,14 +79,14 @@ fn main() {
         run(Command::new("make")
             .args(&["libs", "netlib", "shared"])
             .args(&build_args)
-            .current_dir(&source));
+            .current_dir(&build_dir));
 
         // Copy the binaries into the destination directory and tell Cargo
         // where they are.
         run(Command::new("make")
             .arg("install")
             .arg(format!("DESTDIR={}", output.display()))
-            .current_dir(&source));
+            .current_dir(&build_dir));
         println!(
             "cargo:rustc-link-search={}",
             output.join("opt/OpenBLAS/lib").display(),
