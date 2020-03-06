@@ -8,8 +8,13 @@ The following Cargo features are supported:
 
 * `cblas` to build CBLAS (enabled by default),
 * `lapacke` to build LAPACKE (enabled by default),
-* `static` to link to OpenBLAS statically, and
-* `system` to skip building the bundled OpenBLAS.
+* `static` to link to OpenBLAS statically,
+* `system` to skip building the bundled OpenBLAS, and
+* `shared-build-cache` to place most of the OpenBLAS build products in
+  `~/.cargo` instead of the `target` directory. (This allows them to be reused
+  between crates which have different `target` directories, in order to avoid
+  rebuilding OpenBLAS unnecessarily. However, it prevents `cargo clean` from
+  removing the OpenBLAS build products.)
 
 ## Cross Compilation
 
