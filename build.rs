@@ -32,7 +32,7 @@ fn main() {
             _ => variable!("TARGET"),
         };
         env::remove_var("TARGET");
-        let source = if feature!("SHARED_BUILD_CACHE") {
+        let source = if feature!("CACHE") {
             PathBuf::from(format!("source_{}", target.to_lowercase()))
         } else {
             output.join(format!("source_{}", target.to_lowercase()))

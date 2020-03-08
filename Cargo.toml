@@ -34,11 +34,11 @@ exclude = [
 [features]
 default = ["cblas", "lapacke"]
 
+cache = []
 cblas = []
 lapacke = []
 static = []
 system = []
-shared-build-cache = []
 
 [dev-dependencies]
 libc = "0.2"
