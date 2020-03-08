@@ -15,9 +15,9 @@ The following Cargo features are supported:
 ## Caching
 
 The `cache` feature allows the OpenBLAS build products to be reused between
-crates that have different `target` directories. This is to avoid rebuilding
-OpenBLAS unnecessarily. However, it is worth noting that this prevents `cargo
-clean` from removing the OpenBLAS build products.
+crates that have different `target` directories. This avoids rebuilding OpenBLAS
+unnecessarily. However, this also prevents `cargo clean` from removing the
+OpenBLAS build products.
 
 ## Cross Compilation
 
