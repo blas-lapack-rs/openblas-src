@@ -22,8 +22,14 @@ fn main() {
         make.args(&["libs", "netlib", "shared"])
             .arg(format!("BINARY={}", binary!()))
             .arg(format!("{}_CBLAS=1", switch!(cblas)))
-            .arg(format!("{}_LAPACKE=1", switch!(lapacke)))
-            .arg(format!("-j{}", variable!("NUM_JOBS")));
+            .arg(format!("{}_LAPACKE=1", switch!(lapacke)));
+        match env::var("OPENBLAS_ARGS") {
+            Ok(args) => {
+                make.args(args.split_whitespace());
+            }
+            _ => (),
+        };
+        make.arg(format!("-j{}", variable!("NUM_JOBS")));
         let target = match env::var("OPENBLAS_TARGET") {
             Ok(target) => {
                 make.arg(format!("TARGET={}", target));
@@ -32,12 +38,6 @@ fn main() {
             _ => variable!("TARGET"),
         };
         env::remove_var("TARGET");
-        match env::var("OPENBLAS_ARGS") {
-            Ok(args) => {
-                make.args(args.split_whitespace());
-            }
-            _ => (),
-        };
         let source = if feature!("CACHE") {
             PathBuf::from(format!("source_{}", target.to_lowercase()))
         } else {
