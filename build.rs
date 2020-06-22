@@ -32,6 +32,12 @@ fn main() {
             _ => variable!("TARGET"),
         };
         env::remove_var("TARGET");
+        match env::var("OPENBLAS_ARGS") {
+            Ok(args) => {
+                make.args(args.split_whitespace());
+            }
+            _ => (),
+        };
         let source = if feature!("CACHE") {
             PathBuf::from(format!("source_{}", target.to_lowercase()))
         } else {
