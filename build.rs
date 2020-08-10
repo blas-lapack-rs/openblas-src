@@ -18,7 +18,7 @@ fn main() {
         let cblas = feature!("CBLAS");
         let lapacke = feature!("LAPACKE");
         if cfg!(target_os="windows") {
-            if kind == "dynamic" {
+            if kind == "dylib" {
                 env::set_var("VCPKGRS_DYNAMIC", "1");
             } else {
                 env::set_var("CARGO_CFG_TARGET_FEATURE", "crt-static");
