@@ -43,5 +43,5 @@ system = []
 [dev-dependencies]
 libc = "0.2"
 
-[target.'cfg(target_os="windows")'.build-dependencies]
+[target.build-dependencies]
 vcpkg = "0.2"
