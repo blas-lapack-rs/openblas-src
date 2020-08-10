@@ -24,8 +24,8 @@ since the aforementioned build products will not be removed by the command.
 On Windows, `openblas-src` relies on [`vcpkg`](https://github.com/Microsoft/vcpkg)
 to find openblas. Before building, you must have the correct openblas installed
 for your target triple and kind of linking. For example, if you want to link
-dynamically for the `x86_64-pc-windows-msvc` toolchain, install `x64-openblas`.
-To link statically, you must install `x64-openblas-static`.
+dynamically for the `x86_64-pc-windows-msvc` toolchain, install `openblas` for `x64-windows` triplet: `vcpkg install openblas --triplet x64-windows`
+To link statically, you must install for `x64-windows-static` triplet: `vcpkg install openblas --triplet x64-windows-static`
 
 ## Cross Compilation
 
