@@ -14,8 +14,18 @@ fn main() {
     } else {
         "dylib"
     };
-    if !feature!("SYSTEM") {
-        if cfg!(target_os = "windows") {
+    if feature!("SYSTEM") {
+        if cfg!(target_env = "msvc") {
+            if kind == "dylib" {
+                env::set_var("VCPKGRS_DYNAMIC", "1");
+            } else {
+                env::set_var("CARGO_CFG_TARGET_FEATURE", "crt-static");
+            }
+            #[cfg(target_env = "msvc")]
+            vcpkg::find_package("openblas").unwrap();
+        }
+    } else {
+        if cfg!(target_env = "msvc") {
             panic!("Non-vcpkg builds are not supported on Windows (you must use the \"system\" feature.")
         }
         let cblas = feature!("CBLAS");
@@ -62,17 +72,7 @@ fn main() {
             "cargo:rustc-link-search={}",
             output.join("opt/OpenBLAS/lib").display(),
         );
-    } else {
-        if cfg!(target_os = "windows") {
-            if kind == "dylib" {
-                env::set_var("VCPKGRS_DYNAMIC", "1");
-            } else {
-                env::set_var("CARGO_CFG_TARGET_FEATURE", "crt-static");
-            }
-            #[cfg(target_os = "windows")]
-            vcpkg::find_package("openblas").unwrap();
-        }
-    }
+    };
     println!("cargo:rustc-link-lib={}=openblas", kind);
 }
 
