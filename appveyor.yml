@@ -16,6 +16,7 @@ install:
   - rustc -V
   - cargo -V
   - git submodule update --init --recursive
+  - ls source
 
 build: false
 
