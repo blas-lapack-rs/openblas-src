@@ -55,6 +55,7 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 [openblas]: http://www.openblas.net/
 [openblas-cross-compile]: https://github.com/xianyi/OpenBLAS#cross-compile
 [usage]: https://blas-lapack-rs.github.io/usage
+[vcpkg]: https://github.com/Microsoft/vcpkg
 
 [build1-img]: https://travis-ci.org/blas-lapack-rs/openblas-src.svg?branch=master
 [build1-url]: https://travis-ci.org/blas-lapack-rs/openblas-src
