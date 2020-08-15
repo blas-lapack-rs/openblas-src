@@ -4,10 +4,12 @@ version = "0.9.0"
 license = "Apache-2.0/MIT"
 authors = [
     "Corey Richardson <corey@octayn.net>",
+    "Ethan Smith <ethan@ethanhs.me>",
     "Ivan Ukhov <ivan.ukhov@gmail.com>",
     "Jim Turner <git@turner.link>",
     "Ken Elkabany <ken@elkabany.com>",
     "Steve Harris <steveOfAR@gmail.com>",
+    "Toshiki Teramura <toshiki.teramura@gmail.com>",
 ]
 description = "The package provides a source of BLAS and LAPACK via OpenBLAS."
 documentation = "https://docs.rs/openblas-src"
