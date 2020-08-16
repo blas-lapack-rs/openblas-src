@@ -24,6 +24,40 @@ fn main() {
             #[cfg(target_env = "msvc")]
             vcpkg::find_package("openblas").unwrap();
         }
+
+        // Add path where pacman (on msys2) install OpenBLAS
+        //
+        // - `pacman -S mingw-w64-x86_64-openblas` will install
+        //   - `libopenbla.dll` into `/mingw64/bin`
+        //   - `libopenbla.a`   into `/mingw64/lib`
+        // - But we have to specify them using `-L` in **Windows manner**
+        //   - msys2 `/` is `C:\msys64\` in Windows by default install
+        //   - It can be convert using `cygpath` command
+        if cfg!(target_os = "windows") && cfg!(target_env = "gnu") {
+            if kind == "dylib" {
+                let lib_path = String::from_utf8(
+                    Command::new("cygpath")
+                        .arg("-w")
+                        .arg("/mingw64/bin")
+                        .output()
+                        .expect("Failed to exec cygpath")
+                        .stdout,
+                )
+                .unwrap();
+                println!("cargo:rustc-link-search={}", lib_path);
+            } else {
+                let lib_path = String::from_utf8(
+                    Command::new("cygpath")
+                        .arg("-w")
+                        .arg("/mingw64/lib")
+                        .output()
+                        .expect("Failed to exec cygpath")
+                        .stdout,
+                )
+                .unwrap();
+                println!("cargo:rustc-link-search={}", lib_path);
+            }
+        }
     } else {
         if cfg!(target_env = "msvc") {
             panic!("Non-vcpkg builds are not supported on Windows (you must use the \"system\" feature.")
