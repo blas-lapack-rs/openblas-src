@@ -31,14 +31,7 @@ jobs:
         VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
   windows-gnu:
-    runs-on: windows-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        feature:
-          - ""
-          - static
-          - system
+    runs-on: windows-2019
     defaults:
       run:
         shell: msys2 {0}
@@ -51,7 +44,9 @@ jobs:
         with:
           msystem: MINGW64
           update: true
-          install: git curl make mingw-w64-x86_64-toolchain mingw-w64-x86_64-openblas
+          install: >
+            git curl make
+            mingw-w64-x86_64-toolchain
       - name: rustup install
         run: |
           curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-host x86_64-pc-windows-gnu
@@ -59,7 +54,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --features=${{ matrix.feature }}
+          args: --features=static
 
   linux:
     runs-on: ubuntu-18.04
