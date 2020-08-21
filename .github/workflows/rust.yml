@@ -69,19 +69,25 @@ jobs:
 
   linux:
     runs-on: ubuntu-18.04
+    container:
+      image: rust
     strategy:
       fail-fast: false
       matrix:
         feature:
+          - ""
           - static
           - system
     steps:
     - uses: actions/checkout@v1
       with:
         submodules: 'recursive'
+    - name: Install OpenBLAS by apt
+      run: |
+        apt update
+        apt install -y libopenblas-dev
+      if: ${{ contains(matrix.feature, 'system') }}
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: >
-          --no-default-features
-          --features=${{ matrix.features }}
+        args: --features=${{ matrix.feature }}
