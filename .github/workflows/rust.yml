@@ -9,6 +9,12 @@ on:
 jobs:
   windows-msvc:
     runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        feature:
+          - system
+          - "system,static"
     steps:
     - uses: actions/checkout@v1
     - uses: actions/cache@v2
@@ -20,13 +26,18 @@ jobs:
         git clone https://github.com/Microsoft/vcpkg.git --depth 1
         cd vcpkg
         ./bootstrap-vcpkg.bat
-    - name: Install OpenBLAS by vcpkg
+    - name: Install static OpenBLAS by vcpkg
       run: |
         ./vcpkg/vcpkg.exe install openblas:x64-windows-static
+      if: ${{ matrix.feature == 'system,static' }}
+    - name: Install OpenBLAS by vcpkg
+      run: |
+        ./vcpkg/vcpkg.exe install openblas:x64-windows
+      if: ${{ matrix.feature == 'system' }}
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --features=system,static
+        args: --features=${{ matrix.feature }}
       env:
         VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
