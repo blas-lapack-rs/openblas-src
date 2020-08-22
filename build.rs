@@ -58,6 +58,21 @@ fn main() {
                 println!("cargo:rustc-link-search={}", lib_path);
             }
         }
+
+        // homebrew will says
+        //
+        // > openblas is keg-only, which means it was not symlinked into /usr/local,
+        // > because macOS provides BLAS in Accelerate.framework.
+        // > For compilers to find openblas you may need to set:
+        //
+        // ```
+        // export LDFLAGS="-L/usr/local/opt/openblas/lib"
+        // export CPPFLAGS="-I/usr/local/opt/openblas/include"
+        // ```
+        //
+        if cfg!(target_os = "macos") {
+            println!("cargo:rustc-link-search=/usr/local/opt/openblas/lib");
+        }
     } else {
         if cfg!(target_env = "msvc") {
             panic!("Non-vcpkg builds are not supported on Windows (you must use the \"system\" feature.")
