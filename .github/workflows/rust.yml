@@ -55,6 +55,7 @@ jobs:
         with:
           msystem: MINGW64
           update: true
+          path-type: strict
           install: >
             git curl make
             mingw-w64-x86_64-toolchain
