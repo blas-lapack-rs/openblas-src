@@ -77,7 +77,6 @@ jobs:
           - ""
           - static
           - system
-          - "system,static"
     steps:
     - uses: actions/checkout@v1
       with:
