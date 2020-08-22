@@ -68,6 +68,29 @@ jobs:
           command: test
           args: --features=static
 
+  macos:
+    runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        feature:
+          - ""
+          - static
+          - system
+          - "system,static"
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: 'recursive'
+    - name: Install OpenBLAS by homebrew
+      run: |
+        brew install openblas
+      if: ${{ contains(matrix.feature, 'system') }}
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --features=${{ matrix.feature }}
+
   linux:
     runs-on: ubuntu-18.04
     container:
