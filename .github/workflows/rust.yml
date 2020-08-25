@@ -41,33 +41,6 @@ jobs:
       env:
         VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
-  windows-gnu:
-    runs-on: windows-2019
-    defaults:
-      run:
-        shell: msys2 {0}
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          submodules: 'recursive'
-      - name: msys2 setup
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          path-type: strict
-          install: >
-            git curl make
-            mingw-w64-x86_64-toolchain
-      - name: rustup install
-        run: |
-          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-host x86_64-pc-windows-gnu
-          export PATH=$USERPROFILE/.cargo/bin:$PATH
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --features=static
-
   macos:
     runs-on: macos-10.15
     strategy:
