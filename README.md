@@ -1,4 +1,4 @@
-# openblas-src [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] [![Rust][github-actions-badge-img]][github-actions-url]
+# openblas-src [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] ![Rust](https://github.com/blas-lapack-rs/openblas-src/workflows/Rust/badge.svg)
 
 The package provides a source of [BLAS] and [LAPACK] via [OpenBLAS].
 
@@ -61,5 +61,4 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 [documentation-url]: https://docs.rs/openblas-src
 [package-img]: https://img.shields.io/crates/v/openblas-src.svg
 [package-url]: https://crates.io/crates/openblas-src
-[github-acctions-badge-img]: https://github.com/blas-lapack-rs/openblas-src/workflows/Rust/badge.svg
-[github-acctions-url]: https://github.com/blas-lapack-rs/openblas-src/actions
+
