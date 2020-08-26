@@ -1,4 +1,4 @@
-# openblas-src [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] [![Build][build1-img]][build1-url] [![Build][build2-img]][build2-url]
+# openblas-src [![Package][package-img]][package-url] [![Documentation][documentation-img]][documentation-url] [![Rust][github-actions-badge-img]][github-actions-url]
 
 The package provides a source of [BLAS] and [LAPACK] via [OpenBLAS].
 
@@ -57,11 +57,9 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 [usage]: https://blas-lapack-rs.github.io/usage
 [vcpkg]: https://github.com/Microsoft/vcpkg
 
-[build1-img]: https://travis-ci.org/blas-lapack-rs/openblas-src.svg?branch=master
-[build1-url]: https://travis-ci.org/blas-lapack-rs/openblas-src
-[build2-img]: https://ci.appveyor.com/api/projects/status/l438i5ov5wsw4qw0?svg=true
-[build2-url]: https://ci.appveyor.com/project/IvanUkhov/openblas-src
 [documentation-img]: https://docs.rs/openblas-src/badge.svg
 [documentation-url]: https://docs.rs/openblas-src
 [package-img]: https://img.shields.io/crates/v/openblas-src.svg
 [package-url]: https://crates.io/crates/openblas-src
+[github-acctions-badge-img]: https://github.com/blas-lapack-rs/openblas-src/workflows/Rust/badge.svg
+[github-acctions-url]: https://github.com/blas-lapack-rs/openblas-src/actions
