@@ -1,0 +1,89 @@
+name: Rust
+
+on:
+  push:
+    branches:
+      - master
+  pull_request: {}
+
+jobs:
+  windows-msvc:
+    runs-on: windows-2019
+    strategy:
+      fail-fast: false
+      matrix:
+        feature:
+          - system
+          - "system,static"
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/cache@v2
+      with:
+        path: ./vcpkg
+        key: vcpkg-openblas
+    - name: Install vcpkg
+      run: |
+        git clone https://github.com/Microsoft/vcpkg.git --depth 1
+        cd vcpkg
+        ./bootstrap-vcpkg.bat
+    - name: Install static OpenBLAS by vcpkg
+      run: |
+        ./vcpkg/vcpkg.exe install openblas:x64-windows-static
+      if: ${{ matrix.feature == 'system,static' }}
+    - name: Install OpenBLAS by vcpkg
+      run: |
+        ./vcpkg/vcpkg.exe install openblas:x64-windows
+      if: ${{ matrix.feature == 'system' }}
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --features=${{ matrix.feature }}
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+
+  macos:
+    runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        feature:
+          - ""
+          - static
+          - system
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: 'recursive'
+    - name: Install OpenBLAS by homebrew
+      run: |
+        brew install openblas
+      if: ${{ contains(matrix.feature, 'system') }}
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --features=${{ matrix.feature }}
+
+  linux:
+    runs-on: ubuntu-18.04
+    container:
+      image: rust
+    strategy:
+      fail-fast: false
+      matrix:
+        feature:
+          - ""
+          - static
+          - system
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: 'recursive'
+    - name: Install OpenBLAS by apt
+      run: |
+        apt update
+        apt install -y libopenblas-dev
+      if: ${{ contains(matrix.feature, 'system') }}
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --features=${{ matrix.feature }}
