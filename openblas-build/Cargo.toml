@@ -9,4 +9,4 @@ edition = "2018"
 [dependencies]
 anyhow = "1.0"
 log = "0.4.11"
-fs_extra = "1.2.0"
+walkdir = "2.3.1"

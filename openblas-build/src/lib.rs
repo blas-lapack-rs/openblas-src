@@ -13,6 +13,7 @@ use std::{
     path::*,
     process::{Command, Stdio},
 };
+use walkdir::WalkDir;
 
 pub fn openblas_source_dir() -> PathBuf {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("source");
@@ -184,25 +185,27 @@ impl BuildOption {
 
     /// Shared or static library will be created
     /// at `out_dir/libopenblas.so` or `out_dir/libopenblas.a`
-    ///
-    /// - If `out_dir` already exists, it will be removed.
     pub fn build<P: AsRef<Path>>(self, out_dir: P) -> Result<Detail> {
         let out_dir = out_dir.as_ref();
-        if out_dir.exists() {
-            fs::remove_dir_all(&out_dir)?;
+        if !out_dir.exists() {
+            fs::create_dir_all(out_dir)?;
         }
-        fs_extra::dir::copy(
-            openblas_source_dir(),
-            out_dir,
-            &fs_extra::dir::CopyOptions {
-                overwrite: true,
-                skip_exist: false,
-                buffer_size: 1_000_000,
-                copy_inside: true,
-                content_only: false,
-                depth: 0,
-            },
-        )?;
+        let root = openblas_source_dir();
+        for entry in WalkDir::new(&root) {
+            let entry = entry.unwrap();
+            let dest = out_dir.join(entry.path().strip_prefix(&root)?);
+            if dest.exists() {
+                // Do not overwrite
+                // Cache of previous build should be cleaned by `cargo clean`
+                continue;
+            }
+            if entry.file_type().is_dir() {
+                fs::create_dir(&dest)?;
+            }
+            if entry.file_type().is_file() {
+                fs::copy(entry.path(), &dest)?;
+            }
+        }
 
         let out = fs::File::create(out_dir.join("out.log")).expect("Cannot create log file");
         let err = fs::File::create(out_dir.join("err.log")).expect("Cannot create log file");
