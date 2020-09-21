@@ -1,6 +1,6 @@
 //! Execute make of OpenBLAS, and its options
 
-use anyhow::{bail, Result};
+use super::*;
 use std::{
     fs,
     os::unix::io::*,
@@ -8,8 +8,6 @@ use std::{
     process::{Command, Stdio},
 };
 use walkdir::WalkDir;
-
-use crate::check::*;
 
 pub fn openblas_source_dir() -> PathBuf {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("source");
@@ -216,30 +214,6 @@ impl BuildOption {
             .check_call()?;
 
         Ok(MakeConf::new(out_dir.join("Makefile.conf"))?)
-    }
-}
-
-trait CheckCall {
-    fn check_call(&mut self) -> Result<()>;
-}
-
-impl CheckCall for Command {
-    fn check_call(&mut self) -> Result<()> {
-        match self.status() {
-            Ok(status) => {
-                if !status.success() {
-                    bail!(
-                        "Subprocess returns with non-zero status: `{:?}` ({})",
-                        self,
-                        status
-                    );
-                }
-                Ok(())
-            }
-            Err(error) => {
-                bail!("Subprocess execution failed: `{:?}` ({})", self, error);
-            }
-        }
     }
 }
 
