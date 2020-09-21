@@ -9,6 +9,16 @@ use std::{
     path::*,
 };
 
+/// Parse compiler linker flags, `-L` and `-l`
+///
+/// - Search paths defined by `-L` will be removed if not exists,
+///   and will be canonicalize
+///
+/// ```
+/// use openblas_build::*;
+/// let info = LinkInfo::parse("-L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0 -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../..  -lc");
+/// assert_eq!(info.libs, vec!["c"]);
+/// ```
 #[derive(Debug, Clone, Default)]
 pub struct LinkInfo {
     pub search_paths: Vec<PathBuf>,
@@ -98,12 +108,5 @@ mod tests {
         assert!(path.exists());
         let detail = MakeConf::new(path).unwrap();
         assert!(detail.no_fortran);
-    }
-
-    #[test]
-    fn link_info_parse() {
-        // from nofortran.conf
-        let info = LinkInfo::parse("-L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0 -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../..  -lc");
-        assert_eq!(info.libs, vec!["c"]);
     }
 }

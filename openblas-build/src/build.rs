@@ -19,6 +19,7 @@ pub fn openblas_source_dir() -> PathBuf {
     path
 }
 
+/// Interface for 32-bit interger (LP64) and 64-bit integer (ILP64)
 #[derive(Debug, Clone, Copy)]
 pub enum Interface {
     LP64,
@@ -31,8 +32,7 @@ impl Default for Interface {
     }
 }
 
-/// Target CPU list
-/// from https://github.com/xianyi/OpenBLAS/blob/v0.3.10/TargetList.txt
+/// CPU list in [TargetList](https://github.com/xianyi/OpenBLAS/blob/v0.3.10/TargetList.txt)
 #[derive(Debug, Clone, Copy)]
 #[allow(non_camel_case_types)] // to use original identifiers
 pub enum Target {
@@ -132,6 +132,7 @@ pub enum Target {
     Z14,
 }
 
+/// make option generator
 #[derive(Debug, Clone, Default)] // default of bool is false
 pub struct BuildOption {
     pub no_static: bool,
