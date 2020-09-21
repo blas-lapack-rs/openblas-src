@@ -1,5 +1,6 @@
 //! Check make results
 
+use super::*;
 use anyhow::Result;
 use std::{
     collections::HashSet,
@@ -87,6 +88,79 @@ impl MakeConf {
             }
         }
         Ok(detail)
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct LibConf {
+    path: PathBuf,
+    symbols: Vec<String>,
+}
+
+impl LibConf {
+    pub fn new<P: AsRef<Path>>(path: P) -> Self {
+        let path = path.as_ref();
+        if !path.exists() {
+            panic!("File not found: {}", path.display());
+        }
+
+        let nm_out = Command::new("nm")
+            .arg("-g")
+            .arg(path)
+            .output()
+            .expect("nm cannot be started");
+
+        // assumes `nm` output like following:
+        //
+        // ```
+        // 0000000000909b30 T zupmtr_
+        // ```
+        let mut symbols: Vec<_> = nm_out
+            .stdout
+            .lines()
+            .flat_map(|line| {
+                let line = line.ok()?;
+                let entry: Vec<_> = line.trim().split(" ").collect();
+                if entry.len() != 3 {
+                    None
+                } else {
+                    Some(entry[2].into())
+                }
+            })
+            .collect();
+        symbols.sort(); // sort alphabetically
+
+        LibConf {
+            path: path.into(),
+            symbols,
+        }
+    }
+
+    pub fn has_cblas(&self) -> bool {
+        for sym in &self.symbols {
+            if sym.starts_with("cblas_") {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    pub fn has_lapack(&self) -> bool {
+        for sym in &self.symbols {
+            if sym == "dsyev_" {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    pub fn has_lapacke(&self) -> bool {
+        for sym in &self.symbols {
+            if sym.starts_with("LAPACKE_") {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
