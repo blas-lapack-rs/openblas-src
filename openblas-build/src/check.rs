@@ -32,7 +32,7 @@ fn as_sorted_vec<T: Hash + Ord>(set: HashSet<T>) -> Vec<T> {
 }
 
 impl LinkInfo {
-    fn parse(line: &str) -> Self {
+    pub fn parse(line: &str) -> Self {
         let mut search_paths = HashSet::new();
         let mut libs = HashSet::new();
         for entry in line.split(" ") {
