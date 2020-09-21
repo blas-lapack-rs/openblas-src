@@ -1,0 +1,44 @@
+name: openblas-build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request: {}
+
+jobs:
+  macos:
+    runs-on: macos-10.15
+    env:
+      RUST_BACKTRACE: 1
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: 'recursive'
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --manifest-path=openblas-build/Cargo.toml
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --manifest-path=openblas-build/Cargo.toml -- --ignored
+
+  linux:
+    runs-on: ubuntu-18.04
+    container:
+      image: rust
+    env:
+      RUST_BACKTRACE: 1
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: 'recursive'
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --manifest-path=openblas-build/Cargo.toml
+    - uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --manifest-path=openblas-build/Cargo.toml -- --ignored
