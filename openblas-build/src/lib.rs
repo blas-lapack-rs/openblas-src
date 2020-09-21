@@ -259,21 +259,25 @@ fn as_sorted_vec<T: Hash + Ord>(set: HashSet<T>) -> Vec<T> {
 }
 
 impl LinkInfo {
-    fn parse(line: &str) -> Result<Self> {
+    fn parse(line: &str) -> Self {
         let mut search_paths = HashSet::new();
         let mut libs = HashSet::new();
         for entry in line.split(" ") {
             if entry.starts_with("-L") {
-                search_paths.insert(PathBuf::from(entry.trim_start_matches("-L")).canonicalize()?);
+                let path = PathBuf::from(entry.trim_start_matches("-L"));
+                if !path.exists() {
+                    continue;
+                }
+                search_paths.insert(path.canonicalize().expect("Failed to canonicalize path"));
             }
             if entry.starts_with("-l") {
                 libs.insert(entry.trim_start_matches("-l").into());
             }
         }
-        Ok(LinkInfo {
+        LinkInfo {
             search_paths: as_sorted_vec(search_paths),
             libs: as_sorted_vec(libs),
-        })
+        }
     }
 }
 
@@ -304,8 +308,8 @@ impl MakeConf {
             match entry[0] {
                 "OSNAME" => detail.os_name = entry[1].into(),
                 "NOFORTRAN" => detail.no_fortran = true,
-                "CEXTRALIB" => detail.c_extra_libs = LinkInfo::parse(entry[1])?,
-                "FEXTRALIB" => detail.f_extra_libs = LinkInfo::parse(entry[1])?,
+                "CEXTRALIB" => detail.c_extra_libs = LinkInfo::parse(entry[1]),
+                "FEXTRALIB" => detail.f_extra_libs = LinkInfo::parse(entry[1]),
                 _ => continue,
             }
         }
@@ -319,38 +323,33 @@ mod tests {
 
     #[ignore]
     #[test]
-    fn build_default() -> Result<()> {
+    fn build_default() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_default");
+        dbg!(&path);
         let opt = BuildOption::default();
-        let _detail = opt.build("test_build/build_default")?;
-        Ok(())
+        let _detail = opt.build(path).unwrap();
     }
 
     #[test]
-    fn detail_from_makefile_conf() -> Result<()> {
-        let detail = MakeConf::new("Makefile.conf")?;
+    fn detail_from_makefile_conf() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("Makefile.conf");
+        assert!(path.exists());
+        let detail = MakeConf::new(path).unwrap();
         assert!(!detail.no_fortran);
-        Ok(())
     }
 
     #[test]
-    fn detail_from_nofortran_conf() -> Result<()> {
-        let detail = MakeConf::new("nofortran.conf")?;
+    fn detail_from_nofortran_conf() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("nofortran.conf");
+        assert!(path.exists());
+        let detail = MakeConf::new(path).unwrap();
         assert!(detail.no_fortran);
-        Ok(())
     }
 
     #[test]
-    fn link_info_parse() -> Result<()> {
+    fn link_info_parse() {
         // from nofortran.conf
-        let info = LinkInfo::parse("-L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0 -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../..  -lc")?;
-        assert_eq!(
-            info.search_paths,
-            vec![
-                PathBuf::from("/usr/lib"),
-                PathBuf::from("/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0")
-            ]
-        );
+        let info = LinkInfo::parse("-L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0 -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../..  -lc");
         assert_eq!(info.libs, vec!["c"]);
-        Ok(())
     }
 }
