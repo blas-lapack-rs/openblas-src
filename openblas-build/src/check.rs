@@ -131,10 +131,10 @@ impl LibInspect {
             .flat_map(|line| {
                 let line = line.ok()?;
                 let entry: Vec<_> = line.trim().split(" ").collect();
-                if entry.len() != 3 && entry[2] == "T" {
-                    None
-                } else {
+                if entry.len() == 3 && entry[1] == "T" {
                     Some(entry[2].into())
+                } else {
+                    None
                 }
             })
             .collect();

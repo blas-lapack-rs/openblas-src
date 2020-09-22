@@ -245,6 +245,28 @@ mod tests {
 
     #[ignore]
     #[test]
+    fn build_no_shared() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_no_shared");
+        let mut opt = Configure::default();
+        opt.no_shared = true;
+        let detail = opt.build(path).unwrap();
+        assert!(detail.shared_lib.is_none());
+    }
+
+    #[ignore]
+    #[test]
+    fn build_no_lapacke() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_no_lapacke");
+        let mut opt = Configure::default();
+        opt.no_lapacke = true;
+        let detail = opt.build(path).unwrap();
+        let shared_lib = detail.shared_lib.unwrap();
+        assert!(shared_lib.has_lapack());
+        assert!(!shared_lib.has_lapacke());
+    }
+
+    #[ignore]
+    #[test]
     fn build_openmp() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_openmp");
         let mut opt = Configure::default();
