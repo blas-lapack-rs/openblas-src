@@ -24,12 +24,6 @@ pub enum Interface {
     ILP64,
 }
 
-impl Default for Interface {
-    fn default() -> Self {
-        Interface::LP64
-    }
-}
-
 /// CPU list in [TargetList](https://github.com/xianyi/OpenBLAS/blob/v0.3.10/TargetList.txt)
 #[derive(Debug, Clone, Copy)]
 #[allow(non_camel_case_types)] // to use original identifiers
@@ -131,7 +125,7 @@ pub enum Target {
 }
 
 /// make option generator
-#[derive(Debug, Clone, Default)] // default of bool is false
+#[derive(Debug, Clone)]
 pub struct Configure {
     pub no_static: bool,
     pub no_shared: bool,
@@ -143,6 +137,23 @@ pub struct Configure {
     pub dynamic_arch: bool,
     pub interface: Interface,
     pub target: Option<Target>,
+}
+
+impl Default for Configure {
+    fn default() -> Self {
+        Configure {
+            no_static: false,
+            no_shared: false,
+            no_cblas: false,
+            no_lapack: false,
+            no_lapacke: false,
+            use_thread: false,
+            use_openmp: false,
+            dynamic_arch: false,
+            interface: Interface::LP64,
+            target: None,
+        }
+    }
 }
 
 /// Deliverables of `make` command
