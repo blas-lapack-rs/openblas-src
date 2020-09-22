@@ -93,7 +93,15 @@ impl MakeConf {
 
 #[derive(Debug, Clone)]
 pub struct LibDetail {
+    /// File path of library
     path: PathBuf,
+
+    /// Linked shared libraries. It will be empty if the library is static.
+    /// Use `objdump -p` external command.
+    libs: Vec<String>,
+
+    /// Global "T" symbols in the text (code) section of library.
+    /// Use `nm -g` external command.
     symbols: Vec<String>,
 }
 
@@ -121,7 +129,7 @@ impl LibDetail {
             .flat_map(|line| {
                 let line = line.ok()?;
                 let entry: Vec<_> = line.trim().split(" ").collect();
-                if entry.len() != 3 {
+                if entry.len() != 3 && entry[2] == "T" {
                     None
                 } else {
                     Some(entry[2].into())
@@ -130,8 +138,27 @@ impl LibDetail {
             .collect();
         symbols.sort(); // sort alphabetically
 
+        let mut libs: Vec<_> = Command::new("objdump")
+            .arg("-p")
+            .arg(path)
+            .output()
+            .expect("objdump cannot start")
+            .stdout
+            .lines()
+            .flat_map(|line| {
+                let line = line.ok()?;
+                if line.trim().starts_with("NEEDED") {
+                    Some(line.trim().trim_start_matches("NEEDED").trim().into())
+                } else {
+                    None
+                }
+            })
+            .collect();
+        libs.sort();
+
         LibDetail {
             path: path.into(),
+            libs,
             symbols,
         }
     }
@@ -163,23 +190,15 @@ impl LibDetail {
         return false;
     }
 
-    pub fn linked_libs(&self) -> Vec<String> {
-        let out = Command::new("objdump")
-            .arg("-p")
-            .arg(&self.path)
-            .output()
-            .expect("objdump cannot start");
-        out.stdout
-            .lines()
-            .flat_map(|line| {
-                let line = line.ok()?;
-                if line.trim().starts_with("NEEDED") {
-                    Some(line.trim().trim_start_matches("NEEDED").trim().into())
-                } else {
-                    None
+    pub fn has_lib(&self, name: &str) -> bool {
+        for lib in &self.libs {
+            if let Some(stem) = lib.split(".").next() {
+                if stem == format!("lib{}", name) {
+                    return true;
                 }
-            })
-            .collect()
+            };
+        }
+        return false;
     }
 }
 

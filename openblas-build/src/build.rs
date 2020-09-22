@@ -246,11 +246,6 @@ mod tests {
         let mut opt = BuildOption::default();
         opt.use_openmp = true;
         let detail = opt.build(path).unwrap();
-        assert!(detail
-            .shared_lib
-            .unwrap()
-            .linked_libs()
-            .iter()
-            .any(|lib| lib == "libgomp.so.1"));
+        assert!(detail.shared_lib.unwrap().has_lib("gomp"));
     }
 }
