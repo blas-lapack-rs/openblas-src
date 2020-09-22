@@ -2,6 +2,7 @@
 name = "openblas-src"
 version = "0.10.1"
 license = "Apache-2.0/MIT"
+edition = "2018"
 authors = [
     "Corey Richardson <corey@octayn.net>",
     "Ethan Smith <ethan@ethanhs.me>",
