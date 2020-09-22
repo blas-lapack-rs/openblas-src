@@ -145,6 +145,12 @@ pub struct BuildOption {
     pub target: Option<Target>,
 }
 
+pub struct BuildResult {
+    pub static_lib: Option<LibDetail>,
+    pub shared_lib: Option<LibDetail>,
+    pub make_conf: MakeConf,
+}
+
 impl BuildOption {
     fn make_args(&self) -> Vec<String> {
         let mut args = Vec::new();
@@ -180,7 +186,7 @@ impl BuildOption {
 
     /// Shared or static library will be created
     /// at `out_dir/libopenblas.so` or `out_dir/libopenblas.a`
-    pub fn build<P: AsRef<Path>>(self, out_dir: P) -> Result<MakeConf> {
+    pub fn build<P: AsRef<Path>>(self, out_dir: P) -> Result<BuildResult> {
         let out_dir = out_dir.as_ref();
         if !out_dir.exists() {
             fs::create_dir_all(out_dir)?;
@@ -213,7 +219,19 @@ impl BuildOption {
             .args(&self.make_args())
             .check_call()?;
 
-        Ok(MakeConf::new(out_dir.join("Makefile.conf"))?)
+        Ok(BuildResult {
+            static_lib: if !self.no_static {
+                Some(LibDetail::new(out_dir.join("libopenblas.a")))
+            } else {
+                None
+            },
+            shared_lib: if !self.no_shared {
+                Some(LibDetail::new(out_dir.join("libopenblas.so")))
+            } else {
+                None
+            },
+            make_conf: MakeConf::new(out_dir.join("Makefile.conf"))?,
+        })
     }
 }
 
@@ -223,10 +241,16 @@ mod tests {
 
     #[ignore]
     #[test]
-    fn build_default() {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_default");
-        dbg!(&path);
-        let opt = BuildOption::default();
-        let _detail = opt.build(path).unwrap();
+    fn build_openmp() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_openmp");
+        let mut opt = BuildOption::default();
+        opt.use_openmp = true;
+        let detail = opt.build(path).unwrap();
+        assert!(detail
+            .shared_lib
+            .unwrap()
+            .linked_libs()
+            .iter()
+            .any(|lib| lib == "libgomp.so.1"));
     }
 }

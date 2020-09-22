@@ -92,12 +92,12 @@ impl MakeConf {
 }
 
 #[derive(Debug, Clone)]
-pub struct LibConf {
+pub struct LibDetail {
     path: PathBuf,
     symbols: Vec<String>,
 }
 
-impl LibConf {
+impl LibDetail {
     pub fn new<P: AsRef<Path>>(path: P) -> Self {
         let path = path.as_ref();
         if !path.exists() {
@@ -130,7 +130,7 @@ impl LibConf {
             .collect();
         symbols.sort(); // sort alphabetically
 
-        LibConf {
+        LibDetail {
             path: path.into(),
             symbols,
         }
@@ -161,6 +161,25 @@ impl LibConf {
             }
         }
         return false;
+    }
+
+    pub fn linked_libs(&self) -> Vec<String> {
+        let out = Command::new("objdump")
+            .arg("-p")
+            .arg(&self.path)
+            .output()
+            .expect("objdump cannot start");
+        out.stdout
+            .lines()
+            .flat_map(|line| {
+                let line = line.ok()?;
+                if line.trim().starts_with("NEEDED") {
+                    Some(line.trim().trim_start_matches("NEEDED").trim().into())
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 }
 
