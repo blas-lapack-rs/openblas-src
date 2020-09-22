@@ -9,7 +9,7 @@ use std::{
 };
 use walkdir::WalkDir;
 
-pub fn openblas_source_dir() -> PathBuf {
+fn openblas_source_dir() -> PathBuf {
     let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("source");
     if !path.join("Makefile").exists() {
         panic!("OpenBLAS repository has not been cloned. Run `git submodule update --init`");
@@ -132,7 +132,7 @@ pub enum Target {
 
 /// make option generator
 #[derive(Debug, Clone, Default)] // default of bool is false
-pub struct BuildOption {
+pub struct Configure {
     pub no_static: bool,
     pub no_shared: bool,
     pub no_cblas: bool,
@@ -145,13 +145,17 @@ pub struct BuildOption {
     pub target: Option<Target>,
 }
 
-pub struct BuildResult {
-    pub static_lib: Option<LibDetail>,
-    pub shared_lib: Option<LibDetail>,
+/// Deliverables of `make` command
+pub struct Deliverables {
+    /// None if `no_static`
+    pub static_lib: Option<LibInspect>,
+    /// None if `no_shared`
+    pub shared_lib: Option<LibInspect>,
+    /// Inspection what `make` command really show.
     pub make_conf: MakeConf,
 }
 
-impl BuildOption {
+impl Configure {
     fn make_args(&self) -> Vec<String> {
         let mut args = Vec::new();
         if self.no_static {
@@ -186,7 +190,7 @@ impl BuildOption {
 
     /// Shared or static library will be created
     /// at `out_dir/libopenblas.so` or `out_dir/libopenblas.a`
-    pub fn build<P: AsRef<Path>>(self, out_dir: P) -> Result<BuildResult> {
+    pub fn build<P: AsRef<Path>>(self, out_dir: P) -> Result<Deliverables> {
         let out_dir = out_dir.as_ref();
         if !out_dir.exists() {
             fs::create_dir_all(out_dir)?;
@@ -219,14 +223,14 @@ impl BuildOption {
             .args(&self.make_args())
             .check_call()?;
 
-        Ok(BuildResult {
+        Ok(Deliverables {
             static_lib: if !self.no_static {
-                Some(LibDetail::new(out_dir.join("libopenblas.a")))
+                Some(LibInspect::new(out_dir.join("libopenblas.a")))
             } else {
                 None
             },
             shared_lib: if !self.no_shared {
-                Some(LibDetail::new(out_dir.join("libopenblas.so")))
+                Some(LibInspect::new(out_dir.join("libopenblas.so")))
             } else {
                 None
             },
@@ -243,7 +247,7 @@ mod tests {
     #[test]
     fn build_openmp() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_openmp");
-        let mut opt = BuildOption::default();
+        let mut opt = Configure::default();
         opt.use_openmp = true;
         let detail = opt.build(path).unwrap();
         assert!(detail.shared_lib.unwrap().has_lib("gomp"));
