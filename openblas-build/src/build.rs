@@ -234,6 +234,12 @@ impl Configure {
             .args(&self.make_args())
             .check_call()?;
 
+        let make_conf = MakeConf::new(out_dir.join("Makefile.conf"))?;
+
+        if !self.no_lapack && make_conf.no_fortran {
+            bail!("No Fortran Compiler found. It is needed for compiling LAPACK.");
+        }
+
         Ok(Deliverables {
             static_lib: if !self.no_static {
                 Some(LibInspect::new(out_dir.join("libopenblas.a")))
@@ -245,7 +251,7 @@ impl Configure {
             } else {
                 None
             },
-            make_conf: MakeConf::new(out_dir.join("Makefile.conf"))?,
+            make_conf,
         })
     }
 }
