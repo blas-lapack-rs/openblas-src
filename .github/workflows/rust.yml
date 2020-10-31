@@ -37,7 +37,9 @@ jobs:
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --features=${{ matrix.feature }}
+        args: >
+          --features=${{ matrix.feature }}
+          --manifest-path=openblas-src/Cargo.toml
       env:
         VCPKG_ROOT: ${{ github.workspace }}/vcpkg
 
@@ -61,7 +63,9 @@ jobs:
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --features=${{ matrix.feature }}
+        args: >
+          --features=${{ matrix.feature }}
+          --manifest-path=openblas-src/Cargo.toml
 
   linux:
     runs-on: ubuntu-18.04
@@ -86,4 +90,6 @@ jobs:
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --features=${{ matrix.feature }}
+        args: >
+          --features=${{ matrix.feature }}
+          --manifest-path=openblas-src/Cargo.toml
