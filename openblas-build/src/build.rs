@@ -10,7 +10,11 @@ use std::{
 use walkdir::WalkDir;
 
 fn openblas_source_dir() -> PathBuf {
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("source");
+    // FIXME This cannot work with cargo publish/package
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap()
+        .join("openblas-src/source");
     if !path.join("Makefile").exists() {
         panic!("OpenBLAS repository has not been cloned. Run `git submodule update --init`");
     }
