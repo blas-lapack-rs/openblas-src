@@ -143,7 +143,11 @@ fn main() {
             if source_tmp.exists() {
                 fs::remove_dir_all(&source_tmp).unwrap();
             }
-            run(Command::new("cp").arg("-R").arg("source").arg(&source_tmp));
+            run(Command::new("cp")
+                .arg("-R")
+                .arg("source")
+                .arg(&source_tmp)
+                .current_dir(PathBuf::from(env!("CARGO_MANIFEST_DIR")).parent().unwrap()));
             fs::rename(&source_tmp, &source).unwrap();
         }
         for name in &vec!["CC", "FC", "HOSTCC"] {
