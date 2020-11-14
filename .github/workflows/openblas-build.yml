@@ -9,6 +9,13 @@ on:
 jobs:
   macos:
     runs-on: macos-10.15
+    strategy:
+      fail-fast: false
+      matrix:
+        test_target:
+          - build_no_lapacke
+          - build_no_shared
+          - build_openmp
     env:
       RUST_BACKTRACE: 1
     steps:
@@ -24,10 +31,17 @@ jobs:
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --manifest-path=openblas-build/Cargo.toml -- --ignored
+        args: ${{ matrix.test_target }} --manifest-path=openblas-build/Cargo.toml -- --ignored
 
   linux:
     runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        test_target:
+          - build_no_lapacke
+          - build_no_shared
+          - build_openmp
     container:
       image: rust
     env:
@@ -47,4 +61,4 @@ jobs:
     - uses: actions-rs/cargo@v1
       with:
         command: test
-        args: --manifest-path=openblas-build/Cargo.toml -- --ignored
+        args: ${{ matrix.test_target }} --manifest-path=openblas-build/Cargo.toml -- --ignored
