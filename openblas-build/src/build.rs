@@ -230,13 +230,32 @@ impl Configure {
         let out = fs::File::create(out_dir.join("out.log")).expect("Cannot create log file");
         let err = fs::File::create(out_dir.join("err.log")).expect("Cannot create log file");
 
-        // This will automatically run in parallel without `-j` flag
-        Command::new("make")
+        // Run `make` as an subprocess
+        //
+        // - This will automatically run in parallel without `-j` flag
+        // - The `make` of OpenBLAS outputs 30k lines,
+        //   which will be redirected into `out.log` and `err.log`.
+        match Command::new("make")
             .current_dir(out_dir)
             .stdout(unsafe { Stdio::from_raw_fd(out.into_raw_fd()) }) // this works only for unix
             .stderr(unsafe { Stdio::from_raw_fd(err.into_raw_fd()) })
             .args(&self.make_args())
-            .check_call()?;
+            .status()
+        {
+            Ok(status) => {
+                if !status.success() {
+                    let err =
+                        fs::read_to_string(out_dir.join("err.log")).expect("Cannot read log file");
+                    bail!("`make` returns non-zero status {}:\n{}", status, err);
+                }
+            }
+            Err(error) => {
+                bail!(
+                    "Cannot start subprocess ({}). Maybe `make` does not exist.",
+                    error
+                );
+            }
+        }
 
         let make_conf = MakeConf::new(out_dir.join("Makefile.conf"))?;
 
