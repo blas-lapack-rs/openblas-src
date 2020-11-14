@@ -24,11 +24,13 @@ jobs:
         submodules: 'recursive'
     - name: Install gfortran by homebrew
       run: brew install gcc
-    - uses: actions-rs/cargo@v1
+    - name: Common minor tests
+      uses: actions-rs/cargo@v1
       with:
         command: test
         args: --manifest-path=openblas-build/Cargo.toml
-    - uses: actions-rs/cargo@v1
+    - name: Build test
+      uses: actions-rs/cargo@v1
       with:
         command: test
         args: ${{ matrix.test_target }} --manifest-path=openblas-build/Cargo.toml -- --ignored
@@ -54,11 +56,13 @@ jobs:
       run: |
         apt update
         apt install -y gfortran
-    - uses: actions-rs/cargo@v1
+    - name: Common minor tests
+      uses: actions-rs/cargo@v1
       with:
         command: test
         args: --manifest-path=openblas-build/Cargo.toml
-    - uses: actions-rs/cargo@v1
+    - name: Build test
+      uses: actions-rs/cargo@v1
       with:
         command: test
         args: ${{ matrix.test_target }} --manifest-path=openblas-build/Cargo.toml -- --ignored
