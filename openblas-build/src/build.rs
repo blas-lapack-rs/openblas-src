@@ -270,7 +270,11 @@ impl Configure {
                 None
             },
             shared_lib: if !self.no_shared {
-                Some(LibInspect::new(out_dir.join("libopenblas.so")))
+                Some(LibInspect::new(if cfg!(target_os = "macos") {
+                    out_dir.join("libopenblas.dylib")
+                } else {
+                    out_dir.join("libopenblas.so")
+                }))
             } else {
                 None
             },
