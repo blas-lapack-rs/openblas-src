@@ -1,0 +1,9 @@
+[package]
+name = "openblas-build"
+version = "0.1.0"
+authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0"
+walkdir = "2.3.1"
