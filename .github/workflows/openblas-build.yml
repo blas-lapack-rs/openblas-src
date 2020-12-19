@@ -7,34 +7,6 @@ on:
   pull_request: {}
 
 jobs:
-  macos:
-    runs-on: macos-10.15
-    strategy:
-      fail-fast: false
-      matrix:
-        test_target:
-          - build_no_lapacke
-          - build_no_shared
-          - build_openmp
-    env:
-      RUST_BACKTRACE: 1
-    steps:
-    - uses: actions/checkout@v1
-      with:
-        submodules: 'recursive'
-    - name: Install gfortran by homebrew
-      run: brew install gcc
-    - name: Common minor tests
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: --manifest-path=openblas-build/Cargo.toml
-    - name: Build test
-      uses: actions-rs/cargo@v1
-      with:
-        command: test
-        args: ${{ matrix.test_target }} --manifest-path=openblas-build/Cargo.toml -- --ignored
-
   linux:
     runs-on: ubuntu-18.04
     strategy:
