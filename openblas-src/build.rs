@@ -114,6 +114,10 @@ fn run(command: &mut Command) {
 }
 
 /// openblas-src 0.9.0 compatible `make` runner
+///
+/// This cannot detect that OpenBLAS skips LAPACK build due to the absense of Fortran compiler.
+/// openblas-build crate can detect it by sneaking OpenBLAS build system, but only works on Linux.
+///
 fn naive_build() {
     let output = PathBuf::from(env::var("OUT_DIR").unwrap().replace(r"\", "/"));
     let mut make = Command::new("make");
