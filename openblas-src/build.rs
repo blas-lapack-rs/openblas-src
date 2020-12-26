@@ -94,7 +94,11 @@ fn main() {
                 "Non-vcpkg builds are not supported on Windows. You must use the 'system' feature."
             )
         }
-        naive_build();
+        if cfg!(target_os = "linux") {
+            build();
+        } else {
+            naive_build();
+        }
     }
     println!("cargo:rustc-link-lib={}=openblas", link_kind);
 }
@@ -111,6 +115,13 @@ fn run(command: &mut Command) {
             panic!("Failed: `{:?}` ({})", command, error);
         }
     }
+}
+
+/// Build OpenBLAS using openblas-build crate
+fn build() {
+    let output = PathBuf::from(env::var("OUT_DIR").unwrap()).join("OpenBLAS");
+    let cfg = openblas_build::Configure::default();
+    cfg.build(&output).unwrap();
 }
 
 /// openblas-src 0.9.0 compatible `make` runner
