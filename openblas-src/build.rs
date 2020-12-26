@@ -120,7 +120,18 @@ fn run(command: &mut Command) {
 /// Build OpenBLAS using openblas-build crate
 fn build() {
     let output = PathBuf::from(env::var("OUT_DIR").unwrap()).join("OpenBLAS");
-    let cfg = openblas_build::Configure::default();
+    let mut cfg = openblas_build::Configure::default();
+    if !feature_enabled("cblas") {
+        cfg.no_cblas = true;
+    }
+    if !feature_enabled("lapacke") {
+        cfg.no_lapacke = true;
+    }
+    if feature_enabled("static") {
+        cfg.no_shared = true;
+    } else {
+        cfg.no_static = true;
+    }
     cfg.build(&output).unwrap();
 }
 
