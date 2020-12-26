@@ -1,6 +1,6 @@
 //! Execute make of OpenBLAS, and its options
 
-use super::*;
+use crate::{check::*, error::*};
 use std::{
     fs,
     os::unix::io::*,
@@ -205,15 +205,21 @@ impl Configure {
 
     /// Shared or static library will be created
     /// at `out_dir/libopenblas.so` or `out_dir/libopenblas.a`
-    pub fn build<P: AsRef<Path>>(self, out_dir: P) -> Result<Deliverables> {
+    pub fn build<P: AsRef<Path>>(self, out_dir: P) -> Result<Deliverables, Error> {
         let out_dir = out_dir.as_ref();
         if !out_dir.exists() {
             fs::create_dir_all(out_dir)?;
         }
+
         let root = openblas_source_dir();
         for entry in WalkDir::new(&root) {
-            let entry = entry.unwrap();
-            let dest = out_dir.join(entry.path().strip_prefix(&root)?);
+            let entry = entry.expect("Unknown IO error while walkdir");
+            let dest = out_dir.join(
+                entry
+                    .path()
+                    .strip_prefix(&root)
+                    .expect("Directory entry is not under root"),
+            );
             if dest.exists() {
                 // Do not overwrite
                 // Cache of previous build should be cleaned by `cargo clean`
@@ -240,27 +246,25 @@ impl Configure {
             .stdout(unsafe { Stdio::from_raw_fd(out.into_raw_fd()) }) // this works only for unix
             .stderr(unsafe { Stdio::from_raw_fd(err.into_raw_fd()) })
             .args(&self.make_args())
-            .status()
+            .check_call()
         {
-            Ok(status) => {
-                if !status.success() {
-                    let err =
-                        fs::read_to_string(out_dir.join("err.log")).expect("Cannot read log file");
-                    bail!("`make` returns non-zero status {}:\n{}", status, err);
-                }
-            }
-            Err(error) => {
-                bail!(
-                    "Cannot start subprocess ({}). Maybe `make` does not exist.",
-                    error
+            Ok(_) => {}
+            Err(err @ Error::NonZeroExitStatus { .. }) => {
+                eprintln!(
+                    "{}",
+                    fs::read_to_string(out_dir.join("err.log")).expect("Cannot read log file")
                 );
+                return Err(err);
+            }
+            Err(e) => {
+                return Err(e);
             }
         }
 
         let make_conf = MakeConf::new(out_dir.join("Makefile.conf"))?;
 
         if !self.no_lapack && make_conf.no_fortran {
-            bail!("No Fortran Compiler found. It is needed for compiling LAPACK.");
+            return Err(Error::FortranCompilerNotFound);
         }
 
         Ok(Deliverables {

@@ -5,5 +5,5 @@ authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-anyhow = "1.0"
+thiserror = "1.0.22"
 walkdir = "2.3.1"

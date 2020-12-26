@@ -1,13 +1,13 @@
 //! Check make results
 
-use super::*;
-use anyhow::Result;
+use crate::error::*;
 use std::{
     collections::HashSet,
     fs,
     hash::Hash,
     io::{self, BufRead},
     path::*,
+    process::Command,
 };
 
 /// Parse compiler linker flags, `-L` and `-l`
@@ -68,7 +68,7 @@ pub struct MakeConf {
 
 impl MakeConf {
     /// Parse from file
-    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self> {
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         let mut detail = MakeConf::default();
         let f = fs::File::open(path)?;
         let buf = io::BufReader::new(f);
