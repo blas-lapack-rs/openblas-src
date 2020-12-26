@@ -1,15 +1,7 @@
-use std::{env, fs, path::*, process::Command};
+use std::{env, path::*, process::Command};
 
 fn feature_enabled(feature: &str) -> bool {
     env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
-}
-
-fn binary() -> &'static str {
-    if cfg!(target_pointer_width = "32") {
-        "32"
-    } else {
-        "64"
-    }
 }
 
 /// Add path where pacman (on msys2) install OpenBLAS
@@ -94,32 +86,15 @@ fn main() {
                 "Non-vcpkg builds are not supported on Windows. You must use the 'system' feature."
             )
         }
-        if cfg!(target_os = "linux") {
-            build();
-        } else {
-            naive_build();
-        }
+        build();
     }
     println!("cargo:rustc-link-lib={}=openblas", link_kind);
 }
 
-fn run(command: &mut Command) {
-    println!("Running: `{:?}`", command);
-    match command.status() {
-        Ok(status) => {
-            if !status.success() {
-                panic!("Failed: `{:?}` ({})", command, status);
-            }
-        }
-        Err(error) => {
-            panic!("Failed: `{:?}` ({})", command, error);
-        }
-    }
-}
-
 /// Build OpenBLAS using openblas-build crate
+#[cfg(target_os = "linux")]
 fn build() {
-    let output = PathBuf::from(env::var("OUT_DIR").unwrap()).join("OpenBLAS");
+    let output = PathBuf::from(env::var("OUT_DIR").unwrap());
     let mut cfg = openblas_build::Configure::default();
     if !feature_enabled("cblas") {
         cfg.no_cblas = true;
@@ -140,7 +115,10 @@ fn build() {
 /// This cannot detect that OpenBLAS skips LAPACK build due to the absense of Fortran compiler.
 /// openblas-build crate can detect it by sneaking OpenBLAS build system, but only works on Linux.
 ///
-fn naive_build() {
+#[cfg(target_os = "macos")]
+fn build() {
+    use std::fs;
+
     let output = PathBuf::from(env::var("OUT_DIR").unwrap().replace(r"\", "/"));
     let mut make = Command::new("make");
     make.args(&["libs", "netlib", "shared"])
@@ -206,4 +184,26 @@ fn naive_build() {
         "cargo:rustc-link-search={}",
         output.join("opt/OpenBLAS/lib").display(),
     );
+
+    fn run(command: &mut Command) {
+        println!("Running: `{:?}`", command);
+        match command.status() {
+            Ok(status) => {
+                if !status.success() {
+                    panic!("Failed: `{:?}` ({})", command, status);
+                }
+            }
+            Err(error) => {
+                panic!("Failed: `{:?}` ({})", command, error);
+            }
+        }
+    }
+
+    fn binary() -> &'static str {
+        if cfg!(target_pointer_width = "32") {
+            "32"
+        } else {
+            "64"
+        }
+    }
 }
