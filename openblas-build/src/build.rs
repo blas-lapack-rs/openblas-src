@@ -213,8 +213,13 @@ impl Configure {
 
         let root = openblas_source_dir();
         for entry in WalkDir::new(&root) {
-            let entry = entry.unwrap();
-            let dest = out_dir.join(entry.path().strip_prefix(&root).unwrap());
+            let entry = entry.expect("Unknown IO error while walkdir");
+            let dest = out_dir.join(
+                entry
+                    .path()
+                    .strip_prefix(&root)
+                    .expect("Directory entry is not under root"),
+            );
             if dest.exists() {
                 // Do not overwrite
                 // Cache of previous build should be cleaned by `cargo clean`
