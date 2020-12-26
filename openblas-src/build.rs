@@ -108,6 +108,7 @@ fn build() {
         cfg.no_static = true;
     }
     cfg.build(&output).unwrap();
+    println!("cargo:rustc-link-search={}", output.display());
 }
 
 /// openblas-src 0.9.0 compatible `make` runner
