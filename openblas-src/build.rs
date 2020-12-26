@@ -115,7 +115,7 @@ fn build() {
 /// This cannot detect that OpenBLAS skips LAPACK build due to the absense of Fortran compiler.
 /// openblas-build crate can detect it by sneaking OpenBLAS build system, but only works on Linux.
 ///
-#[cfg(target_os = "macos")]
+#[cfg(not(target_os = "linux"))]
 fn build() {
     use std::fs;
 
