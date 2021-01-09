@@ -19,6 +19,8 @@ extern "C" {
     );
 }
 
+// `dormbr_` is imported from reference LAPACK written in Fortran into OpenBLAS project.
+// This test will fail to link when OpenBLAS does not build Fortran part.
 #[test]
 fn test_link_lapack() {
     let m = 1;
