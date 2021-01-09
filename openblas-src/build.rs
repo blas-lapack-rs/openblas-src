@@ -107,7 +107,20 @@ fn build() {
     } else {
         cfg.no_static = true;
     }
-    cfg.build(&output).unwrap();
+    let deliv = cfg.build(&output).unwrap();
+
+    for search_path in &deliv.make_conf.c_extra_libs.search_paths {
+        println!("cargo:rustc-link-search={}", search_path.display());
+    }
+    for lib in &deliv.make_conf.c_extra_libs.libs {
+        println!("cargo:rustc-link-lib={}", lib);
+    }
+    for search_path in &deliv.make_conf.f_extra_libs.search_paths {
+        println!("cargo:rustc-link-search={}", search_path.display());
+    }
+    for lib in &deliv.make_conf.f_extra_libs.libs {
+        println!("cargo:rustc-link-lib={}", lib);
+    }
     println!("cargo:rustc-link-search={}", output.display());
 }
 
