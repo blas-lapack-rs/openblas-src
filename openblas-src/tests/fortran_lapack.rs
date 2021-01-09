@@ -1,3 +1,17 @@
+// FIXME This should be test also on Windows and macOS.
+//
+// However, we have several problems:
+//
+// - we cannot build Fortran part of OpenBLAS on windows-msvc platform
+//   because the absence of Fortran compiler
+//
+// - In macOS, we can get gfortran by `brew install gcc`,
+//   but it is too time-consuming to execute on CI.
+//   GitHub Actions's macOS instance says gfotran is "installed",
+//   but it is too fragile me to give up using it.
+//
+#![cfg(target_os = "linux")]
+
 extern crate openblas_src as _src;
 
 extern "C" {
