@@ -1,0 +1,40 @@
+name: openblas-build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request: {}
+
+jobs:
+  linux:
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        test_target:
+          - build_no_lapacke
+          - build_no_shared
+          - build_openmp
+    container:
+      image: rust
+    env:
+      RUST_BACKTRACE: 1
+    steps:
+    - uses: actions/checkout@v1
+      with:
+        submodules: 'recursive'
+    - name: Install gfortran by apt
+      run: |
+        apt update
+        apt install -y gfortran
+    - name: Common minor tests
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: --manifest-path=openblas-build/Cargo.toml
+    - name: Build test
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
+        args: ${{ matrix.test_target }} --manifest-path=openblas-build/Cargo.toml -- --ignored

@@ -1,6 +1,8 @@
 //! Source of [BLAS] and [LAPACK] via [OpenBLAS].
 //!
-//! The usage of the package is explained [here][usage].
+//! ## [Architecture]
+//!
+//! ## Configuration
 //!
 //! The following Cargo features are supported:
 //!
@@ -10,9 +12,9 @@
 //! * `static` to link to OpenBLAS statically, and
 //! * `system` to skip building the bundled OpenBLAS.
 //!
+//! [architecture]: https://blas-lapack-rs.github.io/architecture
 //! [blas]: https://en.wikipedia.org/wiki/BLAS
 //! [lapack]: https://en.wikipedia.org/wiki/LAPACK
 //! [openblas]: http://www.openblas.net
-//! [usage]: https://blas-lapack-rs.github.io/usage
 
 #![no_std]

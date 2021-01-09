@@ -2,7 +2,9 @@
 
 The package provides a source of [BLAS] and [LAPACK] via [OpenBLAS].
 
-The usage of the package is explained [here][usage].
+## [Architecture]
+
+## Configuration
 
 The following Cargo features are supported:
 
@@ -50,11 +52,11 @@ Your contribution is highly appreciated. Do not hesitate to open an issue or a
 pull request. Note that any contribution submitted for inclusion in the project
 will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 
+[architecture]: https://blas-lapack-rs.github.io/architecture
 [blas]: https://en.wikipedia.org/wiki/BLAS
 [lapack]: https://en.wikipedia.org/wiki/LAPACK
 [openblas]: http://www.openblas.net/
 [openblas-cross-compile]: https://github.com/xianyi/OpenBLAS#cross-compile
-[usage]: https://blas-lapack-rs.github.io/usage
 [vcpkg]: https://github.com/Microsoft/vcpkg
 
 [build-img]: https://github.com/blas-lapack-rs/openblas-src/workflows/Rust/badge.svg
