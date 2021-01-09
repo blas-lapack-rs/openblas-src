@@ -241,11 +241,15 @@ impl Configure {
         // - This will automatically run in parallel without `-j` flag
         // - The `make` of OpenBLAS outputs 30k lines,
         //   which will be redirected into `out.log` and `err.log`.
+        // - cargo sets `TARGET` environment variable as target triple (e.g. x86_64-unknown-linux-gnu)
+        //   while binding build.rs, but `make` read it as CPU target specification.
+        //
         match Command::new("make")
             .current_dir(out_dir)
             .stdout(unsafe { Stdio::from_raw_fd(out.into_raw_fd()) }) // this works only for unix
             .stderr(unsafe { Stdio::from_raw_fd(err.into_raw_fd()) })
             .args(&self.make_args())
+            .env_remove("TARGET")
             .check_call()
         {
             Ok(_) => {}
@@ -290,6 +294,14 @@ impl Configure {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[ignore]
+    #[test]
+    fn build_default() {
+        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_default");
+        let opt = Configure::default();
+        let _detail = opt.build(path).unwrap();
+    }
 
     #[ignore]
     #[test]
