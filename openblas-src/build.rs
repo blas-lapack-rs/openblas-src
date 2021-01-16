@@ -1,4 +1,4 @@
-use std::{env, path::*, process::Command};
+use std::{collections::hash_map::DefaultHasher, env, hash::*, path::*, process::Command};
 
 fn feature_enabled(feature: &str) -> bool {
     env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
@@ -94,7 +94,6 @@ fn main() {
 /// Build OpenBLAS using openblas-build crate
 #[cfg(target_os = "linux")]
 fn build() {
-    let output = PathBuf::from(env::var("OUT_DIR").unwrap());
     let mut cfg = openblas_build::Configure::default();
     if !feature_enabled("cblas") {
         cfg.no_cblas = true;
@@ -107,6 +106,45 @@ fn build() {
     } else {
         cfg.no_static = true;
     }
+
+    let output = if feature_enabled("cache") {
+        // Build OpenBLAS on user's data directory.
+        // See https://docs.rs/dirs/3.0.1/dirs/fn.data_dir.html
+        //
+        // On Linux, `data_dir` returns `$XDG_DATA_HOME` or `$HOME/.local/share`.
+        // This build script creates a directory based on the hash value of `cfg`,
+        // i.e. `$XDG_DATA_HOME/openblas_build/[Hash of cfg]`, and build OpenBLAS there.
+        //
+        // This build will be shared among several projects using openblas-src crate.
+        // It makes users not to build OpenBLAS in every `cargo build`.
+        let mut hasher = DefaultHasher::new();
+        cfg.hash(&mut hasher);
+        let output = dirs::data_dir()
+            .expect("Cannot get user's data directory")
+            .join("openblas_build")
+            .join(format!("{:x}", hasher.finish()));
+        output
+    } else {
+        PathBuf::from(env::var("OUT_DIR").unwrap())
+    };
+
+    // If OpenBLAS is build as shared, user of openblas-src will have to find `libopenblas.so` at runtime.
+    //
+    // `cargo run` appends the link paths to `LD_LIBRARY_PATH` specified by `cargo:rustc-link-search`,
+    // and user's crate can find it then.
+    //
+    // However, when user try to run it directly like `./target/release/user_crate_exe`, it will say
+    // "error while loading shared libraries: libopenblas.so: cannot open shared object file: No such file or directory".
+    //
+    // Be sure that `cargo:warning` is shown only when openblas-src is build as path dependency...
+    // https://doc.rust-lang.org/cargo/reference/build-scripts.html#cargowarningmessage
+    if !feature_enabled("static") {
+        println!(
+            "cargo:warning=OpenBLAS is built as a shared library. You need to set LD_LIBRARY_PATH={}",
+            output.display()
+        );
+    }
+
     let deliv = cfg.build(&output).unwrap();
 
     for search_path in &deliv.make_conf.c_extra_libs.search_paths {
