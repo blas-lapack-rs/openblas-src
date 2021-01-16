@@ -9,18 +9,6 @@ use std::{
 };
 use walkdir::WalkDir;
 
-fn openblas_source_dir() -> PathBuf {
-    // FIXME This cannot work with cargo publish/package
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .parent()
-        .unwrap()
-        .join("openblas-src/source");
-    if !path.join("Makefile").exists() {
-        panic!("OpenBLAS repository has not been cloned. Run `git submodule update --init`");
-    }
-    path
-}
-
 /// Interface for 32-bit interger (LP64) and 64-bit integer (ILP64)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Interface {
@@ -248,7 +236,11 @@ impl Configure {
     ///   This means that the system environment is not appropriate to execute `make`,
     ///   e.g. LAPACK is required but there is no Fortran compiler.
     ///
-    pub fn build<P: AsRef<Path>>(self, out_dir: P) -> Result<Deliverables, Error> {
+    pub fn build(
+        self,
+        openblas_root: impl AsRef<Path>,
+        out_dir: impl AsRef<Path>,
+    ) -> Result<Deliverables, Error> {
         let out_dir = out_dir.as_ref();
         if !out_dir.exists() {
             fs::create_dir_all(out_dir)?;
@@ -260,7 +252,7 @@ impl Configure {
         }
 
         // Copy OpenBLAS sources from this crate to `out_dir`
-        let root = openblas_source_dir();
+        let root = openblas_root.as_ref();
         for entry in WalkDir::new(&root) {
             let entry = entry.expect("Unknown IO error while walkdir");
             let dest = out_dir.join(
@@ -324,28 +316,43 @@ mod tests {
     #[ignore]
     #[test]
     fn build_default() {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_default");
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let opt = Configure::default();
-        let _detail = opt.build(path).unwrap();
+        let _detail = opt
+            .build(
+                root.join("../openblas-src/source"),
+                root.join("test_build/build_default"),
+            )
+            .unwrap();
     }
 
     #[ignore]
     #[test]
     fn build_no_shared() {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_no_shared");
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let mut opt = Configure::default();
         opt.no_shared = true;
-        let detail = opt.build(path).unwrap();
+        let detail = opt
+            .build(
+                root.join("../openblas-src/source"),
+                root.join("test_build/build_no_shared"),
+            )
+            .unwrap();
         assert!(detail.shared_lib.is_none());
     }
 
     #[ignore]
     #[test]
     fn build_no_lapacke() {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_no_lapacke");
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let mut opt = Configure::default();
         opt.no_lapacke = true;
-        let detail = opt.build(path).unwrap();
+        let detail = opt
+            .build(
+                root.join("../openblas-src/source"),
+                root.join("test_build/build_no_lapacke"),
+            )
+            .unwrap();
         let shared_lib = detail.shared_lib.unwrap();
         assert!(shared_lib.has_lapack());
         assert!(!shared_lib.has_lapacke());
@@ -354,10 +361,15 @@ mod tests {
     #[ignore]
     #[test]
     fn build_openmp() {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test_build/build_openmp");
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let mut opt = Configure::default();
         opt.use_openmp = true;
-        let detail = opt.build(path).unwrap();
+        let detail = opt
+            .build(
+                root.join("../openblas-src/source"),
+                root.join("test_build/build_openmp"),
+            )
+            .unwrap();
         assert!(detail.shared_lib.unwrap().has_lib("gomp"));
     }
 }

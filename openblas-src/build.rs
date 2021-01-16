@@ -146,7 +146,8 @@ fn build() {
         );
     }
 
-    let deliv = cfg.build(&output).unwrap();
+    let source = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("source");
+    let deliv = cfg.build(&source, &output).unwrap();
 
     for search_path in &deliv.make_conf.c_extra_libs.search_paths {
         println!("cargo:rustc-link-search={}", search_path.display());
