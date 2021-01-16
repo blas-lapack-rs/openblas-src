@@ -18,6 +18,9 @@ pub enum Error {
     #[error("Makefile.conf does not exist in {}", out_dir.display())]
     MakeConfNotExist { out_dir: PathBuf },
 
+    #[error("Library file does not exist: {}", path.display())]
+    LibraryNotExist { path: PathBuf },
+
     #[error("Other IO errors: {0:?}")]
     IOError(#[from] io::Error),
 }

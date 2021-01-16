@@ -113,17 +113,15 @@ impl LibInspect {
     /// Inspect library file
     ///
     /// Be sure that `nm -g` and `objdump -p` are executed in this function
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         let path = path.as_ref();
         if !path.exists() {
-            panic!("File not found: {}", path.display());
+            return Err(Error::LibraryNotExist {
+                path: path.to_owned(),
+            });
         }
 
-        let nm_out = Command::new("nm")
-            .arg("-g")
-            .arg(path)
-            .output()
-            .expect("nm cannot be started");
+        let nm_out = Command::new("nm").arg("-g").arg(path).output()?;
 
         // assumes `nm` output like following:
         //
@@ -134,7 +132,7 @@ impl LibInspect {
             .stdout
             .lines()
             .flat_map(|line| {
-                let line = line.ok()?;
+                let line = line.expect("nm output should not include non-UTF8 output");
                 let entry: Vec<_> = line.trim().split(" ").collect();
                 if entry.len() == 3 && entry[1] == "T" {
                     Some(entry[2].into())
@@ -148,14 +146,13 @@ impl LibInspect {
         let mut libs: Vec<_> = Command::new("objdump")
             .arg("-p")
             .arg(path)
-            .output()
-            .expect("objdump cannot start")
+            .output()?
             .stdout
             .lines()
             .flat_map(|line| {
-                let line = line.ok()?;
+                let line = line.expect("objdump output should not include non-UTF8 output");
                 if line.trim().starts_with("NEEDED") {
-                    Some(line.trim().trim_start_matches("NEEDED").trim().into())
+                    Some(line.trim().trim_start_matches("NEEDED").trim().to_string())
                 } else {
                     None
                 }
@@ -163,11 +160,11 @@ impl LibInspect {
             .collect();
         libs.sort();
 
-        LibInspect {
+        Ok(LibInspect {
             path: path.into(),
             libs,
             symbols,
-        }
+        })
     }
 
     pub fn has_cblas(&self) -> bool {
