@@ -1,4 +1,4 @@
-use std::{io, process::Command};
+use std::{io, path::*, process::Command};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
@@ -11,6 +11,12 @@ pub enum Error {
 
     #[error("Fortran compiler not found. It is necessary to build LAPACK.")]
     FortranCompilerNotFound,
+
+    #[error("Cannot canonicalize path in Linker flag: {}", path.display())]
+    CannotCanonicalizePath { path: PathBuf },
+
+    #[error("Makefile.conf does not exist in {}", out_dir.display())]
+    MakeConfNotExist { out_dir: PathBuf },
 
     #[error("Other IO errors: {0:?}")]
     IOError(#[from] io::Error),

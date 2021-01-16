@@ -35,7 +35,7 @@ fn as_sorted_vec<T: Hash + Ord>(set: HashSet<T>) -> Vec<T> {
 }
 
 impl LinkFlags {
-    pub fn parse(line: &str) -> Self {
+    pub fn parse(line: &str) -> Result<Self, Error> {
         let mut search_paths = HashSet::new();
         let mut libs = HashSet::new();
         for entry in line.split(" ") {
@@ -44,16 +44,19 @@ impl LinkFlags {
                 if !path.exists() {
                     continue;
                 }
-                search_paths.insert(path.canonicalize().expect("Failed to canonicalize path"));
+                search_paths.insert(
+                    path.canonicalize()
+                        .map_err(|_| Error::CannotCanonicalizePath { path })?,
+                );
             }
             if entry.starts_with("-l") {
                 libs.insert(entry.trim_start_matches("-l").into());
             }
         }
-        LinkFlags {
+        Ok(LinkFlags {
             search_paths: as_sorted_vec(search_paths),
             libs: as_sorted_vec(libs),
-        }
+        })
     }
 }
 
@@ -70,10 +73,12 @@ impl MakeConf {
     /// Parse from file
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         let mut detail = MakeConf::default();
-        let f = fs::File::open(path)?;
+        let f = fs::File::open(&path).map_err(|_| Error::MakeConfNotExist {
+            out_dir: path.as_ref().to_owned(),
+        })?;
         let buf = io::BufReader::new(f);
         for line in buf.lines() {
-            let line = line.unwrap();
+            let line = line.expect("Makefile.conf should not include non-UTF8 string");
             if line.len() == 0 {
                 continue;
             }
@@ -84,8 +89,8 @@ impl MakeConf {
             match entry[0] {
                 "OSNAME" => detail.os_name = entry[1].into(),
                 "NOFORTRAN" => detail.no_fortran = true,
-                "CEXTRALIB" => detail.c_extra_libs = LinkFlags::parse(entry[1]),
-                "FEXTRALIB" => detail.f_extra_libs = LinkFlags::parse(entry[1]),
+                "CEXTRALIB" => detail.c_extra_libs = LinkFlags::parse(entry[1])?,
+                "FEXTRALIB" => detail.f_extra_libs = LinkFlags::parse(entry[1])?,
                 _ => continue,
             }
         }
