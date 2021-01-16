@@ -46,6 +46,9 @@ system = []
 [dev-dependencies]
 libc = "0.2"
 
+[build-dependencies]
+dirs = "3.0.1"
+
 [target.'cfg(target_os="windows")'.build-dependencies]
 vcpkg = "0.2"
 
