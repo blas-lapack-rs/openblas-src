@@ -17,7 +17,7 @@ use std::{
 ///
 /// ```
 /// use openblas_build::*;
-/// let info = LinkFlags::parse("-L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0 -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../..  -lc");
+/// let info = LinkFlags::parse("-L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0 -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../..  -lc").unwrap();
 /// assert_eq!(info.libs, vec!["c"]);
 /// ```
 #[derive(Debug, Clone, Default)]
@@ -35,7 +35,7 @@ fn as_sorted_vec<T: Hash + Ord>(set: HashSet<T>) -> Vec<T> {
 }
 
 impl LinkFlags {
-    pub fn parse(line: &str) -> Self {
+    pub fn parse(line: &str) -> Result<Self, Error> {
         let mut search_paths = HashSet::new();
         let mut libs = HashSet::new();
         for entry in line.split(" ") {
@@ -44,16 +44,19 @@ impl LinkFlags {
                 if !path.exists() {
                     continue;
                 }
-                search_paths.insert(path.canonicalize().expect("Failed to canonicalize path"));
+                search_paths.insert(
+                    path.canonicalize()
+                        .map_err(|_| Error::CannotCanonicalizePath { path })?,
+                );
             }
             if entry.starts_with("-l") {
                 libs.insert(entry.trim_start_matches("-l").into());
             }
         }
-        LinkFlags {
+        Ok(LinkFlags {
             search_paths: as_sorted_vec(search_paths),
             libs: as_sorted_vec(libs),
-        }
+        })
     }
 }
 
@@ -70,10 +73,12 @@ impl MakeConf {
     /// Parse from file
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         let mut detail = MakeConf::default();
-        let f = fs::File::open(path)?;
+        let f = fs::File::open(&path).map_err(|_| Error::MakeConfNotExist {
+            out_dir: path.as_ref().to_owned(),
+        })?;
         let buf = io::BufReader::new(f);
         for line in buf.lines() {
-            let line = line.unwrap();
+            let line = line.expect("Makefile.conf should not include non-UTF8 string");
             if line.len() == 0 {
                 continue;
             }
@@ -84,8 +89,8 @@ impl MakeConf {
             match entry[0] {
                 "OSNAME" => detail.os_name = entry[1].into(),
                 "NOFORTRAN" => detail.no_fortran = true,
-                "CEXTRALIB" => detail.c_extra_libs = LinkFlags::parse(entry[1]),
-                "FEXTRALIB" => detail.f_extra_libs = LinkFlags::parse(entry[1]),
+                "CEXTRALIB" => detail.c_extra_libs = LinkFlags::parse(entry[1])?,
+                "FEXTRALIB" => detail.f_extra_libs = LinkFlags::parse(entry[1])?,
                 _ => continue,
             }
         }
@@ -108,17 +113,15 @@ impl LibInspect {
     /// Inspect library file
     ///
     /// Be sure that `nm -g` and `objdump -p` are executed in this function
-    pub fn new<P: AsRef<Path>>(path: P) -> Self {
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
         let path = path.as_ref();
         if !path.exists() {
-            panic!("File not found: {}", path.display());
+            return Err(Error::LibraryNotExist {
+                path: path.to_owned(),
+            });
         }
 
-        let nm_out = Command::new("nm")
-            .arg("-g")
-            .arg(path)
-            .output()
-            .expect("nm cannot be started");
+        let nm_out = Command::new("nm").arg("-g").arg(path).output()?;
 
         // assumes `nm` output like following:
         //
@@ -129,7 +132,7 @@ impl LibInspect {
             .stdout
             .lines()
             .flat_map(|line| {
-                let line = line.ok()?;
+                let line = line.expect("nm output should not include non-UTF8 output");
                 let entry: Vec<_> = line.trim().split(" ").collect();
                 if entry.len() == 3 && entry[1] == "T" {
                     Some(entry[2].into())
@@ -143,14 +146,13 @@ impl LibInspect {
         let mut libs: Vec<_> = Command::new("objdump")
             .arg("-p")
             .arg(path)
-            .output()
-            .expect("objdump cannot start")
+            .output()?
             .stdout
             .lines()
             .flat_map(|line| {
-                let line = line.ok()?;
+                let line = line.expect("objdump output should not include non-UTF8 output");
                 if line.trim().starts_with("NEEDED") {
-                    Some(line.trim().trim_start_matches("NEEDED").trim().into())
+                    Some(line.trim().trim_start_matches("NEEDED").trim().to_string())
                 } else {
                     None
                 }
@@ -158,11 +160,11 @@ impl LibInspect {
             .collect();
         libs.sort();
 
-        LibInspect {
+        Ok(LibInspect {
             path: path.into(),
             libs,
             symbols,
-        }
+        })
     }
 
     pub fn has_cblas(&self) -> bool {

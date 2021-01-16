@@ -203,14 +203,63 @@ impl Configure {
         args
     }
 
-    /// Shared or static library will be created
-    /// at `out_dir/libopenblas.so` or `out_dir/libopenblas.a`
+    /// Inspect existing build deliverables, and validate them.
+    ///
+    /// Error
+    /// ------
+    /// - No build deliverables exist
+    /// - Build deliverables are not valid
+    ///   - e.g. `self.no_lapack == false`, but the existing library does not contains LAPACK symbols.
+    ///
+    pub fn inspect(&self, out_dir: impl AsRef<Path>) -> Result<Deliverables, Error> {
+        let out_dir = out_dir.as_ref();
+        let make_conf = MakeConf::new(out_dir.join("Makefile.conf"))?;
+
+        if !self.no_lapack && make_conf.no_fortran {
+            return Err(Error::FortranCompilerNotFound);
+        }
+
+        Ok(Deliverables {
+            static_lib: if !self.no_static {
+                Some(LibInspect::new(out_dir.join("libopenblas.a"))?)
+            } else {
+                None
+            },
+            shared_lib: if !self.no_shared {
+                Some(LibInspect::new(if cfg!(target_os = "macos") {
+                    out_dir.join("libopenblas.dylib")
+                } else {
+                    out_dir.join("libopenblas.so")
+                })?)
+            } else {
+                None
+            },
+            make_conf,
+        })
+    }
+
+    /// Build OpenBLAS
+    ///
+    /// Libraries are created directly under `out_dir` e.g. `out_dir/libopenblas.a`
+    ///
+    /// Error
+    /// -----
+    /// - Build deliverables are invalid same as [inspect].
+    ///   This means that the system environment is not appropriate to execute `make`,
+    ///   e.g. LAPACK is required but there is no Fortran compiler.
+    ///
     pub fn build<P: AsRef<Path>>(self, out_dir: P) -> Result<Deliverables, Error> {
         let out_dir = out_dir.as_ref();
         if !out_dir.exists() {
             fs::create_dir_all(out_dir)?;
         }
 
+        // Do not build if libraries and Makefile.conf already exist and are valid
+        if let Ok(deliv) = self.inspect(out_dir) {
+            return Ok(deliv);
+        }
+
+        // Copy OpenBLAS sources from this crate to `out_dir`
         let root = openblas_source_dir();
         for entry in WalkDir::new(&root) {
             let entry = entry.expect("Unknown IO error while walkdir");
@@ -233,9 +282,6 @@ impl Configure {
             }
         }
 
-        let out = fs::File::create(out_dir.join("out.log")).expect("Cannot create log file");
-        let err = fs::File::create(out_dir.join("err.log")).expect("Cannot create log file");
-
         // Run `make` as an subprocess
         //
         // - This will automatically run in parallel without `-j` flag
@@ -244,6 +290,8 @@ impl Configure {
         // - cargo sets `TARGET` environment variable as target triple (e.g. x86_64-unknown-linux-gnu)
         //   while binding build.rs, but `make` read it as CPU target specification.
         //
+        let out = fs::File::create(out_dir.join("out.log")).expect("Cannot create log file");
+        let err = fs::File::create(out_dir.join("err.log")).expect("Cannot create log file");
         match Command::new("make")
             .current_dir(out_dir)
             .stdout(unsafe { Stdio::from_raw_fd(out.into_raw_fd()) }) // this works only for unix
@@ -265,29 +313,7 @@ impl Configure {
             }
         }
 
-        let make_conf = MakeConf::new(out_dir.join("Makefile.conf"))?;
-
-        if !self.no_lapack && make_conf.no_fortran {
-            return Err(Error::FortranCompilerNotFound);
-        }
-
-        Ok(Deliverables {
-            static_lib: if !self.no_static {
-                Some(LibInspect::new(out_dir.join("libopenblas.a")))
-            } else {
-                None
-            },
-            shared_lib: if !self.no_shared {
-                Some(LibInspect::new(if cfg!(target_os = "macos") {
-                    out_dir.join("libopenblas.dylib")
-                } else {
-                    out_dir.join("libopenblas.so")
-                }))
-            } else {
-                None
-            },
-            make_conf,
-        })
+        self.inspect(out_dir)
     }
 }
 
