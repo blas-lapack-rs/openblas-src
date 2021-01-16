@@ -17,7 +17,7 @@ use std::{
 ///
 /// ```
 /// use openblas_build::*;
-/// let info = LinkFlags::parse("-L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0 -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../..  -lc");
+/// let info = LinkFlags::parse("-L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0 -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../../../lib -L/lib/../lib -L/usr/lib/../lib -L/usr/lib/gcc/x86_64-pc-linux-gnu/10.2.0/../../..  -lc").unwrap();
 /// assert_eq!(info.libs, vec!["c"]);
 /// ```
 #[derive(Debug, Clone, Default)]
