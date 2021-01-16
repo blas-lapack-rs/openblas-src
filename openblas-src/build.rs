@@ -1,4 +1,4 @@
-use std::{collections::hash_map::DefaultHasher, env, hash::*, path::*, process::Command};
+use std::{env, path::*, process::Command};
 
 fn feature_enabled(feature: &str) -> bool {
     env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
@@ -108,6 +108,7 @@ fn build() {
     }
 
     let output = if feature_enabled("cache") {
+        use std::{collections::hash_map::DefaultHasher, hash::*};
         // Build OpenBLAS on user's data directory.
         // See https://docs.rs/dirs/3.0.1/dirs/fn.data_dir.html
         //
