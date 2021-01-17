@@ -8,7 +8,7 @@ The package provides a source of [BLAS] and [LAPACK] via [OpenBLAS].
 
 The following Cargo features are supported:
 
-* `cache` to build in `.cargo` instead of `target` (see below),
+* `cache` to build in shared directory e.g. `$XDG_DATA_HOME/openblas_build/` instead of `target` (see below),
 * `cblas` to build CBLAS (enabled by default),
 * `lapacke` to build LAPACKE (enabled by default),
 * `static` to link to OpenBLAS statically, and
@@ -17,9 +17,16 @@ The following Cargo features are supported:
 ## Caching
 
 The `cache` feature allows the OpenBLAS build products to be reused between
-crates that have different `target` directories. This avoids rebuilding OpenBLAS
-unnecessarily. However, this also prevents `cargo clean` from working properly,
+crates that have different `target` directories.
+This avoids rebuilding OpenBLAS unnecessarily.
+However, this also prevents `cargo clean` from working properly,
 since the aforementioned build products will not be removed by the command.
+
+The OpenBLAS binary will be placed at `$XDG_DATA_HOME/openblas_build/[hash of build configure object]`.
+For example, build with LAPACK and build without LAPACK will be placed on different directories.
+If you build OpenBLAS as a shared library, you need to add the above directory to
+`LD_LIBRARY_PATH` (for Linux) or `DYLD_LIBRARY_PATH` (for macOS).
+Since build from source is not supported on Windows (see next section), this feature is also not supported.
 
 ## Windows and vcpkg
 
