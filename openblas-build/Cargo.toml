@@ -4,6 +4,15 @@ version = "0.1.0"
 authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
 edition = "2018"
 
+license = "MIT OR Apache-2.0"
+exclude = ["test_build/"]
+readme  = "../README.md"
+
+description   = "OpenBLAS build helper"
+documentation = "https://docs.rs/openblas-build"
+homepage      = "https://github.com/blas-lapack-rs/openblas-src"
+repository    = "https://github.com/blas-lapack-rs/openblas-src"
+
 [dependencies]
 thiserror = "1.0.22"
 walkdir = "2.3.1"
