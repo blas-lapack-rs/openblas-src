@@ -289,6 +289,7 @@ impl Configure {
             .stdout(unsafe { Stdio::from_raw_fd(out.into_raw_fd()) }) // this works only for unix
             .stderr(unsafe { Stdio::from_raw_fd(err.into_raw_fd()) })
             .args(&self.make_args())
+            .args(&["libs", "netlib", "shared"])
             .env_remove("TARGET")
             .check_call()
         {
