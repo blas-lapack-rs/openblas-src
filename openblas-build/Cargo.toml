@@ -1,6 +1,6 @@
 [package]
 name = "openblas-build"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
 edition = "2018"
 
