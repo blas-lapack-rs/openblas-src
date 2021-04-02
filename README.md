@@ -8,8 +8,7 @@ The package provides a source of [BLAS] and [LAPACK] via [OpenBLAS].
 
 The following Cargo features are supported:
 
-* `cache` to build in shared directory, e.g., `${XDG_DATA_HOME}/openblas_build/`
-  instead of `target` (see below),
+* `cache` to build in a shared directory instead of `target` (see below),
 * `cblas` to build CBLAS (enabled by default),
 * `lapacke` to build LAPACKE (enabled by default),
 * `static` to link to OpenBLAS statically, and

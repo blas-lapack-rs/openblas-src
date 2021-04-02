@@ -6,7 +6,7 @@
 //!
 //! The following Cargo features are supported:
 //!
-//! * `cache` to build in `.cargo` instead of `target`,
+//! * `cache` to build in a shared directory instead of `target`,
 //! * `cblas` to build CBLAS (enabled by default),
 //! * `lapacke` to build LAPACKE (enabled by default),
 //! * `static` to link to OpenBLAS statically, and
