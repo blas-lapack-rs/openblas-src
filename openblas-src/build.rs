@@ -149,6 +149,7 @@ fn build() {
     let source = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("source");
     let deliv = cfg.build(&source, &output).unwrap();
 
+    println!("cargo:rustc-link-search={}", output.display());
     for search_path in &deliv.make_conf.c_extra_libs.search_paths {
         println!("cargo:rustc-link-search={}", search_path.display());
     }
@@ -161,7 +162,6 @@ fn build() {
     for lib in &deliv.make_conf.f_extra_libs.libs {
         println!("cargo:rustc-link-lib={}", lib);
     }
-    println!("cargo:rustc-link-search={}", output.display());
 }
 
 /// openblas-src 0.9.0 compatible `make` runner
