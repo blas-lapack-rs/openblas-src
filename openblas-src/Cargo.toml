@@ -56,3 +56,6 @@ vcpkg = "0.2"
 [target.'cfg(target_os="linux")'.build-dependencies.openblas-build]
 version = "0.1.1"
 path = "../openblas-build"
+
+[package.metadata.release]
+no-dev-version = true
