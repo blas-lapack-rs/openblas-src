@@ -1,7 +1,7 @@
 [package]
 name = "openblas-src"
-version = "0.10.2"
-license = "MIT OR Apache-2.0"
+version = "0.10.3"
+license = "Apache-2.0/MIT"
 edition = "2018"
 authors = [
     "Corey Richardson <corey@octayn.net>",
@@ -9,6 +9,7 @@ authors = [
     "Ivan Ukhov <ivan.ukhov@gmail.com>",
     "Jim Turner <git@turner.link>",
     "Ken Elkabany <ken@elkabany.com>",
+    "Mitsutoshi Aoe <me@maoe.name>",
     "Steve Harris <steveOfAR@gmail.com>",
     "Toshiki Teramura <toshiki.teramura@gmail.com>",
 ]

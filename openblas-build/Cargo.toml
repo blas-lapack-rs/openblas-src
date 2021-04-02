@@ -1,17 +1,19 @@
 [package]
 name = "openblas-build"
 version = "0.1.1"
-authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
+license = "Apache-2.0/MIT"
 edition = "2018"
-
-license = "MIT OR Apache-2.0"
-exclude = ["test_build/"]
-readme  = "../README.md"
-
-description   = "OpenBLAS build helper"
+authors = [
+    "Toshiki Teramura <toshiki.teramura@gmail.com>",
+]
+description = "The package provides a build helper for OpenBLAS."
 documentation = "https://docs.rs/openblas-build"
-homepage      = "https://github.com/blas-lapack-rs/openblas-src"
-repository    = "https://github.com/blas-lapack-rs/openblas-src"
+homepage = "https://github.com/blas-lapack-rs/openblas-src"
+repository = "https://github.com/blas-lapack-rs/openblas-src"
+readme  = "../README.md"
+exclude = [
+    "test_build/",
+]
 
 [dependencies]
 thiserror = "1.0.22"
