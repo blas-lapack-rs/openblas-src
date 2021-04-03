@@ -41,3 +41,10 @@ Unreleased
 ### Changed
 - Use Rust 2018 edition https://github.com/blas-lapack-rs/openblas-src/pull/46
 - Switch to GitHub Actions from AppVeyor + Travis CI https://github.com/blas-lapack-rs/openblas-src/pull/40
+
+0.9.0 - 2020-03-08
+--------------------
+
+### Changed
+- Build products are placed on OUT_DIR to work `cargo clean` properly https://github.com/blas-lapack-rs/openblas-src/pull/31
+  - Previous behavior (placed on .cargo/) is reproduced with "cache" feature
