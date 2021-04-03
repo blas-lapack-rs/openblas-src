@@ -1,4 +1,4 @@
-These versions are based on [semantic versioning][semver], and corresponds to the version in `Cargo.toml`.
+These versions are based on [semantic versioning][semver], and corresponds to the version in [openblas-src/Cargo.toml](openblas-src/Cargo.toml).
 
 [semver]: https://semver.org/
 
