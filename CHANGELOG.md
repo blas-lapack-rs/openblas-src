@@ -36,6 +36,7 @@ Unreleased
     - Not on macOS due to https://github.com/blas-lapack-rs/openblas-src/issues/54
   - Create openblas-build crate https://github.com/blas-lapack-rs/openblas-src/pull/47
     - cargo-workspace setup https://github.com/blas-lapack-rs/openblas-src/pull/45
+- "system" feature support for windows-msvc target through vcpkg https://github.com/blas-lapack-rs/openblas-src/pull/35
 
 ### Changed
 - Use Rust 2018 edition https://github.com/blas-lapack-rs/openblas-src/pull/46
