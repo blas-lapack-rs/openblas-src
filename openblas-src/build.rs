@@ -31,9 +31,7 @@ fn windows_gnu_system() {
 
 /// Use vcpkg for msvc "system" feature
 fn windows_msvc_system() {
-    if feature_enabled("static") {
-        env::set_var("CARGO_CFG_TARGET_FEATURE", "crt-static");
-    } else {
+    if !feature_enabled("static") {
         env::set_var("VCPKGRS_DYNAMIC", "1");
     }
     #[cfg(target_env = "msvc")]
