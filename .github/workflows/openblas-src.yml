@@ -15,6 +15,9 @@ jobs:
         feature:
           - system
           - "system,static"
+        rustflags:
+          - "-C target-feature=+crt-static"
+          - ""
     steps:
     - uses: actions/checkout@v1
     - uses: actions/cache@v2
@@ -26,10 +29,14 @@ jobs:
         git clone https://github.com/Microsoft/vcpkg.git --depth 1
         cd vcpkg
         ./bootstrap-vcpkg.bat
-    - name: Install static OpenBLAS by vcpkg
+    - name: Install static-md OpenBLAS by vcpkg
       run: |
         ./vcpkg/vcpkg.exe install openblas:x64-windows-static-md
-      if: ${{ matrix.feature == 'system,static' }}
+      if: ${{ matrix.feature == 'system,static' && matrix.rustflags == "" }}
+    - name: Install static OpenBLAS by vcpkg
+      run: |
+        ./vcpkg/vcpkg.exe install openblas:x64-windows-static
+      if: ${{ matrix.feature == 'system,static' && matrix.rustflags != "" }}
     - name: Install OpenBLAS by vcpkg
       run: |
         ./vcpkg/vcpkg.exe install openblas:x64-windows
@@ -42,6 +49,7 @@ jobs:
           --manifest-path=openblas-src/Cargo.toml
       env:
         VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+        RUSTFLAGS:  ${{ matrix.rustflags }}
 
   macos:
     runs-on: macos-10.15
