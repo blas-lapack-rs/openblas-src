@@ -32,11 +32,11 @@ jobs:
     - name: Install static-md OpenBLAS by vcpkg
       run: |
         ./vcpkg/vcpkg.exe install openblas:x64-windows-static-md
-      if: ${{ matrix.feature == 'system,static' && matrix.rustflags == "" }}
+      if: ${{ matrix.feature == 'system,static' && matrix.rustflags == '' }}
     - name: Install static OpenBLAS by vcpkg
       run: |
         ./vcpkg/vcpkg.exe install openblas:x64-windows-static
-      if: ${{ matrix.feature == 'system,static' && matrix.rustflags != "" }}
+      if: ${{ matrix.feature == 'system,static' && matrix.rustflags != '' }}
     - name: Install OpenBLAS by vcpkg
       run: |
         ./vcpkg/vcpkg.exe install openblas:x64-windows
