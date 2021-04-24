@@ -28,7 +28,7 @@ jobs:
         ./bootstrap-vcpkg.bat
     - name: Install static OpenBLAS by vcpkg
       run: |
-        ./vcpkg/vcpkg.exe install openblas:x64-windows-static
+        ./vcpkg/vcpkg.exe install openblas:x64-windows-static-md
       if: ${{ matrix.feature == 'system,static' }}
     - name: Install OpenBLAS by vcpkg
       run: |
