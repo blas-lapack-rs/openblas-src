@@ -12,12 +12,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        feature:
-          - system
-          - "system,static"
-        rustflags:
-          - "-C target-feature=+crt-static"
-          - ""
+        triple:
+          - x64-windows
+          - x64-windows-static
+          - x64-windows-static-md
     steps:
     - uses: actions/checkout@v1
     - uses: actions/cache@v2
@@ -29,27 +27,37 @@ jobs:
         git clone https://github.com/Microsoft/vcpkg.git --depth 1
         cd vcpkg
         ./bootstrap-vcpkg.bat
-    - name: Install static-md OpenBLAS by vcpkg
-      run: |
-        ./vcpkg/vcpkg.exe install openblas:x64-windows-static-md
-      if: ${{ matrix.feature == 'system,static' && matrix.rustflags == '' }}
-    - name: Install static OpenBLAS by vcpkg
-      run: |
-        ./vcpkg/vcpkg.exe install openblas:x64-windows-static
-      if: ${{ matrix.feature == 'system,static' && matrix.rustflags != '' }}
     - name: Install OpenBLAS by vcpkg
       run: |
-        ./vcpkg/vcpkg.exe install openblas:x64-windows
-      if: ${{ matrix.feature == 'system' }}
+        ./vcpkg/vcpkg.exe install openblas:${{ matrix.triple }}
+
     - uses: actions-rs/cargo@v1
+      name: Test features=system
       with:
         command: test
-        args: >
-          --features=${{ matrix.feature }}
-          --manifest-path=openblas-src/Cargo.toml
+        args: --features=system --manifest-path=openblas-src/Cargo.toml
       env:
         VCPKG_ROOT: ${{ github.workspace }}/vcpkg
-        RUSTFLAGS:  ${{ matrix.rustflags }}
+      if: ${{ matrix.triple == 'x64-windows' }}
+
+    - uses: actions-rs/cargo@v1
+      name: Test features=system,static
+      with:
+        command: test
+        args: --features=system,static --manifest-path=openblas-src/Cargo.toml
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+      if: ${{ matrix.triple == 'x64-windows-static-md' }}
+
+    - uses: actions-rs/cargo@v1
+      name: Test features=system,static with crt-static
+      with:
+        command: test
+        args: --features=system,static --manifest-path=openblas-src/Cargo.toml
+      env:
+        VCPKG_ROOT: ${{ github.workspace }}/vcpkg
+        RUSTFLAGS: "-C target-feature=+crt-static"
+      if: ${{ matrix.triple == 'x64-windows-static' }}
 
   macos:
     runs-on: macos-10.15
