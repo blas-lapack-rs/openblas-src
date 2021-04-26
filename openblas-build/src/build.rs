@@ -394,9 +394,11 @@ impl Configure {
         }
         if self.use_thread {
             args.push("USE_THREAD=1".into());
+            args.push("NUM_THREADS=256".into());
         }
         if self.use_openmp {
             args.push("USE_OPENMP=1".into());
+            args.push("NUM_THREADS=256".into());
         }
         if matches!(self.interface, Interface::ILP64) {
             args.push("INTERFACE64=1".into());

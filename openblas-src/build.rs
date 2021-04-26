@@ -155,6 +155,15 @@ fn build() {
     cfg.compilers.hostcc = env::var("OPENBLAS_HOSTCC").ok();
     cfg.compilers.fc = env::var("OPENBLAS_FC").ok();
     cfg.compilers.ranlib = env::var("OPENBLAS_RANLIB").ok();
+    if feature_enabled("use_thread") {
+        cfg.use_thread = true;
+    }
+    if feature_enabled("use_openmp") {
+        cfg.use_openmp = true;
+    }
+    if feature_enabled("dynamic_arch") {
+        cfg.no_shared = true;
+    }
 
     let output = if feature_enabled("cache") {
         use std::hash::*;
