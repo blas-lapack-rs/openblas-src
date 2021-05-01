@@ -5,6 +5,9 @@ These versions are based on [semantic versioning][semver], and corresponds to th
 Unreleased
 -----------
 
+### Changed
+- Use dynamic CRT link for vcpkg https://github.com/blas-lapack-rs/openblas-src/pull/69 https://github.com/blas-lapack-rs/openblas-src/pull/71
+
 0.10.4 - 2021-04-03
 --------------------
 
