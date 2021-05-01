@@ -39,11 +39,25 @@ toolchain, install `openblas` for the `x64-windows` triplet:
 vcpkg install openblas --triplet x64-windows
 ```
 
-To link statically, install `openblas` for the `x64-windows-static` triplet:
+To link OpenBLAS statically, install `openblas` for the `x64-windows-static-md` triplet:
+
+```sh
+vcpkg install openblas --triplet x64-windows-static-md
+```
+
+To link OpenBLAS and C Runtime (CRT) statically, install `openblas` for the `x64-windows-static` triplet:
 
 ```sh
 vcpkg install openblas --triplet x64-windows-static
 ```
+
+and build with `+crt-static` option
+
+```
+RUSTFLAGS='-C target-feature=+crt-static' cargo build --target x86_64-pc-windows-msvc
+```
+
+Please see the ["Static and dynamic C runtimes" in The Rust reference](https://doc.rust-lang.org/reference/linkage.html#static-and-dynamic-c-runtimes) for detail.
 
 ## Cross Compilation
 
