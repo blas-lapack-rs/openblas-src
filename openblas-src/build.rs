@@ -104,6 +104,10 @@ fn build() {
     } else {
         cfg.no_static = true;
     }
+    cfg.target = match env::var("OPENBLAS_TARGET") {
+        Ok(target) => target.parse().ok(),
+        _ => None,
+    };
 
     let output = if feature_enabled("cache") {
         use std::{collections::hash_map::DefaultHasher, hash::*};
