@@ -104,6 +104,15 @@ fn build() {
     } else {
         cfg.no_static = true;
     }
+    if feature_enabled("use_thread") {
+        cfg.use_thread = true;
+    }
+    if feature_enabled("use_openmp") {
+        cfg.use_openmp = true;
+    }
+    if feature_enabled("dynamic_arch") {
+        cfg.no_shared = true;
+    }
 
     let output = if feature_enabled("cache") {
         use std::{collections::hash_map::DefaultHasher, hash::*};

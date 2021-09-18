@@ -177,10 +177,12 @@ impl Configure {
             args.push("NO_LAPACKE=1".into())
         }
         if self.use_thread {
-            args.push("USE_THREAD=1".into())
+            args.push("USE_THREAD=1".into());
+            args.push("NUM_THREADS=128".into());
         }
         if self.use_openmp {
-            args.push("USE_OPENMP=1".into())
+            args.push("USE_OPENMP=1".into());
+            args.push("NUM_THREADS=128".into());
         }
         if matches!(self.interface, Interface::ILP64) {
             args.push("INTERFACE64=1".into())

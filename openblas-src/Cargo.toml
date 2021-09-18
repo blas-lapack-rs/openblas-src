@@ -43,6 +43,9 @@ cblas = []
 lapacke = []
 static = []
 system = []
+use_thread = []
+use_openmp = []
+dynamic_arch = []
 
 [dev-dependencies]
 libc = "0.2"
