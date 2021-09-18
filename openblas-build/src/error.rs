@@ -21,6 +21,9 @@ pub enum Error {
     #[error("Library file does not exist: {}", path.display())]
     LibraryNotExist { path: PathBuf },
 
+    #[error("Target {} is unsupported", target)]
+    UnsupportedTarget { target: String },
+
     #[error("Other IO errors: {0:?}")]
     IOError(#[from] io::Error),
 }

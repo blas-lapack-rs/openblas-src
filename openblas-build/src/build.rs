@@ -2,7 +2,7 @@
 
 use crate::{check::*, error::*};
 use std::{
-    fmt, fs,
+    fs,
     os::unix::io::*,
     path::*,
     process::{Command, Stdio},
@@ -118,7 +118,7 @@ pub enum Target {
 }
 
 impl FromStr for Target {
-    type Err = ParseTargetError;
+    type Err = Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let target = match s.to_ascii_lowercase().as_str() {
@@ -195,18 +195,13 @@ impl FromStr for Target {
             "zarch_generic" => Self::ZARCH_GENERIC,
             "z13" => Self::Z13,
             "z14" => Self::Z14,
-            _ => return Err(ParseTargetError::default()),
+            _ => {
+                return Err(Error::UnsupportedTarget {
+                    target: s.to_string(),
+                })
+            }
         };
         Ok(target)
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Default)]
-pub struct ParseTargetError;
-
-impl fmt::Display for ParseTargetError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        "provided string was not a valid target".fmt(f)
     }
 }
 
@@ -407,6 +402,15 @@ impl Configure {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn target_from_str() {
+        assert_eq!(Target::from_str("p2").unwrap(), Target::P2);
+        assert!(matches!(
+            Target::from_str("p3").unwrap_err(),
+            crate::error::Error::UnsupportedTarget { .. }
+        ));
+    }
 
     #[ignore]
     #[test]
