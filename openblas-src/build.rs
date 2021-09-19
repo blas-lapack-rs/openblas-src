@@ -104,10 +104,15 @@ fn build() {
     } else {
         cfg.no_static = true;
     }
-    cfg.target = match env::var("OPENBLAS_TARGET") {
-        Ok(target) => target.parse().ok(),
-        _ => None,
-    };
+    if let Ok(target) = env::var("OPENBLAS_TARGET") {
+        cfg.target = Some(
+            target
+                .parse()
+                .expect("Unsupported target is specified by $OPENBLAS_TARGET"),
+        )
+        // Do not default to the native target (represented by `cfg.target == None`)
+        // because most user set `$OPENBLAS_TARGET` explicitly will hope not to use the native target.
+    }
 
     let output = if feature_enabled("cache") {
         use std::{collections::hash_map::DefaultHasher, hash::*};
