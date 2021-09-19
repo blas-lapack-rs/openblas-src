@@ -6,6 +6,7 @@ use std::{
     os::unix::io::*,
     path::*,
     process::{Command, Stdio},
+    str::FromStr,
 };
 use walkdir::WalkDir;
 
@@ -114,6 +115,116 @@ pub enum Target {
     ZARCH_GENERIC,
     Z13,
     Z14,
+}
+
+impl FromStr for Target {
+    type Err = Error;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let target = match s.to_ascii_lowercase().as_str() {
+            // X86/X86_64 Intel
+            "p2" => Self::P2,
+            "katamai" => Self::KATMAI,
+            "coppermine" => Self::COPPERMINE,
+            "northwood" => Self::NORTHWOOD,
+            "prescott" => Self::PRESCOTT,
+            "banias" => Self::BANIAS,
+            "yonah" => Self::YONAH,
+            "core2" => Self::CORE2,
+            "penryn" => Self::PENRYN,
+            "dunnington" => Self::DUNNINGTON,
+            "nehalem" => Self::NEHALEM,
+            "sandybridge" => Self::SANDYBRIDGE,
+            "haswell" => Self::HASWELL,
+            "skylakex" => Self::SKYLAKEX,
+            "atom" => Self::ATOM,
+
+            // X86/X86_64 AMD
+            "athlon" => Self::ATHLON,
+            "opteron" => Self::OPTERON,
+            "opteron_sse3" => Self::OPTERON_SSE3,
+            "barcelona" => Self::BARCELONA,
+            "shanghai" => Self::SHANGHAI,
+            "istanbul" => Self::ISTANBUL,
+            "bobcat" => Self::BOBCAT,
+            "bulldozer" => Self::BULLDOZER,
+            "piledriver" => Self::PILEDRIVER,
+            "steamroller" => Self::STEAMROLLER,
+            "excavator" => Self::EXCAVATOR,
+            "zen" => Self::ZEN,
+
+            // X86/X86_64 generic
+            "sse_generic" => Self::SSE_GENERIC,
+            "viac3" => Self::VIAC3,
+            "nano" => Self::NANO,
+
+            // Power
+            "power4" => Self::POWER4,
+            "power5" => Self::POWER5,
+            "power6" => Self::POWER6,
+            "power7" => Self::POWER7,
+            "power8" => Self::POWER8,
+            "power9" => Self::POWER9,
+            "ppcg4" => Self::PPCG4,
+            "ppc970" => Self::PPC970,
+            "ppc970mp" => Self::PPC970MP,
+            "ppc440" => Self::PPC440,
+            "ppc440fp2" => Self::PPC440FP2,
+            "cell" => Self::CELL,
+
+            // MIPS
+            "p5600" => Self::P5600,
+            "mips1004k" => Self::MIPS1004K,
+            "mips24k" => Self::MIPS24K,
+
+            // MIPS64
+            "sicortex" => Self::SICORTEX,
+            "loongson3a" => Self::LOONGSON3A,
+            "loongson3b" => Self::LOONGSON3B,
+            "i6400" => Self::I6400,
+            "p6600" => Self::P6600,
+            "i6500" => Self::I6500,
+
+            // IA64
+            "itanium2" => Self::ITANIUM2,
+
+            // Sparc
+            "sparc" => Self::SPARC,
+            "sparcv7" => Self::SPARCV7,
+
+            // ARM
+            "cortexa15" => Self::CORTEXA15,
+            "cortexa9" => Self::CORTEXA9,
+            "armv7" => Self::ARMV7,
+            "armv6" => Self::ARMV6,
+            "armv5" => Self::ARMV5,
+
+            // ARM64
+            "armv8" => Self::ARMV8,
+            "cortexa53" => Self::CORTEXA53,
+            "cortexa57" => Self::CORTEXA57,
+            "cortexa72" => Self::CORTEXA72,
+            "cortexa73" => Self::CORTEXA73,
+            "neoversen1" => Self::NEOVERSEN1,
+            "emag8180" => Self::EMAG8180,
+            "falkor" => Self::FALKOR,
+            "thunderx" => Self::THUNDERX,
+            "thunderx2t99" => Self::THUNDERX2T99,
+            "tsv110" => Self::TSV110,
+
+            // System Z
+            "zarch_generic" => Self::ZARCH_GENERIC,
+            "z13" => Self::Z13,
+            "z14" => Self::Z14,
+
+            _ => {
+                return Err(Error::UnsupportedTarget {
+                    target: s.to_string(),
+                })
+            }
+        };
+        Ok(target)
+    }
 }
 
 /// make option generator
@@ -313,6 +424,15 @@ impl Configure {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn target_from_str() {
+        assert_eq!(Target::from_str("p2").unwrap(), Target::P2);
+        assert!(matches!(
+            Target::from_str("p3").unwrap_err(),
+            crate::error::Error::UnsupportedTarget { .. }
+        ));
+    }
 
     #[ignore]
     #[test]
