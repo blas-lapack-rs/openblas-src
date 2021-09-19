@@ -122,6 +122,7 @@ impl FromStr for Target {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let target = match s.to_ascii_lowercase().as_str() {
+            // X86/X86_64 Intel
             "p2" => Self::P2,
             "katamai" => Self::KATMAI,
             "coppermine" => Self::COPPERMINE,
@@ -137,6 +138,8 @@ impl FromStr for Target {
             "haswell" => Self::HASWELL,
             "skylakex" => Self::SKYLAKEX,
             "atom" => Self::ATOM,
+
+            // X86/X86_64 AMD
             "athlon" => Self::ATHLON,
             "opteron" => Self::OPTERON,
             "opteron_sse3" => Self::OPTERON_SSE3,
@@ -149,9 +152,13 @@ impl FromStr for Target {
             "steamroller" => Self::STEAMROLLER,
             "excavator" => Self::EXCAVATOR,
             "zen" => Self::ZEN,
+
+            // X86/X86_64 generic
             "sse_generic" => Self::SSE_GENERIC,
             "viac3" => Self::VIAC3,
             "nano" => Self::NANO,
+
+            // Power
             "power4" => Self::POWER4,
             "power5" => Self::POWER5,
             "power6" => Self::POWER6,
@@ -164,23 +171,35 @@ impl FromStr for Target {
             "ppc440" => Self::PPC440,
             "ppc440fp2" => Self::PPC440FP2,
             "cell" => Self::CELL,
+
+            // MIPS
             "p5600" => Self::P5600,
             "mips1004k" => Self::MIPS1004K,
             "mips24k" => Self::MIPS24K,
+
+            // MIPS64
             "sicortex" => Self::SICORTEX,
             "loongson3a" => Self::LOONGSON3A,
             "loongson3b" => Self::LOONGSON3B,
             "i6400" => Self::I6400,
             "p6600" => Self::P6600,
             "i6500" => Self::I6500,
+
+            // IA64
             "itanium2" => Self::ITANIUM2,
+
+            // Sparc
             "sparc" => Self::SPARC,
             "sparcv7" => Self::SPARCV7,
+
+            // ARM
             "cortexa15" => Self::CORTEXA15,
             "cortexa9" => Self::CORTEXA9,
             "armv7" => Self::ARMV7,
             "armv6" => Self::ARMV6,
             "armv5" => Self::ARMV5,
+
+            // ARM64
             "armv8" => Self::ARMV8,
             "cortexa53" => Self::CORTEXA53,
             "cortexa57" => Self::CORTEXA57,
@@ -192,9 +211,12 @@ impl FromStr for Target {
             "thunderx" => Self::THUNDERX,
             "thunderx2t99" => Self::THUNDERX2T99,
             "tsv110" => Self::TSV110,
+
+            // System Z
             "zarch_generic" => Self::ZARCH_GENERIC,
             "z13" => Self::Z13,
             "z14" => Self::Z14,
+
             _ => {
                 return Err(Error::UnsupportedTarget {
                     target: s.to_string(),
