@@ -104,7 +104,6 @@ impl MakeConf {
 /// - Global "T" symbols in the text (code) section of library using `nm -g` external command.
 #[derive(Debug, Clone)]
 pub struct LibInspect {
-    path: PathBuf,
     pub libs: Vec<String>,
     pub symbols: Vec<String>,
 }
@@ -160,11 +159,7 @@ impl LibInspect {
             .collect();
         libs.sort();
 
-        Ok(LibInspect {
-            path: path.into(),
-            libs,
-            symbols,
-        })
+        Ok(LibInspect { libs, symbols })
     }
 
     pub fn has_cblas(&self) -> bool {
