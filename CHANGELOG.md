@@ -5,6 +5,11 @@ These versions are based on [semantic versioning][semver], and corresponds to th
 Unreleased
 -----------
 
+0.10.5 - 2022-08-27
+--------------------
+
+From this release, `openblas-build` crate will have same version as `openblas-src` crate.
+
 ### Fixed
 - Add support for using a custom target under linux https://github.com/blas-lapack-rs/openblas-src/pull/78
 
