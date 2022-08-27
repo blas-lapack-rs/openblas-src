@@ -127,11 +127,11 @@ fn build() {
         // It makes users not to build OpenBLAS in every `cargo build`.
         let mut hasher = DefaultHasher::new();
         cfg.hash(&mut hasher);
-        let output = dirs::data_dir()
+
+        dirs::data_dir()
             .expect("Cannot get user's data directory")
             .join("openblas_build")
-            .join(format!("{:x}", hasher.finish()));
-        output
+            .join(format!("{:x}", hasher.finish()))
     } else {
         PathBuf::from(env::var("OUT_DIR").unwrap())
     };

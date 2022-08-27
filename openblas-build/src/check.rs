@@ -38,7 +38,7 @@ impl LinkFlags {
     pub fn parse(line: &str) -> Result<Self, Error> {
         let mut search_paths = HashSet::new();
         let mut libs = HashSet::new();
-        for entry in line.split(" ") {
+        for entry in line.split(' ') {
             if entry.starts_with("-L") {
                 let path = PathBuf::from(entry.trim_start_matches("-L"));
                 if !path.exists() {
@@ -79,10 +79,10 @@ impl MakeConf {
         let buf = io::BufReader::new(f);
         for line in buf.lines() {
             let line = line.expect("Makefile.conf should not include non-UTF8 string");
-            if line.len() == 0 {
+            if line.is_empty() {
                 continue;
             }
-            let entry: Vec<_> = line.split("=").collect();
+            let entry: Vec<_> = line.split('=').collect();
             if entry.len() != 2 {
                 continue;
             }
@@ -104,7 +104,6 @@ impl MakeConf {
 /// - Global "T" symbols in the text (code) section of library using `nm -g` external command.
 #[derive(Debug, Clone)]
 pub struct LibInspect {
-    path: PathBuf,
     pub libs: Vec<String>,
     pub symbols: Vec<String>,
 }
@@ -133,7 +132,7 @@ impl LibInspect {
             .lines()
             .flat_map(|line| {
                 let line = line.expect("nm output should not include non-UTF8 output");
-                let entry: Vec<_> = line.trim().split(" ").collect();
+                let entry: Vec<_> = line.trim().split(' ').collect();
                 if entry.len() == 3 && entry[1] == "T" {
                     Some(entry[2].into())
                 } else {
@@ -160,11 +159,7 @@ impl LibInspect {
             .collect();
         libs.sort();
 
-        Ok(LibInspect {
-            path: path.into(),
-            libs,
-            symbols,
-        })
+        Ok(LibInspect { libs, symbols })
     }
 
     pub fn has_cblas(&self) -> bool {
@@ -173,7 +168,7 @@ impl LibInspect {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     pub fn has_lapack(&self) -> bool {
@@ -182,7 +177,7 @@ impl LibInspect {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     pub fn has_lapacke(&self) -> bool {
@@ -191,18 +186,18 @@ impl LibInspect {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     pub fn has_lib(&self, name: &str) -> bool {
         for lib in &self.libs {
-            if let Some(stem) = lib.split(".").next() {
+            if let Some(stem) = lib.split('.').next() {
                 if stem == format!("lib{}", name) {
                     return true;
                 }
             };
         }
-        return false;
+        false
     }
 }
 
