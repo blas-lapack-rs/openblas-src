@@ -18,6 +18,3 @@ exclude = [
 [dependencies]
 thiserror = "1.0.22"
 walkdir = "2.3.1"
-
-[package.metadata.release]
-no-dev-version = true
