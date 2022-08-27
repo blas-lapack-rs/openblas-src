@@ -5,8 +5,16 @@ These versions are based on [semantic versioning][semver], and corresponds to th
 Unreleased
 -----------
 
+### Fixed
+- Add support for using a custom target under linux https://github.com/blas-lapack-rs/openblas-src/pull/78
+
 ### Changed
+- OpenBLAS 0.3.20 https://github.com/blas-lapack-rs/openblas-src/pull/85
+  - OpenBLAS 0.3.17 https://github.com/blas-lapack-rs/openblas-src/pull/76
 - Use dynamic CRT link for vcpkg https://github.com/blas-lapack-rs/openblas-src/pull/69 https://github.com/blas-lapack-rs/openblas-src/pull/71
+
+### Internal
+- Run cargo-clippy and rustfmt on CI https://github.com/blas-lapack-rs/openblas-src/pull/86
 
 0.10.4 - 2021-04-03
 --------------------
