@@ -52,7 +52,13 @@ fn windows_msvc_system() {
 /// export CPPFLAGS="-I/usr/local/opt/openblas/include"
 /// ```
 fn macos_system() {
-    println!("cargo:rustc-link-search=/usr/local/opt/openblas/lib");
+    if cfg!(target_arch = "aarch64") {
+        println!("cargo:rustc-link-search=/opt/homebrew/opt/openblas/lib");
+        println!("cargo:rustc-link-search=/opt/homebrew/opt/libomp/lib");
+    } else {
+        println!("cargo:rustc-link-search=/usr/local/homebrew/opt/openblas/lib");
+        println!("cargo:rustc-link-search=/usr/local/homebrew/opt/libomp/lib");
+    }
 }
 
 fn main() {
