@@ -41,24 +41,23 @@ fn windows_msvc_system() {
     }
 }
 
-/// homebrew says
-///
-/// > openblas is keg-only, which means it was not symlinked into /usr/local,
-/// > because macOS provides BLAS in Accelerate.framework.
-/// > For compilers to find openblas you may need to set:
-///
-/// ```text
-/// export LDFLAGS="-L/usr/local/opt/openblas/lib"
-/// export CPPFLAGS="-I/usr/local/opt/openblas/include"
-/// ```
+/// Add linker flag (`-L`) to path where brew installs OpenBLAS
 fn macos_system() {
-    if cfg!(target_arch = "aarch64") {
-        println!("cargo:rustc-link-search=/opt/homebrew/opt/openblas/lib");
-        println!("cargo:rustc-link-search=/opt/homebrew/opt/libomp/lib");
-    } else {
-        println!("cargo:rustc-link-search=/usr/local/homebrew/opt/openblas/lib");
-        println!("cargo:rustc-link-search=/usr/local/homebrew/opt/libomp/lib");
+    fn brew_prefix(target: &str) -> PathBuf {
+        let out = Command::new("brew")
+            .arg("--prefix")
+            .arg(target)
+            .output()
+            .expect("brew not installed");
+        assert!(out.status.success(), "`brew --prefix` failed");
+        let path = String::from_utf8(out.stdout).expect("Non-UTF8 path by `brew --prefix`");
+        PathBuf::from(path.trim())
     }
+    let openblas = brew_prefix("openblas");
+    let libomp = brew_prefix("libomp");
+
+    println!("cargo:rustc-link-search={}/lib", openblas.display());
+    println!("cargo:rustc-link-search={}/lib", libomp.display());
 }
 
 fn main() {
