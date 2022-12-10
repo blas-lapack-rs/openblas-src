@@ -364,12 +364,12 @@ impl Configure {
 
         // Copy OpenBLAS sources from this crate to `out_dir`
         let root = openblas_root.as_ref();
-        for entry in WalkDir::new(&root) {
+        for entry in WalkDir::new(root) {
             let entry = entry.expect("Unknown IO error while walkdir");
             let dest = out_dir.join(
                 entry
                     .path()
-                    .strip_prefix(&root)
+                    .strip_prefix(root)
                     .expect("Directory entry is not under root"),
             );
             if dest.exists() {
@@ -400,7 +400,7 @@ impl Configure {
             .stdout(unsafe { Stdio::from_raw_fd(out.into_raw_fd()) }) // this works only for unix
             .stderr(unsafe { Stdio::from_raw_fd(err.into_raw_fd()) })
             .args(&self.make_args())
-            .args(&["libs", "netlib", "shared"])
+            .args(["libs", "netlib", "shared"])
             .env_remove("TARGET")
             .check_call()
         {
