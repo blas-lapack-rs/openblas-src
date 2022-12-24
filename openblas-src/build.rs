@@ -160,13 +160,13 @@ fn build() {
         );
     }
 
-    let source =
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!("OpenBLAS-{}", OPENBLAS_VERSION));
+    let source = output.join(format!("OpenBLAS-{}", OPENBLAS_VERSION));
     if !source.exists() {
+        let crate_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         Command::new("tar")
             .arg("xf")
-            .arg(format!("OpenBLAS-{}.tar.gz", OPENBLAS_VERSION))
-            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .arg(crate_root.join(format!("OpenBLAS-{}.tar.gz", OPENBLAS_VERSION)))
+            .current_dir(&output)
             .status()
             .expect("tar command not found");
     }
