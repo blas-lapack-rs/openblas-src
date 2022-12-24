@@ -158,7 +158,17 @@ fn build() {
         );
     }
 
-    let source = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("source");
+    let openblas_version = "0.3.21";
+    let source =
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!("OpenBLAS-{}", openblas_version));
+    if !source.exists() {
+        Command::new("tar")
+            .arg("xf")
+            .arg(format!("OpenBLAS-{}.tar.gz", openblas_version))
+            .current_dir(env!("CARGO_MANIFEST_DIR"))
+            .status()
+            .expect("tar command not found");
+    }
     let deliv = cfg.build(&source, &output).unwrap();
 
     println!("cargo:rustc-link-search={}", output.display());
