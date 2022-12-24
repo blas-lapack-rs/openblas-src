@@ -1,5 +1,7 @@
 use std::{env, path::*, process::Command};
 
+const OPENBLAS_VERSION: &str = "0.3.21";
+
 fn feature_enabled(feature: &str) -> bool {
     env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
 }
@@ -158,13 +160,12 @@ fn build() {
         );
     }
 
-    let openblas_version = "0.3.21";
     let source =
-        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!("OpenBLAS-{}", openblas_version));
+        PathBuf::from(env!("CARGO_MANIFEST_DIR")).join(format!("OpenBLAS-{}", OPENBLAS_VERSION));
     if !source.exists() {
         Command::new("tar")
             .arg("xf")
-            .arg(format!("OpenBLAS-{}.tar.gz", openblas_version))
+            .arg(format!("OpenBLAS-{}.tar.gz", OPENBLAS_VERSION))
             .current_dir(env!("CARGO_MANIFEST_DIR"))
             .status()
             .expect("tar command not found");
@@ -243,7 +244,13 @@ fn build() {
         if source_tmp.exists() {
             fs::remove_dir_all(&source_tmp).unwrap();
         }
-        run(Command::new("cp").arg("-R").arg("source").arg(&source_tmp));
+        run(Command::new("tar")
+            .arg("xf")
+            .arg(format!("OpenBLAS-{}.tar.gz", OPENBLAS_VERSION)));
+        run(Command::new("cp")
+            .arg("-R")
+            .arg(format!("OpenBLAS-{}", OPENBLAS_VERSION))
+            .arg(&source_tmp));
         fs::rename(&source_tmp, &source).unwrap();
     }
     for name in &vec!["CC", "FC", "HOSTCC"] {

@@ -434,16 +434,28 @@ mod tests {
         ));
     }
 
+    fn get_openblas_source() -> PathBuf {
+        let openblas_src_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../openblas-src");
+        let openblas_version = "0.3.21";
+        let source = openblas_src_root.join(format!("OpenBLAS-{}", openblas_version));
+        if !source.exists() {
+            Command::new("tar")
+                .arg("xf")
+                .arg(format!("OpenBLAS-{}.tar.gz", openblas_version))
+                .current_dir(openblas_src_root)
+                .status()
+                .expect("tar command not found");
+        }
+        source
+    }
+
     #[ignore]
     #[test]
     fn build_default() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
         let opt = Configure::default();
         let _detail = opt
-            .build(
-                root.join("../openblas-src/source"),
-                root.join("test_build/build_default"),
-            )
+            .build(get_openblas_source(), root.join("test_build/build_default"))
             .unwrap();
     }
 
@@ -455,7 +467,7 @@ mod tests {
         opt.no_shared = true;
         let detail = opt
             .build(
-                root.join("../openblas-src/source"),
+                get_openblas_source(),
                 root.join("test_build/build_no_shared"),
             )
             .unwrap();
@@ -470,7 +482,7 @@ mod tests {
         opt.no_lapacke = true;
         let detail = opt
             .build(
-                root.join("../openblas-src/source"),
+                get_openblas_source(),
                 root.join("test_build/build_no_lapacke"),
             )
             .unwrap();
@@ -486,10 +498,7 @@ mod tests {
         let mut opt = Configure::default();
         opt.use_openmp = true;
         let detail = opt
-            .build(
-                root.join("../openblas-src/source"),
-                root.join("test_build/build_openmp"),
-            )
+            .build(get_openblas_source(), root.join("test_build/build_openmp"))
             .unwrap();
         assert!(detail.shared_lib.unwrap().has_lib("gomp"));
     }
