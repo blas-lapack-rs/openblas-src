@@ -436,17 +436,7 @@ mod tests {
 
     fn get_openblas_source() -> PathBuf {
         let openblas_src_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../openblas-src");
-        let openblas_version = "0.3.21";
-        let source = openblas_src_root.join(format!("OpenBLAS-{}", openblas_version));
-        if !source.exists() {
-            Command::new("tar")
-                .arg("xf")
-                .arg(format!("OpenBLAS-{}.tar.gz", openblas_version))
-                .current_dir(openblas_src_root)
-                .status()
-                .expect("tar command not found");
-        }
-        source
+        crate::download(&openblas_src_root).unwrap()
     }
 
     #[ignore]

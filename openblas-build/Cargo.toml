@@ -16,5 +16,9 @@ exclude = [
 ]
 
 [dependencies]
+anyhow = "1.0.68"
+flate2 = "1.0.25"
+tar = "0.4.38"
 thiserror = "1.0.22"
+ureq = "2.5.0"
 walkdir = "2.3.1"

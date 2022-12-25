@@ -1,9 +1,5 @@
 use std::{env, path::*, process::Command};
 
-const OPENBLAS_SOURCE_URL: &str =
-    "https://github.com/xianyi/OpenBLAS/releases/download/v0.3.21/OpenBLAS-0.3.21.tar.gz";
-const OPENBLAS_VERSION: &str = "0.3.21";
-
 #[allow(unused)]
 fn run(command: &mut Command) {
     println!("Running: `{:?}`", command);
@@ -177,13 +173,7 @@ fn build() {
         );
     }
 
-    let source = output.join(format!("OpenBLAS-{}", OPENBLAS_VERSION));
-    if !source.exists() {
-        let buf = ureq::get(OPENBLAS_SOURCE_URL).call().unwrap().into_reader();
-        let gz_stream = flate2::read::GzDecoder::new(buf);
-        let mut ar = tar::Archive::new(gz_stream);
-        ar.unpack(&output).unwrap();
-    }
+    let source = openblas_build::download(&output).unwrap();
     let deliv = cfg.build(&source, &output).unwrap();
 
     println!("cargo:rustc-link-search={}", output.display());
@@ -254,17 +244,7 @@ fn build() {
     };
 
     if !source.exists() {
-        let source_tmp = PathBuf::from(format!("{}_tmp", source.display()));
-        if source_tmp.exists() {
-            fs::remove_dir_all(&source_tmp).unwrap();
-        }
-        run(Command::new("tar")
-            .arg("xf")
-            .arg(format!("OpenBLAS-{}.tar.gz", OPENBLAS_VERSION)));
-        run(Command::new("cp")
-            .arg("-R")
-            .arg(format!("OpenBLAS-{}", OPENBLAS_VERSION))
-            .arg(&source_tmp));
+        let source_tmp = openblas_build::download(&output).unwrap();
         fs::rename(&source_tmp, &source).unwrap();
     }
     for name in &vec!["CC", "FC", "HOSTCC"] {
