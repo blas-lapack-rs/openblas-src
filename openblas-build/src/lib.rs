@@ -14,6 +14,8 @@
 
 mod build;
 mod check;
+mod download;
 pub mod error;
 pub use build::*;
 pub use check::*;
+pub use download::*;

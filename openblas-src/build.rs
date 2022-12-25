@@ -1,6 +1,19 @@
 use std::{env, path::*, process::Command};
 
-const OPENBLAS_VERSION: &str = "0.3.21";
+#[allow(unused)]
+fn run(command: &mut Command) {
+    println!("Running: `{:?}`", command);
+    match command.status() {
+        Ok(status) => {
+            if !status.success() {
+                panic!("Failed: `{:?}` ({})", command, status);
+            }
+        }
+        Err(error) => {
+            panic!("Failed: `{:?}` ({})", command, error);
+        }
+    }
+}
 
 fn feature_enabled(feature: &str) -> bool {
     env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
@@ -160,17 +173,8 @@ fn build() {
         );
     }
 
-    let source = output.join(format!("OpenBLAS-{}", OPENBLAS_VERSION));
-    if !source.exists() {
-        let crate_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        Command::new("tar")
-            .arg("xf")
-            .arg(crate_root.join(format!("OpenBLAS-{}.tar.gz", OPENBLAS_VERSION)))
-            .current_dir(&output)
-            .status()
-            .expect("tar command not found");
-    }
-    let deliv = cfg.build(&source, &output).unwrap();
+    let source = openblas_build::download(&output).unwrap();
+    let deliv = cfg.build(source, &output).unwrap();
 
     println!("cargo:rustc-link-search={}", output.display());
     for search_path in &deliv.make_conf.c_extra_libs.search_paths {
@@ -240,17 +244,7 @@ fn build() {
     };
 
     if !source.exists() {
-        let source_tmp = PathBuf::from(format!("{}_tmp", source.display()));
-        if source_tmp.exists() {
-            fs::remove_dir_all(&source_tmp).unwrap();
-        }
-        run(Command::new("tar")
-            .arg("xf")
-            .arg(format!("OpenBLAS-{}.tar.gz", OPENBLAS_VERSION)));
-        run(Command::new("cp")
-            .arg("-R")
-            .arg(format!("OpenBLAS-{}", OPENBLAS_VERSION))
-            .arg(&source_tmp));
+        let source_tmp = openblas_build::download(&output).unwrap();
         fs::rename(&source_tmp, &source).unwrap();
     }
     for name in &vec!["CC", "FC", "HOSTCC"] {
@@ -267,20 +261,6 @@ fn build() {
         "cargo:rustc-link-search={}",
         output.join("opt/OpenBLAS/lib").display(),
     );
-
-    fn run(command: &mut Command) {
-        println!("Running: `{:?}`", command);
-        match command.status() {
-            Ok(status) => {
-                if !status.success() {
-                    panic!("Failed: `{:?}` ({})", command, status);
-                }
-            }
-            Err(error) => {
-                panic!("Failed: `{:?}` ({})", command, error);
-            }
-        }
-    }
 
     fn binary() -> &'static str {
         if cfg!(target_pointer_width = "32") {

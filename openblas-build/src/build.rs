@@ -1,13 +1,7 @@
 //! Execute make of OpenBLAS, and its options
 
 use crate::{check::*, error::*};
-use std::{
-    fs,
-    os::unix::io::*,
-    path::*,
-    process::{Command, Stdio},
-    str::FromStr,
-};
+use std::{fs, path::*, process::Command, str::FromStr};
 use walkdir::WalkDir;
 
 /// Interface for 32-bit interger (LP64) and 64-bit integer (ILP64)
@@ -397,8 +391,8 @@ impl Configure {
         let err = fs::File::create(out_dir.join("err.log")).expect("Cannot create log file");
         match Command::new("make")
             .current_dir(out_dir)
-            .stdout(unsafe { Stdio::from_raw_fd(out.into_raw_fd()) }) // this works only for unix
-            .stderr(unsafe { Stdio::from_raw_fd(err.into_raw_fd()) })
+            .stdout(out)
+            .stderr(err)
             .args(&self.make_args())
             .args(["libs", "netlib", "shared"])
             .env_remove("TARGET")
@@ -436,17 +430,7 @@ mod tests {
 
     fn get_openblas_source() -> PathBuf {
         let openblas_src_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../openblas-src");
-        let openblas_version = "0.3.21";
-        let source = openblas_src_root.join(format!("OpenBLAS-{}", openblas_version));
-        if !source.exists() {
-            Command::new("tar")
-                .arg("xf")
-                .arg(format!("OpenBLAS-{}.tar.gz", openblas_version))
-                .current_dir(openblas_src_root)
-                .status()
-                .expect("tar command not found");
-        }
-        source
+        crate::download(&openblas_src_root).unwrap()
     }
 
     #[ignore]
