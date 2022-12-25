@@ -1,6 +1,6 @@
 [package]
 name = "openblas-src"
-version = "0.10.6"
+version = "0.10.5"
 license = "Apache-2.0/MIT"
 edition = "2018"
 authors = [
