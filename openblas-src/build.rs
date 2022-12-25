@@ -2,6 +2,21 @@ use std::{env, path::*, process::Command};
 
 const OPENBLAS_VERSION: &str = "0.3.21";
 
+#[allow(unused)]
+fn run(command: &mut Command) {
+    println!("Running: `{:?}`", command);
+    match command.status() {
+        Ok(status) => {
+            if !status.success() {
+                panic!("Failed: `{:?}` ({})", command, status);
+            }
+        }
+        Err(error) => {
+            panic!("Failed: `{:?}` ({})", command, error);
+        }
+    }
+}
+
 fn feature_enabled(feature: &str) -> bool {
     env::var(format!("CARGO_FEATURE_{}", feature.to_uppercase())).is_ok()
 }
@@ -267,20 +282,6 @@ fn build() {
         "cargo:rustc-link-search={}",
         output.join("opt/OpenBLAS/lib").display(),
     );
-
-    fn run(command: &mut Command) {
-        println!("Running: `{:?}`", command);
-        match command.status() {
-            Ok(status) => {
-                if !status.success() {
-                    panic!("Failed: `{:?}` ({})", command, status);
-                }
-            }
-            Err(error) => {
-                panic!("Failed: `{:?}` ({})", command, error);
-            }
-        }
-    }
 
     fn binary() -> &'static str {
         if cfg!(target_pointer_width = "32") {
