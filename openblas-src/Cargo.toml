@@ -37,7 +37,7 @@ libc = "0.2"
 
 [build-dependencies]
 dirs = "3.0.1"
-openblas-build = { version = "0.10.6", path = "../openblas-build" }
+openblas-build = { version = "0.10.5", path = "../openblas-build" }
 
 [target.'cfg(target_os="windows")'.build-dependencies]
 vcpkg = "0.2"
