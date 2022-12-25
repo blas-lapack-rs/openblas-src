@@ -16,7 +16,7 @@ pub fn download(out_dir: &Path) -> Result<PathBuf> {
         let buf = ureq::get(&openblas_source_url()).call()?.into_reader();
         let gz_stream = flate2::read::GzDecoder::new(buf);
         let mut ar = tar::Archive::new(gz_stream);
-        ar.unpack(&out_dir)?;
+        ar.unpack(out_dir)?;
         assert!(dest.exists());
     }
     Ok(dest)

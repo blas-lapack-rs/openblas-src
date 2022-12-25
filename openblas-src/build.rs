@@ -174,7 +174,7 @@ fn build() {
     }
 
     let source = openblas_build::download(&output).unwrap();
-    let deliv = cfg.build(&source, &output).unwrap();
+    let deliv = cfg.build(source, &output).unwrap();
 
     println!("cargo:rustc-link-search={}", output.display());
     for search_path in &deliv.make_conf.c_extra_libs.search_paths {
