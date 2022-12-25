@@ -1,5 +1,7 @@
 use std::{env, path::*, process::Command};
 
+const OPENBLAS_SOURCE_URL: &str =
+    "https://github.com/xianyi/OpenBLAS/releases/download/v0.3.21/OpenBLAS-0.3.21.tar.gz";
 const OPENBLAS_VERSION: &str = "0.3.21";
 
 #[allow(unused)]
@@ -177,13 +179,10 @@ fn build() {
 
     let source = output.join(format!("OpenBLAS-{}", OPENBLAS_VERSION));
     if !source.exists() {
-        let crate_root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-        Command::new("tar")
-            .arg("xf")
-            .arg(crate_root.join(format!("OpenBLAS-{}.tar.gz", OPENBLAS_VERSION)))
-            .current_dir(&output)
-            .status()
-            .expect("tar command not found");
+        let buf = ureq::get(OPENBLAS_SOURCE_URL).call().unwrap().into_reader();
+        let gz_stream = flate2::read::GzDecoder::new(buf);
+        let mut ar = tar::Archive::new(gz_stream);
+        ar.unpack(&output).unwrap();
     }
     let deliv = cfg.build(&source, &output).unwrap();
 
