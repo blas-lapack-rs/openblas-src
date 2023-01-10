@@ -25,16 +25,10 @@ pub fn download(out_dir: &Path) -> Result<PathBuf> {
     Ok(dest)
 }
 
-#[cfg(feature = "native-tls")]
 fn get_agent() -> ureq::Agent {
     ureq::AgentBuilder::new()
         .tls_connector(std::sync::Arc::new(
             native_tls::TlsConnector::new().expect("failed to create TLS connector"),
         ))
         .build()
-}
-
-#[cfg(not(feature = "native-tls"))]
-fn get_agent() -> ureq::Agent {
-    ureq::agent()
 }

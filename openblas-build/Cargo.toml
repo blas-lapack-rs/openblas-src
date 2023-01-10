@@ -11,22 +11,15 @@ repository = "https://github.com/blas-lapack-rs/openblas-src"
 readme = "../README.md"
 exclude = ["test_build/"]
 
-[features]
-default = ["tls"]
-
-tls = ["ureq/tls", "ureq/gzip"]
-native-certs = [
-    "native-tls",
-    "ureq/native-certs",
-    "ureq/native-tls",
-    "ureq/gzip",
-]
-
 [dependencies]
 anyhow = "1.0.68"
 flate2 = "1.0.25"
 tar = "0.4.38"
 thiserror = "1.0.22"
-ureq = { version = "2.5.0", default-features = false }
-native-tls = { version = "0.2.11", optional = true }
+ureq = { version = "2.5.0", default-features = false, features = [
+    "native-certs",
+    "native-tls",
+    "gzip",
+] }
+native-tls = { version = "0.2.11" }
 walkdir = "2.3.1"

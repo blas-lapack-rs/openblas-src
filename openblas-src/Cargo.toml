@@ -24,22 +24,20 @@ build = "build.rs"
 links = "openblas"
 
 [features]
-default = ["cblas", "lapacke", "tls"]
+default = ["cblas", "lapacke"]
 
 cache = []
 cblas = []
 lapacke = []
 static = []
 system = []
-tls = ["openblas-build/tls"]
-native-certs = ["openblas-build/native-certs"]
 
 [dev-dependencies]
 libc = "0.2"
 
 [build-dependencies]
 dirs = "3.0.1"
-openblas-build = { version = "0.10.7", path = "../openblas-build", default-features = false }
+openblas-build = { version = "0.10.7", path = "../openblas-build" }
 
 [target.'cfg(target_os="windows")'.build-dependencies]
 vcpkg = "0.2"
