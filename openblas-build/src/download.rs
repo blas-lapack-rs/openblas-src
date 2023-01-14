@@ -13,11 +13,22 @@ pub fn openblas_source_url() -> String {
 pub fn download(out_dir: &Path) -> Result<PathBuf> {
     let dest = out_dir.join(format!("OpenBLAS-{}", OPENBLAS_VERSION));
     if !dest.exists() {
-        let buf = ureq::get(&openblas_source_url()).call()?.into_reader();
+        let buf = get_agent()
+            .get(&openblas_source_url())
+            .call()?
+            .into_reader();
         let gz_stream = flate2::read::GzDecoder::new(buf);
         let mut ar = tar::Archive::new(gz_stream);
         ar.unpack(out_dir)?;
         assert!(dest.exists());
     }
     Ok(dest)
+}
+
+fn get_agent() -> ureq::Agent {
+    ureq::AgentBuilder::new()
+        .tls_connector(std::sync::Arc::new(
+            native_tls::TlsConnector::new().expect("failed to create TLS connector"),
+        ))
+        .build()
 }
