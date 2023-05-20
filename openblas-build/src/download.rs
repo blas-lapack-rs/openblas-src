@@ -1,7 +1,7 @@
 use anyhow::Result;
 use std::path::{Path, PathBuf};
 
-const OPENBLAS_VERSION: &str = "0.3.21";
+const OPENBLAS_VERSION: &str = "0.3.22";
 
 pub fn openblas_source_url() -> String {
     format!(
