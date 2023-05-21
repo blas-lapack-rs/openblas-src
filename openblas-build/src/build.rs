@@ -266,7 +266,7 @@ pub struct Deliverables {
 impl Configure {
     fn cross_compile_args(&self) -> Result<Vec<String>, Error> {
         let mut args = Vec::new();
-        for name in &vec!["CC", "FC", "HOSTCC"] {
+        for name in ["CC", "FC", "HOSTCC"] {
             if let Ok(value) = std::env::var(format!("OPENBLAS_{}", name)) {
                 args.push(format!("{}={}", name, value));
                 eprintln!("{}={}", name, value);
@@ -277,6 +277,13 @@ impl Configure {
         // for successful compile all 3 env-vars must be set
         if !args.is_empty() && args.len() != 3 {
             return Err(Error::MissingCrossCompileInfo);
+        }
+        // optional flags
+        for name in ["RANLIB"] {
+            if let Ok(value) = std::env::var(format!("OPENBLAS_{}", name)) {
+                args.push(format!("{}={}", name, value));
+                eprintln!("{}={}", name, value);
+            }
         }
         Ok(args)
     }
