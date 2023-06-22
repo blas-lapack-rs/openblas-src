@@ -112,6 +112,11 @@ fn main() {
 /// Build OpenBLAS using openblas-build crate
 #[cfg(target_os = "linux")]
 fn build() {
+    println!("cargo:rerun-if-env-changed=OPENBLAS_TARGET");
+    println!("cargo:rerun-if-env-changed=OPENBLAS_CC");
+    println!("cargo:rerun-if-env-changed=OPENBLAS_HOSTCC");
+    println!("cargo:rerun-if-env-changed=OPENBLAS_FC");
+    println!("cargo:rerun-if-env-changed=OPENBLAS_RANLIB");
     let mut cfg = openblas_build::Configure::default();
     if !feature_enabled("cblas") {
         cfg.no_cblas = true;
