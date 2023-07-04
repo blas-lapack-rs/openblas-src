@@ -376,9 +376,9 @@ impl Configure {
         }
 
         // Do not build if libraries and Makefile.conf already exist and are valid
-        if let Ok(deliv) = self.inspect(out_dir) {
-            return Ok(deliv);
-        }
+        // if let Ok(deliv) = self.inspect(out_dir) {
+        //     return Ok(deliv);
+        // }
 
         // Copy OpenBLAS sources from this crate to `out_dir`
         let root = openblas_root.as_ref();
