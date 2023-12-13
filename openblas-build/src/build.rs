@@ -359,6 +359,13 @@ impl Configure {
         if let Some(target) = self.target.as_ref() {
             args.push(format!("TARGET={:?}", target))
         }
+
+        for name in ["CC", "FC", "HOSTCC"] {
+            if let Ok(value) = std::env::var(format!("OPENBLAS_{}", name)) {
+                args.push(format!("{}={}", name, value));
+            }
+        }
+
         args
     }
 
