@@ -460,7 +460,7 @@ impl Configure {
             .stdout(out)
             .stderr(err)
             .args(&self.make_args())
-            .args(["libs", "netlib", "shared"])
+            .args(["all"])
             .env_remove("TARGET")
             .check_call()
         {
