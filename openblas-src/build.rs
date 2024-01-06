@@ -76,6 +76,9 @@ fn macos_system() {
 }
 
 fn main() {
+    if !env::var("DOCS_RS").is_ok() {
+        return;
+    }
     let link_kind = if feature_enabled("static") {
         "static"
     } else {
