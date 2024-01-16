@@ -1,13 +1,14 @@
 use anyhow::Result;
 use std::path::{Path, PathBuf};
 
-const OPENBLAS_VERSION: &str = "0.3.21";
+const OPENBLAS_VERSION: &str = "csky-support";
 
 pub fn openblas_source_url() -> String {
-    format!(
-        "https://github.com/xianyi/OpenBLAS/releases/download/v{}/OpenBLAS-{}.tar.gz",
-        OPENBLAS_VERSION, OPENBLAS_VERSION
-    )
+    // format!(
+    //     "https://github.com/OpenMathLib/OpenBLAS/releases/download/v{}/OpenBLAS-{}.tar.gz",
+    //     OPENBLAS_VERSION, OPENBLAS_VERSION
+    // )
+    "https://codeload.github.com/Dirreke/OpenBLAS/tar.gz/refs/heads/csky-support".to_string()
 }
 
 pub fn download(out_dir: &Path) -> Result<PathBuf> {

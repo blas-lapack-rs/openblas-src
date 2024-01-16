@@ -31,6 +31,8 @@ pub enum Target {
     HASWELL,
     SKYLAKEX,
     ATOM,
+    COOPERLAK,
+    SAPPHIRERAPIDS,
 
     // X86/X86_64 AMD
     ATHLON,
@@ -98,17 +100,50 @@ pub enum Target {
     CORTEXA57,
     CORTEXA72,
     CORTEXA73,
+    CORTEXA510,
+    CORTEXA710,
+    CORTEXX1,
+    CORTEXX2,
     NEOVERSEN1,
+    NEOVERSEV1,
+    NEOVERSEN2,
+    CORTEXA55,
     EMAG8180,
     FALKOR,
     THUNDERX,
     THUNDERX2T99,
     TSV110,
+    THUNDERX3T110,
+    VORTEX,
+    A64FX,
+    ARMV8SVE,
+    FT2000,
 
     // System Z
     ZARCH_GENERIC,
     Z13,
     Z14,
+
+    // RISC-V 64:
+    RISCV64_GENERIC,
+    C910V,
+
+    // LOONGARCH64:
+    LOONGSONGENERIC,
+    LOONGSON3R5,
+    LOONGSON2K1000,
+
+    // Elbrus E2000:
+    E2K,
+
+    // Alpha
+    EV4,
+    EV5,
+    EV6,
+
+    // CSKY
+    CSKY,
+    CK860FV,
 }
 
 impl FromStr for Target {
@@ -132,6 +167,8 @@ impl FromStr for Target {
             "haswell" => Self::HASWELL,
             "skylakex" => Self::SKYLAKEX,
             "atom" => Self::ATOM,
+            "cooperlak" => Self::COOPERLAK,
+            "sapphirerapids" => Self::SAPPHIRERAPIDS,
 
             // X86/X86_64 AMD
             "athlon" => Self::ATHLON,
@@ -199,17 +236,50 @@ impl FromStr for Target {
             "cortexa57" => Self::CORTEXA57,
             "cortexa72" => Self::CORTEXA72,
             "cortexa73" => Self::CORTEXA73,
+            "cortexa510" => Self::CORTEXA510,
+            "cortexa710" => Self::CORTEXA710,
+            "cortexx1" => Self::CORTEXX1,
+            "cortexx2" => Self::CORTEXX2,
             "neoversen1" => Self::NEOVERSEN1,
+            "neoversev1" => Self::NEOVERSEV1,
+            "neoversen2" => Self::NEOVERSEN2,
+            "cortexa55" => Self::CORTEXA55,
             "emag8180" => Self::EMAG8180,
             "falkor" => Self::FALKOR,
             "thunderx" => Self::THUNDERX,
             "thunderx2t99" => Self::THUNDERX2T99,
             "tsv110" => Self::TSV110,
-
+            "thunderx3t110" => Self::THUNDERX3T110,
+            "vortex" => Self::VORTEX,
+            "a64fx" => Self::A64FX,
+            "armv8sve" => Self::ARMV8SVE,
+            "ft2000" => Self::FT2000,
+        
             // System Z
             "zarch_generic" => Self::ZARCH_GENERIC,
             "z13" => Self::Z13,
             "z14" => Self::Z14,
+        
+            // RISC-V 64:
+            "riscv_generic" => Self::RISCV64_GENERIC,
+            "c910v" => Self::C910V,
+        
+            // LOONGARCH64:
+            "loongsongeneric" => Self::LOONGSONGENERIC,
+            "longson3r5" => Self::LOONGSON3R5,
+            "longson2k1000" => Self::LOONGSON2K1000,
+        
+            // Elbrus E2000:
+            "e2k" => Self::E2K,
+        
+            // Alpha
+            "ev4" => Self::EV4,
+            "ev5" => Self::EV5,
+            "ev6" => Self::EV6,
+        
+            // CSKY
+            "csky" => Self::CSKY,
+            "ck860fv" => Self::CK860FV,
 
             _ => {
                 return Err(Error::UnsupportedTarget {
