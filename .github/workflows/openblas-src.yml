@@ -85,7 +85,7 @@ jobs:
             --manifest-path=openblas-src/Cargo.toml
 
   linux:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     container:
       image: rust
     strategy:
