@@ -202,7 +202,7 @@ fn build() {
 
     let output = PathBuf::from(env::var("OUT_DIR").unwrap().replace(r"\", "/"));
     let mut make = Command::new("make");
-    make.args(&["libs", "netlib", "shared"])
+    make.args(&["all"])
         .arg(format!("BINARY={}", binary()))
         .arg(format!(
             "{}_CBLAS=1",
