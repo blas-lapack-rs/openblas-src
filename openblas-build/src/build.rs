@@ -330,6 +330,30 @@ pub struct Deliverables {
 }
 
 impl Configure {
+    fn cross_compile_args(&self) -> Result<Vec<String>, Error> {
+        let mut args = Vec::new();
+        for name in ["CC", "FC", "HOSTCC"] {
+            if let Ok(value) = std::env::var(format!("OPENBLAS_{}", name)) {
+                args.push(format!("{}={}", name, value));
+                eprintln!("{}={}", name, value);
+            } else {
+                eprintln!("not found {}", name);
+            }
+        }
+        // for successful compile all 3 env-vars must be set
+        if !args.is_empty() && args.len() != 3 {
+            return Err(Error::MissingCrossCompileInfo);
+        }
+        // optional flags
+        for name in ["RANLIB"] {
+            if let Ok(value) = std::env::var(format!("OPENBLAS_{}", name)) {
+                args.push(format!("{}={}", name, value));
+                eprintln!("{}={}", name, value);
+            }
+        }
+        Ok(args)
+    }
+
     fn make_args(&self) -> Vec<String> {
         let mut args = Vec::new();
         if self.no_static {
@@ -467,6 +491,7 @@ impl Configure {
             .stdout(out)
             .stderr(err)
             .args(&self.make_args())
+            .args(&self.cross_compile_args()?)
             .args(["all"])
             .env_remove("TARGET")
             .check_call()
