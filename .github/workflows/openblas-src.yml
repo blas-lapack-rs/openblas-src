@@ -61,7 +61,7 @@ jobs:
         if: ${{ matrix.triple == 'x64-windows-static' }}
 
   macos:
-    runs-on: macos-11
+    runs-on: macos-14
     strategy:
       fail-fast: false
       matrix:
