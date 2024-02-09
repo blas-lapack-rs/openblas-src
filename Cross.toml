@@ -1,0 +1,12 @@
+[target.aarch64-unknown-linux-gnu]
+pre-build = [
+  "dpkg --add-architecture $CROSS_DEB_ARCH",
+  "apt-get update && apt-get --assume-yes install gfortran-aarch64-linux-gnu gcc-aarch64-linux-gnu libssl-dev:$CROSS_DEB_ARCH libssl-dev"
+]
+[target.aarch64-unknown-linux-gnu.env]
+passthrough = [
+    "OPENBLAS_CC=aarch64-linux-gnu-gcc",
+    "OPENBLAS_HOSTCC=gcc",
+    "OPENBLAS_FC=aarch64-linux-gnu-gfortran",
+    "OPENBLAS_TARGET=NEOVERSEN1"
+]
