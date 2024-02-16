@@ -31,7 +31,7 @@ pub enum Target {
     HASWELL,
     SKYLAKEX,
     ATOM,
-    COOPERLAK,
+    COOPERLAKE,
     SAPPHIRERAPIDS,
 
     // X86/X86_64 AMD
@@ -60,6 +60,7 @@ pub enum Target {
     POWER7,
     POWER8,
     POWER9,
+    POWER10,
     PPCG4,
     PPC970,
     PPC970MP,
@@ -73,6 +74,7 @@ pub enum Target {
     MIPS24K,
 
     // MIPS64
+    MIPS64_GENERIC,
     SICORTEX,
     LOONGSON3A,
     LOONGSON3B,
@@ -167,7 +169,7 @@ impl FromStr for Target {
             "haswell" => Self::HASWELL,
             "skylakex" => Self::SKYLAKEX,
             "atom" => Self::ATOM,
-            "cooperlak" => Self::COOPERLAK,
+            "cooperlake" => Self::COOPERLAKE,
             "sapphirerapids" => Self::SAPPHIRERAPIDS,
 
             // X86/X86_64 AMD
@@ -196,6 +198,7 @@ impl FromStr for Target {
             "power7" => Self::POWER7,
             "power8" => Self::POWER8,
             "power9" => Self::POWER9,
+            "power10" => Self::POWER10,
             "ppcg4" => Self::PPCG4,
             "ppc970" => Self::PPC970,
             "ppc970mp" => Self::PPC970MP,
@@ -209,6 +212,7 @@ impl FromStr for Target {
             "mips24k" => Self::MIPS24K,
 
             // MIPS64
+            "mips64_generic" => Self::MIPS64_GENERIC,
             "sicortex" => Self::SICORTEX,
             "loongson3a" => Self::LOONGSON3A,
             "loongson3b" => Self::LOONGSON3B,
@@ -254,7 +258,7 @@ impl FromStr for Target {
             "a64fx" => Self::A64FX,
             "armv8sve" => Self::ARMV8SVE,
             "ft2000" => Self::FT2000,
-        
+
             // System Z
             "zarch_generic" => Self::ZARCH_GENERIC,
             "z13" => Self::Z13,
@@ -280,6 +284,23 @@ impl FromStr for Target {
             // CSKY
             "csky" => Self::CSKY,
             "ck860fv" => Self::CK860FV,
+
+            // RISC-V 64:
+            "riscv64_generic" => Self::RISCV64_GENERIC,
+            "c910v" => Self::C910V,
+
+            // LOONGARCH64:
+            "loongsongeneric" => Self::LOONGSONGENERIC,
+            "loongson3r5" => Self::LOONGSON3R5,
+            "loongson2k1000" => Self::LOONGSON2K1000,
+
+            // Elbrus E2000:
+            "e2k" => Self::E2K,
+
+            // Alpha
+            "ev4" => Self::EV4,
+            "ev5" => Self::EV5,
+            "ev6" => Self::EV6,
 
             _ => {
                 return Err(Error::UnsupportedTarget {
@@ -387,6 +408,13 @@ impl Configure {
         if let Some(target) = self.target.as_ref() {
             args.push(format!("TARGET={:?}", target))
         }
+
+        for name in ["CC", "FC", "HOSTCC"] {
+            if let Ok(value) = std::env::var(format!("OPENBLAS_{}", name)) {
+                args.push(format!("{}={}", name, value));
+            }
+        }
+
         args
     }
 
@@ -489,7 +517,7 @@ impl Configure {
             .stderr(err)
             .args(&self.make_args())
             .args(&self.cross_compile_args()?)
-            .args(["libs", "netlib", "shared"])
+            .args(["all"])
             .env_remove("TARGET")
             .check_call()
         {
