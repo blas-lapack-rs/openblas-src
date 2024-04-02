@@ -82,6 +82,12 @@ fn main() {
         "dylib"
     };
     if feature_enabled("system") {
+        if link_kind == "dylib" && pkg_config::probe_library("openblas").is_ok() {
+            // pkg-config does everything, including output for cargo: we can
+            // jump out early.
+            return;
+        }
+
         if cfg!(target_os = "windows") {
             if cfg!(target_env = "gnu") {
                 windows_gnu_system();
