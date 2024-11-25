@@ -18,8 +18,8 @@ jobs:
           - x64-windows-static
           - x64-windows-static-md
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions/cache@v2
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ./vcpkg
           key: vcpkg-openblas
@@ -31,30 +31,20 @@ jobs:
       - name: Install OpenBLAS by vcpkg
         run: |
           ./vcpkg/vcpkg.exe install openblas:${{ matrix.triple }}
-
-      - uses: actions-rs/cargo@v1
-        name: Test features=system
-        with:
-          command: test
-          args: --features=system --manifest-path=openblas-src/Cargo.toml
+      - name: Test features=system
+        run: cargo test --features=system --manifest-path=openblas-src/Cargo.toml
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         if: ${{ matrix.triple == 'x64-windows' }}
 
-      - uses: actions-rs/cargo@v1
-        name: Test features=system,static
-        with:
-          command: test
-          args: --features=system,static --manifest-path=openblas-src/Cargo.toml
+      - name: Test features=system,static
+        run: cargo test --features=system,static --manifest-path=openblas-src/Cargo.toml
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         if: ${{ matrix.triple == 'x64-windows-static-md' }}
 
-      - uses: actions-rs/cargo@v1
-        name: Test features=system,static with crt-static
-        with:
-          command: test
-          args: --features=system,static --manifest-path=openblas-src/Cargo.toml
+      - name: Test features=system,static with crt-static
+        run: cargo test --features=system,static --manifest-path=openblas-src/Cargo.toml
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
           RUSTFLAGS: "-C target-feature=+crt-static"
@@ -70,21 +60,17 @@ jobs:
           - static
           - system
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
         with:
           submodules: "recursive"
       - name: Install OpenBLAS by homebrew
         run: |
           brew install openblas
         if: ${{ contains(matrix.feature, 'system') }}
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: >
-            --features=${{ matrix.feature }}
-            --manifest-path=openblas-src/Cargo.toml
+      - name: Test features=${{ matrix.feature }}
+        run: cargo test --features=${{ matrix.feature }} --manifest-path=openblas-src/Cargo.toml
 
-  linux:
+  x86_64-unknown-linux-gnu:
     runs-on: ubuntu-22.04
     container:
       image: rust
@@ -96,7 +82,7 @@ jobs:
           - static
           - system
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
         with:
           submodules: "recursive"
       - name: Install gfortran by apt
@@ -108,9 +94,31 @@ jobs:
           apt update
           apt install -y libopenblas-dev
         if: ${{ contains(matrix.feature, 'system') }}
-      - uses: actions-rs/cargo@v1
+      - name: Test features=${{ matrix.feature }}
+        run: cargo test --features=${{ matrix.feature }} --manifest-path=openblas-src/Cargo.toml
+  
+  cross:
+    name: ${{matrix.target}} (${{matrix.feature}})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        feature:
+          - ""
+          - static
+          - system
+        target:
+          - aarch64-unknown-linux-gnu
+          - armv7-unknown-linux-gnueabihf
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@stable
         with:
-          command: test
-          args: >
-            --features=${{ matrix.feature }}
-            --manifest-path=openblas-src/Cargo.toml
+          target: ${{matrix.target}} 
+      - name: Install Cross
+        uses: taiki-e/install-action@v2
+        with:
+          tool: cross
+      - name: Test features=${{ matrix.feature }}
+        run: cross test --target ${{matrix.target}} --features=${{ matrix.feature }} --manifest-path=openblas-src/Cargo.toml

@@ -22,7 +22,7 @@ jobs:
     env:
       RUST_BACKTRACE: 1
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
         with:
           submodules: "recursive"
       - name: Install gfortran by apt
@@ -30,12 +30,6 @@ jobs:
           apt update
           apt install -y gfortran
       - name: Common minor tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --manifest-path=openblas-build/Cargo.toml
+        run: cargo test  --manifest-path=openblas-build/Cargo.toml
       - name: Build test
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: ${{ matrix.test_target }} --manifest-path=openblas-build/Cargo.toml -- --ignored
+        run: cargo test ${{ matrix.test_target }} --manifest-path=openblas-build/Cargo.toml -- --ignored

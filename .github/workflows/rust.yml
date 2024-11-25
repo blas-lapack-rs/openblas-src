@@ -5,23 +5,21 @@ on:
     branches:
       - master
   pull_request: {}
+  workflow_dispatch: {}
 
 jobs:
   check-format:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v1
-      - uses: actions-rs/cargo@v1
-        with:
-          command: fmt
-          args: -- --check
+      - uses: actions/checkout@v4
+      - name: Check format
+        run: cargo fmt -- --check
 
   clippy:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
         with:
           submodules: "true"
-      - uses: actions-rs/cargo@v1
-        with:
-          command: clippy
+      - name: Check format
+        run: cargo clippy
