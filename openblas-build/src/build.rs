@@ -102,6 +102,7 @@ pub enum Target {
     CORTEXA57,
     CORTEXA72,
     CORTEXA73,
+    CORTEXA76,
     CORTEXA510,
     CORTEXA710,
     CORTEXX1,
@@ -128,7 +129,10 @@ pub enum Target {
 
     // RISC-V 64:
     RISCV64_GENERIC,
+    RISCV64_ZVL128B,
     C910V,
+    x280,
+    RISCV64_ZVL236B,
 
     // LOONGARCH64:
     LOONGSONGENERIC,
@@ -142,6 +146,10 @@ pub enum Target {
     EV4,
     EV5,
     EV6,
+
+    // CSKY
+    CSKY,
+    CK860FV,
 }
 
 impl FromStr for Target {
@@ -236,6 +244,7 @@ impl FromStr for Target {
             "cortexa57" => Self::CORTEXA57,
             "cortexa72" => Self::CORTEXA72,
             "cortexa73" => Self::CORTEXA73,
+            "cortexa76" => Self::CORTEXA76,
             "cortexa510" => Self::CORTEXA510,
             "cortexa710" => Self::CORTEXA710,
             "cortexx1" => Self::CORTEXX1,
@@ -262,12 +271,15 @@ impl FromStr for Target {
 
             // RISC-V 64:
             "riscv64_generic" => Self::RISCV64_GENERIC,
+            "riscv64_zvl128b" => Self::RISCV64_ZVL128B,
             "c910v" => Self::C910V,
+            "x280" => Self::x280,
+            "riscv64_zvl236b" => Self::RISCV64_ZVL236B,
 
             // LOONGARCH64:
             "loongsongeneric" => Self::LOONGSONGENERIC,
-            "loongson3r5" => Self::LOONGSON3R5,
-            "loongson2k1000" => Self::LOONGSON2K1000,
+            "longson3r5" => Self::LOONGSON3R5,
+            "longson2k1000" => Self::LOONGSON2K1000,
 
             // Elbrus E2000:
             "e2k" => Self::E2K,
@@ -276,6 +288,10 @@ impl FromStr for Target {
             "ev4" => Self::EV4,
             "ev5" => Self::EV5,
             "ev6" => Self::EV6,
+
+            // CSKY
+            "csky" => Self::CSKY,
+            "ck860fv" => Self::CK860FV,
 
             _ => {
                 return Err(Error::UnsupportedTarget {
@@ -490,8 +506,8 @@ impl Configure {
             .current_dir(out_dir)
             .stdout(out)
             .stderr(err)
-            .args(&self.make_args())
-            .args(&self.cross_compile_args()?)
+            .args(self.make_args())
+            .args(self.cross_compile_args()?)
             .args(["all"])
             .env_remove("TARGET")
             .check_call()

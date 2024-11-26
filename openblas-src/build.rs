@@ -140,9 +140,9 @@ fn build() {
     }
 
     let output = if feature_enabled("cache") {
-        use std::{collections::hash_map::DefaultHasher, hash::*};
+        use std::hash::*;
         // Build OpenBLAS on user's data directory.
-        // See https://docs.rs/dirs/3.0.1/dirs/fn.data_dir.html
+        // See https://docs.rs/dirs/5.0.1/dirs/fn.data_dir.html
         //
         // On Linux, `data_dir` returns `$XDG_DATA_HOME` or `$HOME/.local/share`.
         // This build script creates a directory based on the hash value of `cfg`,

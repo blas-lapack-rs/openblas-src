@@ -1,11 +1,11 @@
 use anyhow::Result;
 use std::path::{Path, PathBuf};
 
-const OPENBLAS_VERSION: &str = "0.3.25";
+const OPENBLAS_VERSION: &str = "0.3.28";
 
 pub fn openblas_source_url() -> String {
     format!(
-        "https://github.com/xianyi/OpenBLAS/releases/download/v{}/OpenBLAS-{}.tar.gz",
+        "https://github.com/OpenMathLib/OpenBLAS/releases/download/v{}/OpenBLAS-{}.tar.gz",
         OPENBLAS_VERSION, OPENBLAS_VERSION
     )
 }
