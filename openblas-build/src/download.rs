@@ -30,5 +30,6 @@ fn get_agent() -> ureq::Agent {
         .tls_connector(std::sync::Arc::new(
             native_tls::TlsConnector::new().expect("failed to create TLS connector"),
         ))
+        .try_proxy_from_env(true)
         .build()
 }
