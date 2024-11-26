@@ -1,0 +1,28 @@
+[target.aarch64-unknown-linux-gnu]
+image = "ghcr.io/cross-rs/aarch64-unknown-linux-gnu:main"
+pre-build = [
+  "dpkg --add-architecture $CROSS_DEB_ARCH",
+  "apt-get update && apt-get --assume-yes install libopenblas-dev:$CROSS_DEB_ARCH libssl-dev"
+]
+[target.aarch64-unknown-linux-gnu.env]
+passthrough = [
+    "OPENBLAS_CC=aarch64-linux-gnu-gcc",
+    "OPENBLAS_HOSTCC=gcc",
+    "OPENBLAS_FC=aarch64-linux-gnu-gfortran",
+    "OPENBLAS_TARGET=ARMV8"
+]
+
+[target.armv7-unknown-linux-gnueabihf]
+image = "ghcr.io/cross-rs/armv7-unknown-linux-gnueabihf:main"
+pre-build = [
+  "dpkg --add-architecture $CROSS_DEB_ARCH",
+  "apt-get update && apt-get --assume-yes install libopenblas-dev:$CROSS_DEB_ARCH libssl-dev"
+]
+[target.armv7-unknown-linux-gnueabihf.env]
+passthrough = [
+    "OPENBLAS_CC=arm-linux-gnueabihf-gcc",
+    "OPENBLAS_HOSTCC=gcc",
+    "OPENBLAS_FC=arm-linux-gnueabihf-gfortran",
+    "OPENBLAS_TARGET=ARMV7"
+]
+
