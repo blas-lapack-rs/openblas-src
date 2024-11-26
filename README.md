@@ -67,6 +67,10 @@ They can be set as environment variables for `cargo build` using the `OPENBLAS_`
 prefix as follows: `OPENBLAS_CC`, `OPENBLAS_FC`, `OPENBLAS_HOSTCC`, and
 `OPENBLAS_TARGET`.
 
+## Proxy issues
+
+The `openblas-src` crate will detect and use proxy settings from your environment variables, such as `http_proxy` and `https_proxy` to download necessary dependencies. 
+
 ## Contribution
 
 Your contribution is highly appreciated. Do not hesitate to open an issue or a
