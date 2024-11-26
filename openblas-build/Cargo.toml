@@ -15,7 +15,7 @@ exclude = ["test_build/"]
 anyhow = "1.0.68"
 flate2 = "1.0.25"
 tar = "0.4.38"
-thiserror = "1.0.22"
+thiserror = "2.0"
 ureq = { version = "2.5.0", default-features = false, features = [
     "native-certs",
     "native-tls",
@@ -23,3 +23,4 @@ ureq = { version = "2.5.0", default-features = false, features = [
 ] }
 native-tls = { version = "0.2.11" }
 walkdir = "2.3.1"
+
