@@ -76,12 +76,24 @@ fn macos_system() {
 }
 
 fn main() {
+    if env::var("DOCS_RS").is_ok() {
+        return;
+    }
     let link_kind = if feature_enabled("static") {
         "static"
     } else {
         "dylib"
     };
     if feature_enabled("system") {
+        // Use pkg-config to find OpenBLAS
+        if pkg_config::Config::new()
+            .statik(feature_enabled("static"))
+            .probe("openblas")
+            .is_ok()
+        {
+            return;
+        }
+
         if cfg!(target_os = "windows") {
             if cfg!(target_env = "gnu") {
                 windows_gnu_system();

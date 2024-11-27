@@ -36,6 +36,7 @@ system = []
 libc = "0.2"
 
 [build-dependencies]
+pkg-config = "0.3.30"
 dirs = "5.0.1"
 openblas-build = { version = "0.10.9", path = "../openblas-build" }
 
