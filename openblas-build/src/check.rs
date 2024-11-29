@@ -93,6 +93,8 @@ impl MakeConf {
                 "FEXTRALIB" => detail.f_extra_libs = LinkFlags::parse(entry[1])?,
                 _ => continue,
             }
+            #[cfg(target_os = "macos")]
+            detail.c_extra_libs.libs.retain(|lib| lib != "to_library");
         }
         Ok(detail)
     }
@@ -103,11 +105,13 @@ impl MakeConf {
 /// - Linked shared libraries using `objdump -p` external command.
 /// - Global "T" symbols in the text (code) section of library using `nm -g` external command.
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct LibInspect {
     pub libs: Vec<String>,
     pub symbols: Vec<String>,
 }
 
+#[allow(dead_code)]
 impl LibInspect {
     /// Inspect library file
     ///

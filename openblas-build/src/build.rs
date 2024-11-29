@@ -1,7 +1,7 @@
 //! Execute make of OpenBLAS, and its options
 
 use crate::{check::*, error::*};
-use std::{fs, path::*, process::Command, str::FromStr};
+use std::{env, fs, path::*, process::Command, str::FromStr};
 use walkdir::WalkDir;
 
 /// Interface for 32-bit interger (LP64) and 64-bit integer (ILP64)
@@ -303,6 +303,14 @@ impl FromStr for Target {
     }
 }
 
+#[derive(Default, Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Compilers {
+    pub cc: Option<String>,
+    pub fc: Option<String>,
+    pub hostcc: Option<String>,
+    pub ranlib: Option<String>,
+}
+
 /// make option generator
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Configure {
@@ -316,6 +324,7 @@ pub struct Configure {
     pub dynamic_arch: bool,
     pub interface: Interface,
     pub target: Option<Target>,
+    pub compilers: Compilers,
 }
 
 impl Default for Configure {
@@ -331,45 +340,18 @@ impl Default for Configure {
             dynamic_arch: false,
             interface: Interface::LP64,
             target: None,
+            compilers: Compilers::default(),
         }
     }
 }
 
 /// Deliverables of `make` command
 pub struct Deliverables {
-    /// None if `no_static`
-    pub static_lib: Option<LibInspect>,
-    /// None if `no_shared`
-    pub shared_lib: Option<LibInspect>,
     /// Inspection what `make` command really show.
     pub make_conf: MakeConf,
 }
 
 impl Configure {
-    fn cross_compile_args(&self) -> Result<Vec<String>, Error> {
-        let mut args = Vec::new();
-        for name in ["CC", "FC", "HOSTCC"] {
-            if let Ok(value) = std::env::var(format!("OPENBLAS_{}", name)) {
-                args.push(format!("{}={}", name, value));
-                eprintln!("{}={}", name, value);
-            } else {
-                eprintln!("not found {}", name);
-            }
-        }
-        // for successful compile all 3 env-vars must be set
-        if !args.is_empty() && args.len() != 3 {
-            return Err(Error::MissingCrossCompileInfo);
-        }
-        // optional flags
-        for name in ["RANLIB"] {
-            if let Ok(value) = std::env::var(format!("OPENBLAS_{}", name)) {
-                args.push(format!("{}={}", name, value));
-                eprintln!("{}={}", name, value);
-            }
-        }
-        Ok(args)
-    }
-
     fn make_args(&self) -> Vec<String> {
         let mut args = Vec::new();
         if self.no_static {
@@ -399,13 +381,18 @@ impl Configure {
         if let Some(target) = self.target.as_ref() {
             args.push(format!("TARGET={:?}", target))
         }
-
-        for name in ["CC", "FC", "HOSTCC"] {
-            if let Ok(value) = std::env::var(format!("OPENBLAS_{}", name)) {
-                args.push(format!("{}={}", name, value));
-            }
+        if let Some(compiler_cc) = self.compilers.cc.as_ref() {
+            args.push(format!("CC={}", compiler_cc))
         }
-
+        if let Some(compiler_fc) = self.compilers.fc.as_ref() {
+            args.push(format!("FC={}", compiler_fc))
+        }
+        if let Some(compiler_hostcc) = self.compilers.hostcc.as_ref() {
+            args.push(format!("HOSTCC={}", compiler_hostcc))
+        }
+        if let Some(compiler_ranlib) = self.compilers.ranlib.as_ref() {
+            args.push(format!("RANLIB={}", compiler_ranlib))
+        }
         args
     }
 
@@ -420,28 +407,24 @@ impl Configure {
     pub fn inspect(&self, out_dir: impl AsRef<Path>) -> Result<Deliverables, Error> {
         let out_dir = out_dir.as_ref();
         let make_conf = MakeConf::new(out_dir.join("Makefile.conf"))?;
-
-        if !self.no_lapack && make_conf.no_fortran {
-            return Err(Error::FortranCompilerNotFound);
+        if !self.no_static {
+            let lib_path = out_dir.join("libopenblas.a");
+            if !lib_path.exists() {
+                return Err(Error::LibraryNotExist { path: lib_path });
+            }
+        }
+        if !self.no_shared {
+            let lib_path = if cfg!(target_os = "macos") {
+                out_dir.join("libopenblas.dylib")
+            } else {
+                out_dir.join("libopenblas.so")
+            };
+            if !lib_path.exists() {
+                return Err(Error::LibraryNotExist { path: lib_path });
+            }
         }
 
-        Ok(Deliverables {
-            static_lib: if !self.no_static {
-                Some(LibInspect::new(out_dir.join("libopenblas.a"))?)
-            } else {
-                None
-            },
-            shared_lib: if !self.no_shared {
-                Some(LibInspect::new(if cfg!(target_os = "macos") {
-                    out_dir.join("libopenblas.dylib")
-                } else {
-                    out_dir.join("libopenblas.so")
-                })?)
-            } else {
-                None
-            },
-            make_conf,
-        })
+        Ok(Deliverables { make_conf })
     }
 
     /// Build OpenBLAS
@@ -492,6 +475,14 @@ impl Configure {
             }
         }
 
+        // check if cross compile is needed
+        let build_target = env::var("TARGET").unwrap_or_default();
+        let build_host = env::var("HOST").unwrap_or_default();
+        let is_cross_compile = build_target != build_host;
+        if is_cross_compile && (self.compilers.cc.is_none() || self.compilers.hostcc.is_none()) {
+            return Err(Error::MissingCrossCompileInfo);
+        }
+
         // Run `make` as an subprocess
         //
         // - This will automatically run in parallel without `-j` flag
@@ -507,7 +498,6 @@ impl Configure {
             .stdout(out)
             .stderr(err)
             .args(self.make_args())
-            .args(self.cross_compile_args()?)
             .args(["all"])
             .env_remove("TARGET")
             .check_call()
@@ -524,7 +514,6 @@ impl Configure {
                 return Err(e);
             }
         }
-
         self.inspect(out_dir)
     }
 }
