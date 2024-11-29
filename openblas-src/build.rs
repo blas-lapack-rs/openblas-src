@@ -50,7 +50,9 @@ fn windows_msvc_system() {
         env::set_var("VCPKGRS_DYNAMIC", "1");
     }
     #[cfg(target_env = "msvc")]
-    vcpkg::find_package("openblas").unwrap();
+    vcpkg::find_package("openblas").expect(
+        "vcpkg failed to find OpenBLAS package , Try to install it using `vcpkg install openblas:$(ARCH)-windows(-static)(-md)`"
+    );
     if !cfg!(target_env = "msvc") {
         unreachable!();
     }
@@ -122,7 +124,6 @@ fn main() {
 }
 
 /// Build OpenBLAS using openblas-build crate
-#[cfg(target_os = "linux")]
 fn build() {
     println!("cargo:rerun-if-env-changed=OPENBLAS_TARGET");
     println!("cargo:rerun-if-env-changed=OPENBLAS_CC");
@@ -150,6 +151,10 @@ fn build() {
         // Do not default to the native target (represented by `cfg.target == None`)
         // because most user set `$OPENBLAS_TARGET` explicitly will hope not to use the native target.
     }
+    cfg.compilers.cc = env::var("OPENBLAS_CC").ok();
+    cfg.compilers.hostcc = env::var("OPENBLAS_HOSTCC").ok();
+    cfg.compilers.fc = env::var("OPENBLAS_FC").ok();
+    cfg.compilers.ranlib = env::var("OPENBLAS_RANLIB").ok();
 
     let output = if feature_enabled("cache") {
         use std::hash::*;
@@ -183,7 +188,7 @@ fn build() {
     //
     // Be sure that `cargo:warning` is shown only when openblas-src is build as path dependency...
     // https://doc.rust-lang.org/cargo/reference/build-scripts.html#cargowarningmessage
-    if !feature_enabled("static") {
+    if !feature_enabled("static") && cfg!(not(target_os = "macos")) {
         println!(
             "cargo:warning=OpenBLAS is built as a shared library. You need to set LD_LIBRARY_PATH={}",
             output.display()
@@ -191,99 +196,19 @@ fn build() {
     }
 
     let source = openblas_build::download(&output).unwrap();
-    let deliv = cfg.build(source, &output).unwrap();
+    let make_conf = cfg.build(&source).unwrap();
 
-    println!("cargo:rustc-link-search={}", output.display());
-    for search_path in &deliv.make_conf.c_extra_libs.search_paths {
+    println!("cargo:rustc-link-search={}", source.display());
+    for search_path in &make_conf.c_extra_libs.search_paths {
         println!("cargo:rustc-link-search={}", search_path.display());
     }
-    for lib in &deliv.make_conf.c_extra_libs.libs {
+    for lib in &make_conf.c_extra_libs.libs {
         println!("cargo:rustc-link-lib={}", lib);
     }
-    for search_path in &deliv.make_conf.f_extra_libs.search_paths {
+    for search_path in &make_conf.f_extra_libs.search_paths {
         println!("cargo:rustc-link-search={}", search_path.display());
     }
-    for lib in &deliv.make_conf.f_extra_libs.libs {
+    for lib in &make_conf.f_extra_libs.libs {
         println!("cargo:rustc-link-lib={}", lib);
-    }
-}
-
-/// openblas-src 0.9.0 compatible `make` runner
-///
-/// This cannot detect that OpenBLAS skips LAPACK build due to the absense of Fortran compiler.
-/// openblas-build crate can detect it by sneaking OpenBLAS build system, but only works on Linux.
-///
-#[cfg(not(target_os = "linux"))]
-fn build() {
-    use std::fs;
-
-    let output = PathBuf::from(env::var("OUT_DIR").unwrap().replace(r"\", "/"));
-    let mut make = Command::new("make");
-    make.args(&["all"])
-        .arg(format!("BINARY={}", binary()))
-        .arg(format!(
-            "{}_CBLAS=1",
-            if feature_enabled("cblas") {
-                "YES"
-            } else {
-                "NO"
-            }
-        ))
-        .arg(format!(
-            "{}_LAPACKE=1",
-            if feature_enabled("lapacke") {
-                "YES"
-            } else {
-                "NO"
-            }
-        ));
-    match env::var("OPENBLAS_ARGS") {
-        Ok(args) => {
-            make.args(args.split_whitespace());
-        }
-        _ => (),
-    };
-    if let Ok(num_jobs) = env::var("NUM_JOBS") {
-        make.arg(format!("-j{}", num_jobs));
-    }
-    let target = match env::var("OPENBLAS_TARGET") {
-        Ok(target) => {
-            make.arg(format!("TARGET={}", target));
-            target
-        }
-        _ => env::var("TARGET").unwrap(),
-    };
-    env::remove_var("TARGET");
-    let source = if feature_enabled("cache") {
-        PathBuf::from(format!("source_{}", target.to_lowercase()))
-    } else {
-        output.join(format!("source_{}", target.to_lowercase()))
-    };
-
-    if !source.exists() {
-        let source_tmp = openblas_build::download(&output).unwrap();
-        fs::rename(&source_tmp, &source).unwrap();
-    }
-    for name in &vec!["CC", "FC", "HOSTCC"] {
-        if let Ok(value) = env::var(format!("OPENBLAS_{}", name)) {
-            make.arg(format!("{}={}", name, value));
-        }
-    }
-    run(&mut make.current_dir(&source));
-    run(Command::new("make")
-        .arg("install")
-        .arg(format!("DESTDIR={}", output.display()))
-        .current_dir(&source));
-    println!(
-        "cargo:rustc-link-search={}",
-        output.join("opt/OpenBLAS/lib").display(),
-    );
-
-    fn binary() -> &'static str {
-        if cfg!(target_pointer_width = "32") {
-            "32"
-        } else {
-            "64"
-        }
     }
 }

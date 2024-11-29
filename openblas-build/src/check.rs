@@ -7,7 +7,6 @@ use std::{
     hash::Hash,
     io::{self, BufRead},
     path::*,
-    process::Command,
 };
 
 /// Parse compiler linker flags, `-L` and `-l`
@@ -93,6 +92,8 @@ impl MakeConf {
                 "FEXTRALIB" => detail.f_extra_libs = LinkFlags::parse(entry[1])?,
                 _ => continue,
             }
+            #[cfg(target_os = "macos")]
+            detail.c_extra_libs.libs.retain(|lib| lib != "to_library");
         }
         Ok(detail)
     }
@@ -103,16 +104,19 @@ impl MakeConf {
 /// - Linked shared libraries using `objdump -p` external command.
 /// - Global "T" symbols in the text (code) section of library using `nm -g` external command.
 #[derive(Debug, Clone)]
-pub struct LibInspect {
+#[cfg(test)]
+pub(crate) struct LibInspect {
     pub libs: Vec<String>,
     pub symbols: Vec<String>,
 }
 
+#[cfg(test)]
 impl LibInspect {
     /// Inspect library file
     ///
     /// Be sure that `nm -g` and `objdump -p` are executed in this function
     pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, Error> {
+        use std::process::Command;
         let path = path.as_ref();
         if !path.exists() {
             return Err(Error::LibraryNotExist {
@@ -204,20 +208,11 @@ impl LibInspect {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
     fn detail_from_makefile_conf() {
         let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("Makefile.conf");
         assert!(path.exists());
         let detail = MakeConf::new(path).unwrap();
         assert!(!detail.no_fortran);
-    }
-
-    #[test]
-    fn detail_from_nofortran_conf() {
-        let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("nofortran.conf");
-        assert!(path.exists());
-        let detail = MakeConf::new(path).unwrap();
-        assert!(detail.no_fortran);
     }
 }
