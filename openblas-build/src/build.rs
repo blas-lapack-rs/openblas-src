@@ -2,7 +2,6 @@
 
 use crate::{check::*, error::*};
 use std::{env, fs, path::*, process::Command, str::FromStr};
-use walkdir::WalkDir;
 
 /// Interface for 32-bit interger (LP64) and 64-bit integer (ILP64)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -345,12 +344,6 @@ impl Default for Configure {
     }
 }
 
-/// Deliverables of `make` command
-pub struct Deliverables {
-    /// Inspection what `make` command really show.
-    pub make_conf: MakeConf,
-}
-
 impl Configure {
     fn make_args(&self) -> Vec<String> {
         let mut args = Vec::new();
@@ -396,37 +389,6 @@ impl Configure {
         args
     }
 
-    /// Inspect existing build deliverables, and validate them.
-    ///
-    /// Error
-    /// ------
-    /// - No build deliverables exist
-    /// - Build deliverables are not valid
-    ///   - e.g. `self.no_lapack == false`, but the existing library does not contains LAPACK symbols.
-    ///
-    pub fn inspect(&self, out_dir: impl AsRef<Path>) -> Result<Deliverables, Error> {
-        let out_dir = out_dir.as_ref();
-        let make_conf = MakeConf::new(out_dir.join("Makefile.conf"))?;
-        if !self.no_static {
-            let lib_path = out_dir.join("libopenblas.a");
-            if !lib_path.exists() {
-                return Err(Error::LibraryNotExist { path: lib_path });
-            }
-        }
-        if !self.no_shared {
-            let lib_path = if cfg!(target_os = "macos") {
-                out_dir.join("libopenblas.dylib")
-            } else {
-                out_dir.join("libopenblas.so")
-            };
-            if !lib_path.exists() {
-                return Err(Error::LibraryNotExist { path: lib_path });
-            }
-        }
-
-        Ok(Deliverables { make_conf })
-    }
-
     /// Build OpenBLAS
     ///
     /// Libraries are created directly under `out_dir` e.g. `out_dir/libopenblas.a`
@@ -437,42 +399,11 @@ impl Configure {
     ///   This means that the system environment is not appropriate to execute `make`,
     ///   e.g. LAPACK is required but there is no Fortran compiler.
     ///
-    pub fn build(
-        self,
-        openblas_root: impl AsRef<Path>,
-        out_dir: impl AsRef<Path>,
-    ) -> Result<Deliverables, Error> {
-        let out_dir = out_dir.as_ref();
-        if !out_dir.exists() {
-            fs::create_dir_all(out_dir)?;
-        }
-
-        // Do not build if libraries and Makefile.conf already exist and are valid
-        if let Ok(deliv) = self.inspect(out_dir) {
-            return Ok(deliv);
-        }
-
-        // Copy OpenBLAS sources from this crate to `out_dir`
+    pub fn build<P: AsRef<Path>>(self, openblas_root: P) -> Result<MakeConf, Error> {
         let root = openblas_root.as_ref();
-        for entry in WalkDir::new(root) {
-            let entry = entry.expect("Unknown IO error while walkdir");
-            let dest = out_dir.join(
-                entry
-                    .path()
-                    .strip_prefix(root)
-                    .expect("Directory entry is not under root"),
-            );
-            if dest.exists() {
-                // Do not overwrite
-                // Cache of previous build should be cleaned by `cargo clean`
-                continue;
-            }
-            if entry.file_type().is_dir() {
-                fs::create_dir(&dest)?;
-            }
-            if entry.file_type().is_file() {
-                fs::copy(entry.path(), &dest)?;
-            }
+        // Do not build if libraries and Makefile.conf already exist and are valid
+        if let Ok(make_conf) = MakeConf::new(root.join("Makefile.conf")) {
+            return Ok(make_conf);
         }
 
         // check if cross compile is needed
@@ -491,10 +422,10 @@ impl Configure {
         // - cargo sets `TARGET` environment variable as target triple (e.g. x86_64-unknown-linux-gnu)
         //   while binding build.rs, but `make` read it as CPU target specification.
         //
-        let out = fs::File::create(out_dir.join("out.log")).expect("Cannot create log file");
-        let err = fs::File::create(out_dir.join("err.log")).expect("Cannot create log file");
+        let out = fs::File::create(root.join("out.log")).expect("Cannot create log file");
+        let err = fs::File::create(root.join("err.log")).expect("Cannot create log file");
         match Command::new("make")
-            .current_dir(out_dir)
+            .current_dir(root)
             .stdout(out)
             .stderr(err)
             .args(self.make_args())
@@ -506,7 +437,7 @@ impl Configure {
             Err(err @ Error::NonZeroExitStatus { .. }) => {
                 eprintln!(
                     "{}",
-                    fs::read_to_string(out_dir.join("err.log")).expect("Cannot read log file")
+                    fs::read_to_string(root.join("err.log")).expect("Cannot read log file")
                 );
                 return Err(err);
             }
@@ -514,7 +445,8 @@ impl Configure {
                 return Err(e);
             }
         }
-        self.inspect(out_dir)
+
+        MakeConf::new(root.join("Makefile.conf"))
     }
 }
 
@@ -531,62 +463,96 @@ mod tests {
         ));
     }
 
-    fn get_openblas_source() -> PathBuf {
-        let openblas_src_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../openblas-src");
-        crate::download(&openblas_src_root).unwrap()
+    fn get_openblas_source<P: AsRef<Path>>(out_dir: P) -> PathBuf {
+        let openblas_src_root = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../openblas-src/");
+        let source = crate::download(&openblas_src_root).unwrap();
+        // copy files to the target directory
+        let out_dir = out_dir.as_ref();
+        fs::create_dir_all(out_dir).unwrap();
+        for entry in walkdir::WalkDir::new(&source) {
+            let entry = entry.unwrap();
+            let src = entry.path();
+            let dest = out_dir.join(src.strip_prefix(&source).unwrap());
+            if entry.file_type().is_dir() {
+                fs::create_dir_all(&dest).unwrap();
+            } else {
+                fs::copy(src, dest).unwrap();
+            }
+        }
+        out_dir.to_path_buf()
     }
 
     #[ignore]
     #[test]
     fn build_default() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let out_dir = root.join("test_build/build_default");
         let opt = Configure::default();
-        let _detail = opt
-            .build(get_openblas_source(), root.join("test_build/build_default"))
-            .unwrap();
+        let _ = opt.build(get_openblas_source(&out_dir)).unwrap();
     }
 
     #[ignore]
     #[test]
     fn build_no_shared() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let out_dir = root.join("test_build/build_no_shared");
         let mut opt = Configure::default();
         opt.no_shared = true;
-        let detail = opt
-            .build(
-                get_openblas_source(),
-                root.join("test_build/build_no_shared"),
-            )
-            .unwrap();
-        assert!(detail.shared_lib.is_none());
+        opt.build(get_openblas_source(&out_dir)).unwrap();
+        let _ = LibInspect::new(out_dir.join("libopenblas.a")).unwrap();
     }
 
     #[ignore]
     #[test]
     fn build_no_lapacke() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let out_dir = root.join("test_build/build_no_lapacke");
         let mut opt = Configure::default();
         opt.no_lapacke = true;
-        let detail = opt
-            .build(
-                get_openblas_source(),
-                root.join("test_build/build_no_lapacke"),
-            )
-            .unwrap();
-        let shared_lib = detail.shared_lib.unwrap();
-        assert!(shared_lib.has_lapack());
-        assert!(!shared_lib.has_lapacke());
+        let _ = opt.build(get_openblas_source(&out_dir)).unwrap();
+        let lib_name = if cfg!(target_os = "macos") {
+            "libopenblas.dylib"
+        } else {
+            "libopenblas.so"
+        };
+        let lib_inspect = LibInspect::new(out_dir.join(lib_name)).unwrap();
+
+        assert!(lib_inspect.has_lapack());
+        assert!(!lib_inspect.has_lapacke());
+    }
+
+    #[ignore]
+    #[test]
+    fn build_no_cblas() {
+        let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let out_dir = root.join("test_build/build_no_cblas");
+        let mut opt = Configure::default();
+        opt.no_lapacke = true;
+        let _ = opt.build(get_openblas_source(&out_dir)).unwrap();
+        let lib_name = if cfg!(target_os = "macos") {
+            "libopenblas.dylib"
+        } else {
+            "libopenblas.so"
+        };
+        let lib_inspect = LibInspect::new(out_dir.join(lib_name)).unwrap();
+
+        assert!(!lib_inspect.has_cblas());
     }
 
     #[ignore]
     #[test]
     fn build_openmp() {
         let root = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+        let out_dir = root.join("test_build/build_openmp");
         let mut opt = Configure::default();
         opt.use_openmp = true;
-        let detail = opt
-            .build(get_openblas_source(), root.join("test_build/build_openmp"))
-            .unwrap();
-        assert!(detail.shared_lib.unwrap().has_lib("gomp"));
+        let _ = opt.build(get_openblas_source(&out_dir)).unwrap();
+        let lib_name = if cfg!(target_os = "macos") {
+            "libopenblas.dylib"
+        } else {
+            "libopenblas.so"
+        };
+        let lib_inspect = LibInspect::new(out_dir.join(lib_name)).unwrap();
+        assert!(lib_inspect.has_lib("gomp"));
     }
 }

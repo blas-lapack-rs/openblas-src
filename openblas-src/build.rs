@@ -50,7 +50,9 @@ fn windows_msvc_system() {
         env::set_var("VCPKGRS_DYNAMIC", "1");
     }
     #[cfg(target_env = "msvc")]
-    vcpkg::find_package("openblas").unwrap();
+    vcpkg::find_package("openblas").expect(
+        "vcpkg failed to find OpenBLAS package , Try to install it using `vcpkg install openblas:$(ARCH)-windows(-static)(-md)`"
+    );
     if !cfg!(target_env = "msvc") {
         unreachable!();
     }
@@ -194,19 +196,19 @@ fn build() {
     }
 
     let source = openblas_build::download(&output).unwrap();
-    let deliv = cfg.build(source, &output).unwrap();
+    let make_conf = cfg.build(&source).unwrap();
 
-    println!("cargo:rustc-link-search={}", output.display());
-    for search_path in &deliv.make_conf.c_extra_libs.search_paths {
+    println!("cargo:rustc-link-search={}", source.display());
+    for search_path in &make_conf.c_extra_libs.search_paths {
         println!("cargo:rustc-link-search={}", search_path.display());
     }
-    for lib in &deliv.make_conf.c_extra_libs.libs {
+    for lib in &make_conf.c_extra_libs.libs {
         println!("cargo:rustc-link-lib={}", lib);
     }
-    for search_path in &deliv.make_conf.f_extra_libs.search_paths {
+    for search_path in &make_conf.f_extra_libs.search_paths {
         println!("cargo:rustc-link-search={}", search_path.display());
     }
-    for lib in &deliv.make_conf.f_extra_libs.libs {
+    for lib in &make_conf.f_extra_libs.libs {
         println!("cargo:rustc-link-lib={}", lib);
     }
 }

@@ -22,5 +22,6 @@ ureq = { version = "2.5.0", default-features = false, features = [
     "gzip",
 ] }
 native-tls = { version = "0.2.11" }
-walkdir = "2.3.1"
 
+[dev-dependencies]
+walkdir = "2.0"
