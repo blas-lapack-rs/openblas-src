@@ -24,8 +24,11 @@ pub enum Error {
     #[error("Target {} is unsupported", target)]
     UnsupportedTarget { target: String },
 
-    #[error("Insufficient cross compile information, need all of OPENBLAS_{{CC, FC, HOSTCC}}")]
-    MissingCrossCompileInfo,
+    #[error(
+        "Cross compile information is missing and cannot be inferred, {}",
+        info
+    )]
+    MissingCrossCompileInfo { info: String },
 
     #[error("Other IO errors: {0:?}")]
     IOError(#[from] io::Error),

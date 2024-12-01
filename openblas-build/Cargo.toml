@@ -13,6 +13,7 @@ exclude = ["test_build/"]
 
 [dependencies]
 anyhow = "1.0.68"
+cc = "1.0"
 flate2 = "1.0.25"
 tar = "0.4.38"
 thiserror = "2.0"
