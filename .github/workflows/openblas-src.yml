@@ -4,7 +4,17 @@ on:
   push:
     branches:
       - master
-  pull_request: {}
+    paths:
+      - 'openblas-build/**'
+      - 'openblas-src/**'
+      - '.github/workflows/openblas-src.yml'
+      - '*.toml'
+  pull_request: 
+    paths:
+      - 'openblas-build/**'
+      - 'openblas-src/**'
+      - '.github/workflows/openblas-src.yml'
+      - '*.toml'
   workflow_dispatch: {}
 
 jobs:

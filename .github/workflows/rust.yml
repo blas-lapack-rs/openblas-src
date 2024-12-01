@@ -4,7 +4,12 @@ on:
   push:
     branches:
       - master
-  pull_request: {}
+  pull_request: 
+    paths:
+      - 'openblas-build/**'
+      - 'openblas-src/**'
+      - '.github/workflows/rust.yml'
+      - '*.toml'
   workflow_dispatch: {}
 
 jobs:
