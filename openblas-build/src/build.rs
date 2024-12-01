@@ -14,6 +14,8 @@ pub enum Interface {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[allow(non_camel_case_types)] // to use original identifiers
 pub enum Target {
+    // for DYNNAMIC_ARCH=1
+    GENERIC,
     // X86/X86_64 Intel
     P2,
     KATMAI,
@@ -156,6 +158,7 @@ impl FromStr for Target {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let target = match s.to_ascii_lowercase().as_str() {
+            "generic" => Self::GENERIC,
             // X86/X86_64 Intel
             "p2" => Self::P2,
             "katamai" => Self::KATMAI,
@@ -302,6 +305,28 @@ impl FromStr for Target {
     }
 }
 
+impl Target {
+    fn get_generic_target() -> Option<Self> {
+        let target = env::var("TARGET").unwrap();
+        let target_arch = target.split('-').nth(0).unwrap();
+        match target_arch {
+            "aarch64" => Some(Target::ARMV8),
+            "arm" => Some(Target::ARMV6),
+            "armv5te" => Some(Target::ARMV5),
+            "armv6" => Some(Target::ARMV6),
+            "armv7" => Some(Target::ARMV7),
+            "loongarch64" => Some(Target::LOONGSONGENERIC),
+            "mips64" => Some(Target::MIPS64_GENERIC),
+            "mips64el" => Some(Target::MIPS64_GENERIC),
+            "riscv64" => Some(Target::RISCV64_GENERIC),
+            "csky" => Some(Target::CK860FV),
+            "sparc" => Some(Target::SPARCV7),
+            //TODO: add more generic targets
+            _ => None,
+        }
+    }
+}
+
 #[derive(Default, Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Compilers {
     pub cc: Option<String>,
@@ -345,48 +370,101 @@ impl Default for Configure {
 }
 
 impl Configure {
-    fn make_args(&self) -> Vec<String> {
+    fn make_args(&self) -> Result<Vec<String>, Error> {
+        // check if it is cross-compilation
+        let build_target = env::var("TARGET").unwrap_or_default();
+        let build_host = env::var("HOST").unwrap_or_default();
+        let is_cross_compile = build_target != build_host;
+
         let mut args = Vec::new();
         if self.no_static {
-            args.push("NO_STATIC=1".into())
+            args.push("NO_STATIC=1".into());
         }
         if self.no_shared {
-            args.push("NO_SHARED=1".into())
+            args.push("NO_SHARED=1".into());
         }
         if self.no_cblas {
-            args.push("NO_CBLAS=1".into())
+            args.push("NO_CBLAS=1".into());
         }
         if self.no_lapack {
-            args.push("NO_LAPACK=1".into())
+            args.push("NO_LAPACK=1".into());
         }
         if self.no_lapacke {
-            args.push("NO_LAPACKE=1".into())
+            args.push("NO_LAPACKE=1".into());
         }
         if self.use_thread {
-            args.push("USE_THREAD=1".into())
+            args.push("USE_THREAD=1".into());
         }
         if self.use_openmp {
-            args.push("USE_OPENMP=1".into())
+            args.push("USE_OPENMP=1".into());
         }
         if matches!(self.interface, Interface::ILP64) {
-            args.push("INTERFACE64=1".into())
+            args.push("INTERFACE64=1".into());
         }
         if let Some(target) = self.target.as_ref() {
-            args.push(format!("TARGET={:?}", target))
+            args.push(format!("TARGET={:?}", target));
+        } else if is_cross_compile {
+            if let Some(target) = Target::get_generic_target() {
+                args.push(format!("TARGET={:?}", target));
+            } else {
+                return Err(Error::MissingCrossCompileInfo {
+                    info: "TARGET".to_string(),
+                });
+            }
         }
-        if let Some(compiler_cc) = self.compilers.cc.as_ref() {
-            args.push(format!("CC={}", compiler_cc))
+
+        let mut cc_compiler = self.compilers.cc.clone();
+        if let Some(cc) = self.compilers.cc.as_ref() {
+            args.push(format!("CC={}", cc));
+        } else if is_cross_compile {
+            let compiler = cc::Build::new().get_compiler();
+            let compiler_path = compiler.path().to_str();
+            if let Some(cc) = compiler_path {
+                args.push(format!("CC={}", cc));
+                cc_compiler = Some(cc.to_string());
+            } else {
+                return Err(Error::MissingCrossCompileInfo {
+                    info: "CC".to_string(),
+                });
+            }
         }
-        if let Some(compiler_fc) = self.compilers.fc.as_ref() {
-            args.push(format!("FC={}", compiler_fc))
+        if let Some(fc) = self.compilers.fc.as_ref() {
+            args.push(format!("FC={}", fc))
+        } else if is_cross_compile {
+            let mut fortran = false;
+            if let Some(cc) = cc_compiler {
+                let fc = cc
+                    .replace("gcc", "gfortran")
+                    .replace("clang", "flang")
+                    .replace("icc", "ifort");
+
+                if Command::new(&fc).arg("--version").check_call().is_ok() {
+                    args.push(format!("FC={}", fc));
+                    fortran = true;
+                }
+            }
+            if !fortran {
+                println!("cargo:warning=OpenBLAS: Detecting fortran compiler failed. Can only compile BLAS and f2c-converted LAPACK.");
+                args.push("NOFORTRAN=1".into());
+            }
         }
-        if let Some(compiler_hostcc) = self.compilers.hostcc.as_ref() {
-            args.push(format!("HOSTCC={}", compiler_hostcc))
+        if let Some(hostcc) = self.compilers.hostcc.as_ref() {
+            args.push(format!("HOSTCC={}", hostcc))
+        } else if is_cross_compile {
+            let compiler = cc::Build::new().target(build_host.as_str()).get_compiler();
+            let compiler_path = compiler.path().to_str();
+            if let Some(hostcc) = compiler_path {
+                args.push(format!("HOSTCC={}", hostcc));
+            } else {
+                return Err(Error::MissingCrossCompileInfo {
+                    info: "HOSTCC".to_string(),
+                });
+            }
         }
-        if let Some(compiler_ranlib) = self.compilers.ranlib.as_ref() {
-            args.push(format!("RANLIB={}", compiler_ranlib))
+        if let Some(ranlib) = self.compilers.ranlib.as_ref() {
+            args.push(format!("RANLIB={}", ranlib))
         }
-        args
+        Ok(args)
     }
 
     /// Build OpenBLAS
@@ -407,12 +485,12 @@ impl Configure {
         }
 
         // check if cross compile is needed
-        let build_target = env::var("TARGET").unwrap_or_default();
-        let build_host = env::var("HOST").unwrap_or_default();
-        let is_cross_compile = build_target != build_host;
-        if is_cross_compile && (self.compilers.cc.is_none() || self.compilers.hostcc.is_none()) {
-            return Err(Error::MissingCrossCompileInfo);
-        }
+        // let build_target = env::var("TARGET").unwrap_or_default();
+        // let build_host = env::var("HOST").unwrap_or_default();
+        // let is_cross_compile = build_target != build_host;
+        // if is_cross_compile && (self.compilers.cc.is_none() || self.compilers.hostcc.is_none()) {
+        //     return Err(Error::MissingCrossCompileInfo);
+        // }
 
         // Run `make` as an subprocess
         //
@@ -428,7 +506,7 @@ impl Configure {
             .current_dir(root)
             .stdout(out)
             .stderr(err)
-            .args(self.make_args())
+            .args(self.make_args()?)
             .args(["all"])
             .env_remove("TARGET")
             .check_call()
@@ -446,7 +524,11 @@ impl Configure {
             }
         }
 
-        MakeConf::new(root.join("Makefile.conf"))
+        let make_conf = MakeConf::new(root.join("Makefile.conf"))?;
+        if make_conf.no_fortran {
+            println!("cargo:warning=OpenBLAS: Detecting fortran compiler failed. Only BLAS and f2c-converted LAPACK are compiled.");
+        }
+        Ok(make_conf)
     }
 }
 

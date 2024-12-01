@@ -177,6 +177,7 @@ fn build() {
     } else {
         PathBuf::from(env::var("OUT_DIR").unwrap())
     };
+    let source = openblas_build::download(&output).unwrap();
 
     // If OpenBLAS is build as shared, user of openblas-src will have to find `libopenblas.so` at runtime.
     //
@@ -188,15 +189,32 @@ fn build() {
     //
     // Be sure that `cargo:warning` is shown only when openblas-src is build as path dependency...
     // https://doc.rust-lang.org/cargo/reference/build-scripts.html#cargowarningmessage
-    if !feature_enabled("static") && cfg!(not(target_os = "macos")) {
+    if !feature_enabled("static") {
+        let ld_name = if cfg!(target_os = "macos") {
+            "DYLD_LIBRARY_PATH"
+        } else {
+            "LD_LIBRARY_PATH"
+        };
         println!(
-            "cargo:warning=OpenBLAS is built as a shared library. You need to set LD_LIBRARY_PATH={}",
-            output.display()
+            "cargo:warning=OpenBLAS is built as a shared library. You need to set {}={}",
+            ld_name,
+            source.display()
         );
     }
 
-    let source = openblas_build::download(&output).unwrap();
-    let make_conf = cfg.build(&source).unwrap();
+    let build_result = cfg.build(&source);
+    let make_conf = match build_result {
+        Ok(c) => c,
+        Err(openblas_build::error::Error::MissingCrossCompileInfo { info }) => {
+            panic!(
+                "Cross compile information is missing and cannot be inferred: OPENBLAS_{}",
+                info
+            );
+        }
+        Err(e) => {
+            panic!("OpenBLAS build failed: {}", e);
+        }
+    };
 
     println!("cargo:rustc-link-search={}", source.display());
     for search_path in &make_conf.c_extra_libs.search_paths {
