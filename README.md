@@ -11,8 +11,24 @@ The following Cargo features are supported:
 * `cache` to build in a shared directory instead of `target` (see below),
 * `cblas` to build CBLAS (enabled by default),
 * `lapacke` to build LAPACKE (enabled by default),
-* `static` to link to OpenBLAS statically, and
+* `static` to link to OpenBLAS statically,
 * `system` to skip building the bundled OpenBLAS.
+
+Note: On Windows, OpenBLAS can not be built from source. The `system` feature is 
+supposed to be used.
+
+## Dependencies
+
+If you want to build OpenBLAS from source, you need to have the following dependencies
+installed:
+
+* HOSTCC compiler (e.g., `gcc`, `clang`, or `icc`),
+* `make`,
+* CC compiler of the target architecture (e.g., `aarch64-linux-gnu-gcc` for `aarch64`),
+* Fortran compiler of the target architecture(e.g., `gfortran`, `flang`, or `ifort`),
+if there is no Fortran compiler detected, the flag `NOFORTRAN` should be set to `1`
+and `OpenBLAS` will only compile BLAS and f2c-converted LAPACK. For more information,
+please refer to the [Use f2c translations of LAPACK when no Fortran compiler is available][f2c-translations].
 
 ## Caching
 
@@ -45,7 +61,8 @@ To link OpenBLAS statically, install `openblas` for the `x64-windows-static-md` 
 vcpkg install openblas --triplet x64-windows-static-md
 ```
 
-To link OpenBLAS and C Runtime (CRT) statically, install `openblas` for the `x64-windows-static` triplet:
+To link OpenBLAS and C Runtime (CRT) statically, install `openblas` for the 
+`x64-windows-static` triplet:
 
 ```sh
 vcpkg install openblas --triplet x64-windows-static
@@ -53,13 +70,37 @@ vcpkg install openblas --triplet x64-windows-static
 
 and build with `+crt-static` option
 
-```
+```sh
 RUSTFLAGS='-C target-feature=+crt-static' cargo build --target x86_64-pc-windows-msvc
 ```
 
-Please see the ["Static and dynamic C runtimes" in The Rust reference](https://doc.rust-lang.org/reference/linkage.html#static-and-dynamic-c-runtimes) for detail.
+Please see the ["Static and dynamic C runtimes" in The Rust reference][crt-static] for detail.
 
-## Cross Compilation
+## ENV variables
+
+### Proxy
+
+The `openblas-src` crate will detect and use proxy settings from your environment
+variables, such as `http_proxy` and `https_proxy` to download necessary dependencies.
+
+### Build System through OpenBLAS
+
+According to the [OpenbLAS build system], the variables used by OpenBLAS could be
+passed through environment, such as `DYNAMIC_LIST`, `NUM_THREADS`.
+
+**HOWEVER**, for some of the variables, the `openblas-src` crate rename them to
+others to avoid conflicts with the existing envs. The following is the list of
+the variables that are renamed:
+
+| OpenBLAS variable | openblas-src variable |
+| ----------------- | --------------------- |
+| TARGET            | OPENBLAS_TARGET       |
+| CC                | OPENBLAS_CC           |
+| FC                | OPENBLAS_FC           |
+| HOSTCC            | OPENBLAS_HOSTCC       |
+| RANLIB            | OPENBLAS_RANLIB       |
+
+## Cross-compile
 
 Apart from providing the `--target` option to `cargo build`, one also has to
 specify the [cross-compilation variables of OpenBLAS][openblas-cross-compile].
@@ -67,9 +108,37 @@ They can be set as environment variables for `cargo build` using the `OPENBLAS_`
 prefix as follows: `OPENBLAS_CC`, `OPENBLAS_FC`, `OPENBLAS_HOSTCC`, and
 `OPENBLAS_TARGET`.
 
-## Proxy issues
+If you do not set these variables, the `openblas-build` will try to detect them.
 
-The `openblas-src` crate will detect and use proxy settings from your environment variables, such as `http_proxy` and `https_proxy` to download necessary dependencies. 
+For `OPENBLAS_TARGET`, the basic target that corresponds to the arch of `--target`
+will be used.
+
+| Rust target | OpenBLAS target |
+| ----------- | --------------- |
+| aarch64     | ARMV8           |
+| arm         | ARMV6           |
+| armv5te     | ARMV5           |
+| armv6       | ARMV6           |
+| armv7       | ARMV7           |
+| loongarch64 | LOONGSONGENERIC |
+| mips64      | MIPS64_GENERIC  |
+| mips64el    | MIPS64_GENERIC  |
+| riscv64     | RISCV64_GENERIC |
+| csky        | CK860FV         |
+| sparc       | SPARCV7         |
+
+For `OPENBLAS_CC` and `OPENBLAS_HOSTCC`, the `cc` crate will be used to detect
+the compiler. Please refer to the [cc documentation](https://docs.rs/cc/latest/cc/)
+for more information.
+
+For `OPENBLAS_FC`, `openblas-build` will try to detect the compiler through the
+`OPENBLAS_CC` set above. It will replace the `gcc` with `gfortran`, `clang` with
+`flang`, and `icc` with `ifort` and then test if the Fortran compiler exists.
+
+Note: If there is no Fortran compiler detected, the build flag `NOFORTRAN` will
+be set to `1` and `OpenBLAS` will only compile BLAS and f2c-converted LAPACK.
+For more information, please refer to the 
+[Use f2c translations of LAPACK when no Fortran compiler is available][f2c-translations].
 
 ## Contribution
 
@@ -80,9 +149,12 @@ will be licensed according to the terms given in [LICENSE.md](LICENSE.md).
 [architecture]: https://blas-lapack-rs.github.io/architecture
 [blas]: https://en.wikipedia.org/wiki/BLAS
 [lapack]: https://en.wikipedia.org/wiki/LAPACK
-[openblas]: http://www.openblas.net/
-[openblas-cross-compile]: https://github.com/xianyi/OpenBLAS#cross-compile
+[OpenBLAS]: http://www.openmathlib.org/OpenBLAS/
+[openblas-cross-compile]: http://www.openmathlib.org/OpenBLAS/docs/user_manual/#cross-compile
+[OpenbLAS build system]: http://www.openmathlib.org/OpenBLAS/docs/build_system/
 [vcpkg]: https://github.com/Microsoft/vcpkg
+[f2c-translations]: https://github.com/OpenMathLib/OpenBLAS/pull/3539
+[crt-static]: https://doc.rust-lang.org/reference/linkage.html#static-and-dynamic-c-runtimes
 
 [build-img]: https://github.com/blas-lapack-rs/openblas-src/workflows/Rust/badge.svg
 [build-url]: https://github.com/blas-lapack-rs/openblas-src/actions?query=workflow%3ARust
