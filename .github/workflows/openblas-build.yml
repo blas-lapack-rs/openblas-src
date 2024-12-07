@@ -4,7 +4,12 @@ on:
   push:
     branches:
       - master
-  pull_request: {}
+    paths:
+      - 'openblas-build/**'
+      - '.github/workflows/openblas-build.yml'
+  pull_request: 
+    paths:
+      - 'openblas-build/**'
   workflow_dispatch: {}
 
 jobs:
