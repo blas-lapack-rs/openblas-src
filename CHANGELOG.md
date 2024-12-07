@@ -1,6 +1,8 @@
 # CHANGELOG
 
-[Unreleased](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.8...master)
+[Unreleased](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.9...master)
+
+[0.10.10 - 2024-12-08](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.9...v0.10.10)
 -----------
 
 ### What's Changed
@@ -14,7 +16,7 @@ Refactor code, Drop LAPACKE inspection, Drop FORTRAN check by @Dirreke in https:
 * Detect TARGET, CC, HOSTCC, FC automically when cross-compiling by @Dirreke in https://github.com/blas-lapack-rs/openblas-src/pull/129
 * Update README and CHANGELOGS by @Dirreke in  https://github.com/blas-lapack-rs/openblas-src/pull/130
 
-[0.10.9 - 2022-12-25](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.8...openblas-src-v0.10.9)
+[0.10.9 - 2024-02-03](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.8...openblas-src-v0.10.9)
 --------------------
 
 ### What's Changed
@@ -25,14 +27,14 @@ Refactor code, Drop LAPACKE inspection, Drop FORTRAN check by @Dirreke in https:
 * respect OPENBLAS_{{CC, FC, HOSTCC}} env vars on linux by @mike-kfed in https://github.com/blas-lapack-rs/openblas-src/pull/102
 * Use macos-14 instance for CI by @termoshtt in https://github.com/blas-lapack-rs/openblas-src/pull/112
 
-[0.10.8 - 2022-12-25](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.7...openblas-src-v0.10.8)
+[0.10.8 - 2024-02-03](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.7...openblas-src-v0.10.8)
 --------------------
 
 ### What's Changed
 
 * Use native-tls/native-certs features of ureq crate by @lazareviczoran in https://github.com/blas-lapack-rs/openblas-src/pull/98
 
-[0.10.7 - 2022-12-25](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.5...openblas-src-v0.10.7)
+[0.10.7 - 2023-01-14](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.5...openblas-src-v0.10.7)
 --------------------
 
 0.10.6 has been yanked
