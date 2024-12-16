@@ -3,3 +3,6 @@ members = [
   "openblas-src",
   "openblas-build",
 ]
+
+[workspace.package]
+rust-version = "1.71.1"

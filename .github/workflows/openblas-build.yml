@@ -22,8 +22,6 @@ jobs:
           - build_no_lapacke
           - build_no_shared
           - build_openmp
-    container:
-      image: rust
     env:
       RUST_BACKTRACE: 1
     steps:
@@ -32,8 +30,8 @@ jobs:
           submodules: "recursive"
       - name: Install gfortran by apt
         run: |
-          apt update
-          apt install -y gfortran
+          sudo apt update
+          sudo apt install -y gfortran
       - name: Common minor tests
         run: cargo test  --manifest-path=openblas-build/Cargo.toml
       - name: Build test

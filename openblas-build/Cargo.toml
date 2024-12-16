@@ -10,6 +10,7 @@ homepage = "https://github.com/blas-lapack-rs/openblas-src"
 repository = "https://github.com/blas-lapack-rs/openblas-src"
 readme = "../README.md"
 exclude = ["test_build/"]
+rust-version = "1.71.1"
 
 [dependencies]
 anyhow = "1.0.68"
@@ -17,7 +18,7 @@ cc = "1.0"
 flate2 = "1.0.25"
 tar = "0.4.38"
 thiserror = "2.0"
-ureq = { version = "2.5.0", default-features = false, features = [
+ureq = { version = "2.8", default-features = false, features = [
     "native-certs",
     "native-tls",
     "gzip",
