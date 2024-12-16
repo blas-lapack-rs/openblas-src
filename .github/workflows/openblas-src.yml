@@ -109,7 +109,7 @@ jobs:
   
   cross:
     name: ${{matrix.target}} (${{matrix.feature}})
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
@@ -132,3 +132,16 @@ jobs:
           tool: cross
       - name: Test features=${{ matrix.feature }}
         run: cross test --target ${{matrix.target}} --features=${{ matrix.feature }} --manifest-path=openblas-src/Cargo.toml
+  msrv-test:
+    name: MSRV test
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OpenBLAS by apt
+        run: |
+          apt update
+          apt install -y libopenblas-dev
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@1.71
+      - name: cargo test
+        run: cargo check --manifest-path=openblas-src/Cargo.toml --features=system

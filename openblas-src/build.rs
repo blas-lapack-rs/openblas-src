@@ -157,7 +157,10 @@ fn build() {
     cfg.compilers.ranlib = env::var("OPENBLAS_RANLIB").ok();
 
     let output = if feature_enabled("cache") {
-        use std::hash::*;
+        use std::{
+            collections::hash_map::DefaultHasher,
+            hash::{Hash, Hasher},
+        };
         // Build OpenBLAS on user's data directory.
         // See https://docs.rs/dirs/5.0.1/dirs/fn.data_dir.html
         //
