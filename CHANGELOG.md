@@ -1,6 +1,14 @@
 # CHANGELOG
 
 [Unreleased](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.9...master)
+-----------
+
+[0.10.11 - 2024-12-19](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.10...v0.10.11)
+-----------
+
+### What's Changed
+
+* Set MSRV to 1.71.1 and add CI to test MSRV by @Dirreke https://github.com/blas-lapack-rs/openblas-src/pull/134
 
 [0.10.10 - 2024-12-08](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.9...v0.10.10)
 -----------
