@@ -33,6 +33,6 @@ jobs:
           sudo apt update
           sudo apt install -y gfortran
       - name: Common minor tests
-        run: cargo test  --manifest-path=openblas-build/Cargo.toml
+        run: cargo test -p openblas-build
       - name: Build test
-        run: cargo test ${{ matrix.test_target }} --manifest-path=openblas-build/Cargo.toml -- --ignored
+        run: cargo test ${{ matrix.test_target }} -p openblas-build -- --ignored

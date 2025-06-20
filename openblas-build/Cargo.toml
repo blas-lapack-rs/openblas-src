@@ -18,8 +18,7 @@ cc = "1.0"
 flate2 = "1.0.25"
 tar = "0.4.38"
 thiserror = "2.0"
-ureq = { version = "2.8", default-features = false, features = [
-    "native-certs",
+ureq = { version = "3.0", default-features = false, features = [
     "native-tls",
     "gzip",
 ] }

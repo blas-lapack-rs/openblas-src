@@ -42,19 +42,19 @@ jobs:
         run: |
           ./vcpkg/vcpkg.exe install openblas:${{ matrix.triple }}
       - name: Test features=system
-        run: cargo test --features=system --manifest-path=openblas-src/Cargo.toml
+        run: cargo test --features=system -p openblas-src
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         if: ${{ matrix.triple == 'x64-windows' }}
 
       - name: Test features=system,static
-        run: cargo test --features=system,static --manifest-path=openblas-src/Cargo.toml
+        run: cargo test --features=system,static -p openblas-src
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
         if: ${{ matrix.triple == 'x64-windows-static-md' }}
 
       - name: Test features=system,static with crt-static
-        run: cargo test --features=system,static --manifest-path=openblas-src/Cargo.toml
+        run: cargo test --features=system,static -p openblas-src
         env:
           VCPKG_ROOT: ${{ github.workspace }}/vcpkg
           RUSTFLAGS: "-C target-feature=+crt-static"
@@ -78,7 +78,7 @@ jobs:
           brew install openblas
         if: ${{ contains(matrix.feature, 'system') }}
       - name: Test features=${{ matrix.feature }}
-        run: cargo test --features=${{ matrix.feature }} --manifest-path=openblas-src/Cargo.toml
+        run: cargo test --features=${{ matrix.feature }} -p openblas-src
 
   x86_64-unknown-linux-gnu:
     runs-on: ubuntu-22.04
@@ -103,7 +103,7 @@ jobs:
           sudo apt install -y libopenblas-dev
         if: ${{ contains(matrix.feature, 'system') }}
       - name: Test features=${{ matrix.feature }}
-        run: cargo test --features=${{ matrix.feature }} --manifest-path=openblas-src/Cargo.toml
+        run: cargo test --features=${{ matrix.feature }} -p openblas-src
   
   cross:
     name: ${{matrix.target}} (${{matrix.feature}})
@@ -139,7 +139,9 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libopenblas-dev
+      - name: ensure dependencies
+        run: CARGO_RESOLVER_INCOMPATIBLE_RUST_VERSIONS="fallback" cargo update
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@1.71
-      - name: cargo test
-        run: cargo check --manifest-path=openblas-src/Cargo.toml --features=system
+      - name: Test MSRV
+        run: cargo check -p openblas-src --locked --features=system
