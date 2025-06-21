@@ -137,8 +137,11 @@ pub enum Target {
 
     // LOONGARCH64:
     LOONGSONGENERIC,
-    LOONGSON3R5,
     LOONGSON2K1000,
+    LOONGSON3R5,
+    LA64_GENERIC,
+    LA264,
+    LA464,
 
     // Elbrus E2000:
     E2K,
@@ -280,8 +283,11 @@ impl FromStr for Target {
 
             // LOONGARCH64:
             "loongsongeneric" => Self::LOONGSONGENERIC,
-            "longson3r5" => Self::LOONGSON3R5,
             "longson2k1000" => Self::LOONGSON2K1000,
+            "longson3r5" => Self::LOONGSON3R5,
+            "la64_generic" => Self::LA64_GENERIC,
+            "la264" => Self::LA264,
+            "la464" => Self::LA464,
 
             // Elbrus E2000:
             "e2k" => Self::E2K,
