@@ -1,7 +1,15 @@
 # CHANGELOG
 
-[Unreleased](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.9...master)
+[Unreleased](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.12...master)
 -----------
+
+[0.10.12 - 2025-06-21](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.11...v0.10.12)
+-----------
+
+### What's Changed
+
+* Remove unused deps by @Dirreke in https://github.com/blas-lapack-rs/openblas-src/pull/138
+* Bump ureq from 2 to 3. Bump openblas from 0.3.28 to 0.3.30 by @Dirreke in https://github.com/blas-lapack-rs/openblas-src/pull/137
 
 [0.10.11 - 2024-12-19](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.10...v0.10.11)
 -----------
