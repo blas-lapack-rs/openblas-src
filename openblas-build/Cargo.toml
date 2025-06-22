@@ -1,6 +1,6 @@
 [package]
 name = "openblas-build"
-version = "0.10.11"
+version = "0.10.12"
 license = "Apache-2.0/MIT"
 edition = "2018"
 authors = ["Toshiki Teramura <toshiki.teramura@gmail.com>"]
@@ -20,9 +20,7 @@ tar = "0.4.38"
 thiserror = "2.0"
 ureq = { version = "3.0", default-features = false, features = [
     "native-tls",
-    "gzip",
 ] }
-native-tls = { version = "0.2.11" }
 
 [dev-dependencies]
 walkdir = "2.0"
