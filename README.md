@@ -100,6 +100,15 @@ the variables that are renamed:
 | HOSTCC            | OPENBLAS_HOSTCC       |
 | RANLIB            | OPENBLAS_RANLIB       |
 
+### Variables emitted by build.rs
+
+This crate exports the following environment variables for downstream crates’ build scripts:
+
+- `DEP_OPENBLAS_INCLUDE`: Absolute path to the OpenBLAS C headers directory (e.g., a directory that
+      contains `cblas.h`, `lapacke.h` when enabled).
+- `DEP_OPENBLAS_LIBRARY`: Absolute path to the produced OpenBLAS library artifact (e.g., `libopenblas.a`,
+      `libopenblas.so`, `openblas.lib`, depending on platform/linking).
+
 ## Cross-compile
 
 Apart from providing the `--target` option to `cargo build`, one also has to

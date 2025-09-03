@@ -28,6 +28,15 @@ fn feature_enabled(feature: &str) -> bool {
 ///   - msys2 `/` is `C:\msys64\` in Windows by default install
 ///   - It can be convert using `cygpath` command
 fn windows_gnu_system() {
+    let include_path = String::from_utf8(
+        Command::new("cygpath")
+            .arg("-w")
+            .arg("/mingw64/include")
+            .output()
+            .expect("Failed to exec cygpath")
+            .stdout,
+    )
+    .expect("cygpath output includes non UTF-8 string");
     let lib_path = String::from_utf8(
         Command::new("cygpath")
             .arg("-w")
@@ -42,6 +51,8 @@ fn windows_gnu_system() {
     )
     .expect("cygpath output includes non UTF-8 string");
     println!("cargo:rustc-link-search={}", lib_path);
+    println!("cargo:INCLUDE={}", include_path);
+    println!("cargo:LIBRARY={}", lib_path);
 }
 
 /// Use vcpkg for msvc "system" feature
@@ -75,6 +86,8 @@ fn macos_system() {
 
     println!("cargo:rustc-link-search={}/lib", openblas.display());
     println!("cargo:rustc-link-search={}/lib", libomp.display());
+    println!("cargo:INCLUDE={}", openblas.join("include").display());
+    println!("cargo:LIBRARY={}", openblas.join("lib").display());
 }
 
 fn main() {
@@ -219,6 +232,8 @@ fn build() {
     };
 
     println!("cargo:rustc-link-search={}", source.display());
+    println!("cargo:INCLUDE={}", source.display());
+    println!("cargo:LIBRARY={}", source.display());
     for search_path in &make_conf.c_extra_libs.search_paths {
         println!("cargo:rustc-link-search={}", search_path.display());
     }
