@@ -111,7 +111,6 @@ fn main() {
         if cfg!(target_os = "macos") {
             macos_system();
         }
-        println!("cargo:rustc-link-lib={}=openblas", link_kind);
     } else {
         if cfg!(target_env = "msvc") {
             panic!(
