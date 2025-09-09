@@ -1,7 +1,17 @@
 # CHANGELOG
 
-[Unreleased](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.12...master)
+[Unreleased](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.13...master)
 -----------
+
+[0.10.13 - 2025-09-09](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.12...v0.10.13)
+-----------
+
+## What's Changed
+* Remove duplicated link instructions by @jkawamoto in https://github.com/blas-lapack-rs/openblas-src/pull/141
+* Export path to libopenblas for external usage by @jkawamoto in https://github.com/blas-lapack-rs/openblas-src/pull/142
+
+## New Contributors
+* @jkawamoto made their first contribution in https://github.com/blas-lapack-rs/openblas-src/pull/141
 
 [0.10.12 - 2025-06-21](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.11...v0.10.12)
 -----------
