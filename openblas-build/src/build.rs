@@ -324,7 +324,7 @@ impl Target {
             "loongarch64" => Some(Target::LOONGSONGENERIC),
             "mips64" => Some(Target::MIPS64_GENERIC),
             "mips64el" => Some(Target::MIPS64_GENERIC),
-            "riscv64" => Some(Target::RISCV64_GENERIC),
+            "riscv64gc" => Some(Target::RISCV64_GENERIC),
             "csky" => Some(Target::CK860FV),
             "sparc" => Some(Target::SPARCV7),
             //TODO: add more generic targets
