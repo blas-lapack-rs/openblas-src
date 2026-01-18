@@ -62,6 +62,7 @@ pub enum Target {
     POWER8,
     POWER9,
     POWER10,
+    POWER11,
     PPCG4,
     PPC970,
     PPC970MP,
@@ -111,6 +112,7 @@ pub enum Target {
     NEOVERSEN1,
     NEOVERSEV1,
     NEOVERSEN2,
+    NEOVERSEV2,
     CORTEXA55,
     EMAG8180,
     FALKOR,
@@ -119,8 +121,10 @@ pub enum Target {
     TSV110,
     THUNDERX3T110,
     VORTEX,
+    VORTEXM4,
     A64FX,
     ARMV8SVE,
+    ARMV9SME,
     FT2000,
 
     // System Z
@@ -208,6 +212,7 @@ impl FromStr for Target {
             "power8" => Self::POWER8,
             "power9" => Self::POWER9,
             "power10" => Self::POWER10,
+            "power11" => Self::POWER11,
             "ppcg4" => Self::PPCG4,
             "ppc970" => Self::PPC970,
             "ppc970mp" => Self::PPC970MP,
@@ -257,6 +262,7 @@ impl FromStr for Target {
             "neoversen1" => Self::NEOVERSEN1,
             "neoversev1" => Self::NEOVERSEV1,
             "neoversen2" => Self::NEOVERSEN2,
+            "neoversev2" => Self::NEOVERSEV2,
             "cortexa55" => Self::CORTEXA55,
             "emag8180" => Self::EMAG8180,
             "falkor" => Self::FALKOR,
@@ -265,8 +271,10 @@ impl FromStr for Target {
             "tsv110" => Self::TSV110,
             "thunderx3t110" => Self::THUNDERX3T110,
             "vortex" => Self::VORTEX,
+            "vortexm4" => Self::VORTEXM4,
             "a64fx" => Self::A64FX,
             "armv8sve" => Self::ARMV8SVE,
+            "armv9sme" => Self::ARMV9SME,
             "ft2000" => Self::FT2000,
 
             // System Z
