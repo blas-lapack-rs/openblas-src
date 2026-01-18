@@ -10,7 +10,7 @@ pub enum Interface {
     ILP64,
 }
 
-/// CPU list in [TargetList](https://github.com/xianyi/OpenBLAS/blob/v0.3.10/TargetList.txt)
+/// CPU list in [TargetList](https://github.com/OpenMathLib/OpenBLAS/blob/develop/TargetList.txt)
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[allow(non_camel_case_types)] // to use original identifiers
 pub enum Target {
