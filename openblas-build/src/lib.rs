@@ -10,7 +10,7 @@
 //! and inspects its deliverables using [GNU binutils][binutils] (`nm` and `objdump`).
 //!
 //! [binutils]: https://www.gnu.org/software/binutils/
-//! [OpenBLAS]: https://github.com/xianyi/OpenBLAS
+//! [OpenBLAS]: https://github.com/OpenMathLib/OpenBLAS
 
 mod build;
 mod check;

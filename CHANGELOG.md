@@ -1,7 +1,14 @@
 # CHANGELOG
 
-[Unreleased](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.13...master)
+[Unreleased](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.14...master)
 -----------
+
+[0.10.14 - 2026-01-28](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.13...v0.10.14)
+-----------
+
+## What's Changed
+* Fix RISC-V target by @Dirreke in https://github.com/blas-lapack-rs/openblas-src/pull/146
+* Update OpenBLAS version to 0.3.31 by @Dirreke in https://github.com/blas-lapack-rs/openblas-src/pull/147
 
 [0.10.13 - 2025-09-09](https://github.com/blas-lapack-rs/openblas-src/compare/openblas-src-v0.10.12...v0.10.13)
 -----------
