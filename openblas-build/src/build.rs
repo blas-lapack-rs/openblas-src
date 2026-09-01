@@ -138,8 +138,14 @@ pub enum Target {
     C910V,
     x280,
     RISCV64_ZVL236B,
+    U74, //(e.g. SiFive U74 / StarFive JH7110 / VisionFive 2)
 
     // LOONGARCH64:
+    // LOONGSONGENERIC/LOONGSON2K1000/LOONGSON3R5 are legacy names,
+    // and it is recommended to use the more standardized naming conventions
+    // LA64_GENERIC/LA264/LA464. You can still specify TARGET as
+    // LOONGSONGENERIC/LOONGSON2K1000/LOONGSON3R5 during compilation or runtime,
+    // and they will be internally relocated to LA64_GENERIC/LA264/LA464.
     LOONGSONGENERIC,
     LOONGSON2K1000,
     LOONGSON3R5,
