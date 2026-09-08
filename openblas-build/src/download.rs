@@ -8,7 +8,7 @@ use ureq::{
 #[cfg(not(any(feature = "rustls", feature = "native-tls")))]
 compile_error!("openblas-build requires the `rustls` or `native-tls` feature to be enabled");
 
-const OPENBLAS_VERSION: &str = "0.3.32";
+const OPENBLAS_VERSION: &str = "0.3.34";
 
 pub fn openblas_source_url() -> String {
     format!(
